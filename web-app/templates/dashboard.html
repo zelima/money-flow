@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🇬🇪 Georgian Budget Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .status {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .status.error {
+            background: #fee;
+            border-left: 4px solid #e53e3e;
+        }
+        
+        .status.success {
+            background: #f0fff4;
+            border-left: 4px solid #38a169;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4A90E2;
+            margin-bottom: 10px;
+        }
+        
+        .metric-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .controls {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .controls h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .filter-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .filter-group select, .filter-group button {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .filter-group button {
+            background: #4A90E2;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .filter-group button:hover {
+            background: #357abd;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chart-card h3 {
+            margin-bottom: 15px;
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+        }
+        
+        .data-table {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+        
+        .data-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-card {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🇬🇪 Georgian Government Budget Analysis</h1>
+            <p>Where does our money go as Georgian citizens?</p>
+        </div>
+        
+        <div id="status" class="status">
+            <div class="loading">Connecting to API...</div>
+        </div>
+        
+        <div id="metrics" class="metrics-grid" style="display: none;">
+            <div class="metric-card">
+                <div id="total-records" class="metric-value">-</div>
+                <div class="metric-label">Total Records</div>
+            </div>
+            <div class="metric-card">
+                <div id="year-range" class="metric-value">-</div>
+                <div class="metric-label">Years Covered</div>
+            </div>
+            <div class="metric-card">
+                <div id="total-budget" class="metric-value">-</div>
+                <div class="metric-label">Total Budget (Million ₾)</div>
+            </div>
+            <div class="metric-card">
+                <div id="departments-count" class="metric-value">-</div>
+                <div class="metric-label">Departments</div>
+            </div>
+        </div>
+        
+        <div id="controls" class="controls" style="display: none;">
+            <h3>🔍 Filters</h3>
+            <div class="filter-group">
+                <select id="year-filter">
+                    <option value="">All Years</option>
+                </select>
+                <select id="department-filter">
+                    <option value="">All Departments</option>
+                </select>
+                <button onclick="updateCharts()">Apply Filters</button>
+                <button onclick="downloadData()">📥 Download CSV</button>
+            </div>
+        </div>
+        
+        <div id="charts" class="charts-grid" style="display: none;">
+            <div class="chart-card">
+                <h3>📊 Budget by Year</h3>
+                <div class="chart-container">
+                    <canvas id="yearChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>🏛️ Budget by Department</h3>
+                <div class="chart-container">
+                    <canvas id="departmentChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div id="data-section" class="data-table" style="display: none;">
+            <h3>📋 Budget Data</h3>
+            <div id="table-container"></div>
+        </div>
+        
+        <div class="footer">
+            <p>📊 Georgian Budget Analysis Dashboard</p>
+            <p>Data source: geostat.ge | Built with Flask & Chart.js</p>
+        </div>
+    </div>
+
+    <script>
+        let currentData = [];
+        let allDepartments = [];
+        let yearChart, departmentChart;
+        
+        // Initialize dashboard
+        async function init() {
+            await checkApiHealth();
+            await loadSummary();
+            await loadDepartments();
+            await loadInitialData();
+            setupCharts();
+        }
+        
+        async function checkApiHealth() {
+            try {
+                const response = await fetch('/api/health');
+                const health = await response.json();
+                
+                const statusDiv = document.getElementById('status');
+                if (health.status === 'healthy') {
+                    statusDiv.className = 'status success';
+                    statusDiv.innerHTML = `✅ API Connected (${health.records_count || 0} records available)`;
+                } else {
+                    throw new Error('API not healthy');
+                }
+            } catch (error) {
+                const statusDiv = document.getElementById('status');
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = '❌ Cannot connect to API. Make sure the FastAPI server is running on port 8000.';
+                throw error;
+            }
+        }
+        
+        async function loadSummary() {
+            try {
+                const response = await fetch('/api/summary');
+                const summary = await response.json();
+                
+                document.getElementById('total-records').textContent = summary.total_records?.toLocaleString() || '-';
+                document.getElementById('year-range').textContent = summary.year_range ? `${summary.year_range[0]}-${summary.year_range[1]}` : '-';
+                document.getElementById('total-budget').textContent = summary.total_budget ? summary.total_budget.toLocaleString(undefined, {maximumFractionDigits: 1}) + 'M ₾' : '-';
+                document.getElementById('departments-count').textContent = summary.departments_count || '-';
+                
+                // Populate year filter
+                if (summary.year_range) {
+                    const yearFilter = document.getElementById('year-filter');
+                    for (let year = summary.year_range[0]; year <= summary.year_range[1]; year++) {
+                        const option = document.createElement('option');
+                        option.value = year;
+                        option.textContent = year;
+                        yearFilter.appendChild(option);
+                    }
+                }
+                
+                document.getElementById('metrics').style.display = 'grid';
+            } catch (error) {
+                console.error('Error loading summary:', error);
+            }
+        }
+        
+        async function loadDepartments() {
+            try {
+                const response = await fetch('/api/departments');
+                allDepartments = await response.json();
+                
+                const departmentFilter = document.getElementById('department-filter');
+                allDepartments.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept;
+                    option.textContent = dept.length > 50 ? dept.substring(0, 50) + '...' : dept;
+                    departmentFilter.appendChild(option);
+                });
+                
+                document.getElementById('controls').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading departments:', error);
+            }
+        }
+        
+        async function loadInitialData() {
+            await updateCharts();
+        }
+        
+        async function updateCharts() {
+            const year = document.getElementById('year-filter').value;
+            const department = document.getElementById('department-filter').value;
+            
+            try {
+                let url = '/api/budget?limit=1000';
+                if (year) url += `&year=${year}`;
+                if (department) url += `&department=${encodeURIComponent(department)}`;
+                
+                const response = await fetch(url);
+                currentData = await response.json();
+                
+                updateYearChart();
+                updateDepartmentChart();
+                updateDataTable();
+                
+                document.getElementById('charts').style.display = 'grid';
+                document.getElementById('data-section').style.display = 'block';
+            } catch (error) {
+                console.error('Error updating charts:', error);
+            }
+        }
+        
+        function setupCharts() {
+            const yearCtx = document.getElementById('yearChart').getContext('2d');
+            const departmentCtx = document.getElementById('departmentChart').getContext('2d');
+            
+            yearChart = new Chart(yearCtx, {
+                type: 'line',
+                data: { labels: [], datasets: [] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: 'Budget Trends Over Time' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Budget (Million ₾)' } }
+                    }
+                }
+            });
+            
+            departmentChart = new Chart(departmentCtx, {
+                type: 'doughnut',
+                data: { labels: [], datasets: [] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: 'Budget Distribution by Department' },
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+        
+        function updateYearChart() {
+            const yearData = {};
+            currentData.forEach(record => {
+                yearData[record.year] = (yearData[record.year] || 0) + record.budget;
+            });
+            
+            const years = Object.keys(yearData).sort();
+            const budgets = years.map(year => yearData[year]);
+            
+            yearChart.data.labels = years;
+            yearChart.data.datasets = [{
+                label: 'Total Budget',
+                data: budgets,
+                borderColor: '#4A90E2',
+                backgroundColor: 'rgba(74, 144, 226, 0.1)',
+                fill: true,
+                tension: 0.1
+            }];
+            yearChart.update();
+        }
+        
+        function updateDepartmentChart() {
+            const deptData = {};
+            currentData.forEach(record => {
+                const shortName = record.name.length > 30 ? record.name.substring(0, 30) + '...' : record.name;
+                deptData[shortName] = (deptData[shortName] || 0) + record.budget;
+            });
+            
+            const sortedDepts = Object.entries(deptData)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 8); // Show top 8 departments
+            
+            const labels = sortedDepts.map(d => d[0]);
+            const data = sortedDepts.map(d => d[1]);
+            
+            departmentChart.data.labels = labels;
+            departmentChart.data.datasets = [{
+                data: data,
+                backgroundColor: [
+                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                    '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+                ]
+            }];
+            departmentChart.update();
+        }
+        
+        function updateDataTable() {
+            const container = document.getElementById('table-container');
+            
+            if (currentData.length === 0) {
+                container.innerHTML = '<p>No data available for the selected filters.</p>';
+                return;
+            }
+            
+            // Sort by year desc, then budget desc
+            const sortedData = [...currentData].sort((a, b) => {
+                if (a.year !== b.year) return b.year - a.year;
+                return b.budget - a.budget;
+            });
+            
+            const table = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Department</th>
+                            <th>Budget (Million ₾)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${sortedData.slice(0, 50).map(record => `
+                            <tr>
+                                <td>${record.year}</td>
+                                <td>${record.name}</td>
+                                <td>${record.budget.toLocaleString(undefined, {maximumFractionDigits: 1})}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                ${sortedData.length > 50 ? `<p><em>Showing first 50 of ${sortedData.length} records</em></p>` : ''}
+            `;
+            
+            container.innerHTML = table;
+        }
+        
+        function downloadData() {
+            if (currentData.length === 0) {
+                alert('No data to download');
+                return;
+            }
+            
+            const csv = [
+                ['Year', 'Department', 'Budget (Million GEL)'],
+                ...currentData.map(record => [record.year, record.name, record.budget])
+            ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `georgian_budget_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+        
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html> 

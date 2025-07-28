@@ -1,0 +1,75 @@
+from flask import Flask, render_template, jsonify, request
+import requests
+import json
+from datetime import datetime
+
+app = Flask(__name__)
+
+# API Configuration
+API_BASE_URL = "http://localhost:8000"
+
+def fetch_api_data(endpoint):
+    """Fetch data from the API"""
+    try:
+        response = requests.get(f"{API_BASE_URL}{endpoint}")
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching data from API: {e}")
+        return None
+
+@app.route('/')
+def dashboard():
+    """Main dashboard page"""
+    return render_template('dashboard.html')
+
+@app.route('/api/health')
+def api_health():
+    """Check API health"""
+    health_data = fetch_api_data("/health")
+    return jsonify(health_data or {"status": "error", "message": "API not available"})
+
+@app.route('/api/summary')
+def api_summary():
+    """Get budget summary"""
+    summary_data = fetch_api_data("/summary")
+    return jsonify(summary_data or {"error": "Failed to fetch summary"})
+
+@app.route('/api/budget')
+def api_budget():
+    """Get budget data with filters"""
+    year = request.args.get('year')
+    department = request.args.get('department')
+    limit = request.args.get('limit', 100)
+    
+    params = []
+    if year:
+        params.append(f"year={year}")
+    if department:
+        params.append(f"department={department}")
+    params.append(f"limit={limit}")
+    
+    endpoint = f"/budget?{'&'.join(params)}"
+    budget_data = fetch_api_data(endpoint)
+    return jsonify(budget_data or [])
+
+@app.route('/api/departments')
+def api_departments():
+    """Get list of departments"""
+    departments_data = fetch_api_data("/departments")
+    return jsonify(departments_data or [])
+
+@app.route('/api/trends/<department>')
+def api_trends(department):
+    """Get trends for a specific department"""
+    trend_data = fetch_api_data(f"/trends/{department}")
+    return jsonify(trend_data or {"error": "Department not found"})
+
+@app.route('/api/year/<int:year>')
+def api_year(year):
+    """Get year summary"""
+    year_data = fetch_api_data(f"/years/{year}")
+    return jsonify(year_data or {"error": "Year not found"})
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000) 

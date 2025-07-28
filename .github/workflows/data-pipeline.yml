@@ -1,0 +1,301 @@
+name: Georgian Budget Data Pipeline
+
+on:
+  schedule:
+    # Run quarterly: 15th of March, June, September, and December at 6 AM UTC (9 AM Georgia time)
+    # This aligns with typical Georgian budget publication cycles
+    - cron: '0 6 15 3,6,9,12 *'
+  workflow_dispatch:
+    # Allow manual triggering for immediate updates
+    inputs:
+      year:
+        description: 'Year to process (default: current year)'
+        required: false
+        default: '2024'
+      force_download:
+        description: 'Force re-download even if cached'
+        required: false
+        default: 'false'
+      check_only:
+        description: 'Only check for new data availability'
+        required: false
+        default: 'false'
+
+env:
+  PYTHON_VERSION: '3.9'
+
+jobs:
+  process-budget-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('data-pipeline/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install dependencies
+      run: |
+        cd data-pipeline
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Create data directories
+      run: |
+        mkdir -p data/raw
+        mkdir -p data/processed
+        mkdir -p api/data
+        
+    - name: Check for new data availability
+      id: check_data
+      run: |
+        cd data-pipeline
+        export YEAR=${{ github.event.inputs.year || '2024' }}
+        export CHECK_ONLY=${{ github.event.inputs.check_only || 'false' }}
+        
+        echo "Checking for Georgian budget data availability for year: $YEAR"
+        
+        # Check if source URL is accessible and has been updated
+        CURRENT_DATE=$(date +%Y-%m-%d)
+        echo "current_date=$CURRENT_DATE" >> $GITHUB_OUTPUT
+        
+        # Get file modification date from geostat.ge (if available)
+        SOURCE_URL="https://geostat.ge/media/72030/saxelmwifo-biujeti-funqcionalur-chrilshi.xlsx"
+        
+        # Check if we already have recent data
+        if [ -f "../data/processed/datapackage.json" ]; then
+          LAST_UPDATE=$(python -c "
+          import json, os
+          try:
+              with open('../data/processed/datapackage.json') as f:
+                  dp = json.load(f)
+                  print(dp.get('updated', '2000-01-01'))
+          except:
+              print('2000-01-01')
+          ")
+          echo "Last data update: $LAST_UPDATE"
+          echo "last_update=$LAST_UPDATE" >> $GITHUB_OUTPUT
+          
+          # Skip if data was updated in the last 60 days and not forcing
+          if [ "${{ github.event.inputs.force_download }}" != "true" ]; then
+            DAYS_SINCE_UPDATE=$(python -c "
+            from datetime import datetime, timedelta
+            import sys
+            try:
+                last = datetime.strptime('$LAST_UPDATE', '%Y-%m-%d')
+                now = datetime.now()
+                days = (now - last).days
+                print(days)
+            except:
+                print(999)
+            ")
+            
+            if [ "$DAYS_SINCE_UPDATE" -lt 60 ]; then
+              echo "Data was updated $DAYS_SINCE_UPDATE days ago. Skipping pipeline run."
+              echo "should_run=false" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          fi
+        fi
+        
+        echo "should_run=true" >> $GITHUB_OUTPUT
+        
+        if [ "$CHECK_ONLY" = "true" ]; then
+          echo "Check-only mode enabled. Exiting."
+          exit 0
+        fi
+        
+    - name: Run data pipeline
+      if: steps.check_data.outputs.should_run == 'true' && github.event.inputs.check_only != 'true'
+      run: |
+        cd data-pipeline
+        export YEAR=${{ github.event.inputs.year || '2024' }}
+        export FORCE_DOWNLOAD=${{ github.event.inputs.force_download || 'false' }}
+        
+        echo "🇬🇪 Running Georgian budget data pipeline for year: $YEAR"
+        dpp run georgian-budget-pipeline
+        
+    - name: Validate processed data
+      if: steps.check_data.outputs.should_run == 'true' && github.event.inputs.check_only != 'true'
+      run: |
+        cd data-pipeline
+        python -c "
+        import os
+        import json
+        import pandas as pd
+        from datetime import datetime
+        
+        # Check if processed files exist
+        processed_dir = '../data/processed'
+        if os.path.exists(processed_dir):
+            files = os.listdir(processed_dir)
+            print(f'📊 Generated files: {files}')
+            
+            total_records = 0
+            # Validate CSV files
+            for file in files:
+                if file.endswith('.csv'):
+                    df = pd.read_csv(os.path.join(processed_dir, file))
+                    total_records += len(df)
+                    print(f'{file}: {len(df)} rows, {len(df.columns)} columns')
+                    
+                    # Basic data quality checks
+                    if 'year' in df.columns:
+                        year_range = f'{df[\"year\"].min()}-{df[\"year\"].max()}'
+                        print(f'  Year range: {year_range}')
+                    if 'budget' in df.columns:
+                        total_budget = df['budget'].sum()
+                        print(f'  Total budget: {total_budget:,.1f}M ₾')
+                    
+            # Update datapackage.json with current timestamp
+            datapackage_path = os.path.join(processed_dir, 'datapackage.json')
+            if os.path.exists(datapackage_path):
+                with open(datapackage_path, 'r') as f:
+                    dp = json.load(f)
+                    
+                dp['updated'] = datetime.now().strftime('%Y-%m-%d')
+                dp['pipeline_run'] = datetime.now().isoformat()
+                dp['total_records'] = total_records
+                
+                with open(datapackage_path, 'w') as f:
+                    json.dump(dp, f, indent=2)
+                    
+                print(f'✅ Datapackage: {dp.get(\"title\", \"Unknown\")}')
+                print(f'📈 Total records: {total_records}')
+                print(f'🕐 Updated: {dp[\"updated\"]}')
+        else:
+            print('❌ No processed data found')
+            exit(1)
+        "
+        
+    - name: Commit and push processed data
+      if: steps.check_data.outputs.should_run == 'true' && github.event.inputs.check_only != 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "Georgian Budget Pipeline Bot"
+        
+        # Add processed data files
+        git add data/processed/ || true
+        
+        # Check if there are changes to commit
+        if git diff --staged --quiet; then
+          echo "📝 No changes to commit"
+        else
+          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          YEAR=${{ github.event.inputs.year || '2024' }}
+          
+          # Count records for commit message
+          RECORD_COUNT=$(python -c "
+          import os, json
+          try:
+              with open('data/processed/datapackage.json') as f:
+                  dp = json.load(f)
+                  print(dp.get('total_records', 0))
+          except:
+              print('0')
+          ")
+          
+          git commit -m "🇬🇪 Update Georgian budget data ($RECORD_COUNT records) - $TIMESTAMP
+
+          - Data year: $YEAR
+          - Pipeline: quarterly automated run
+          - Records: $RECORD_COUNT budget entries
+          - Updated: $TIMESTAMP"
+          git push
+          echo "✅ Data successfully updated and pushed"
+        fi
+        
+    - name: Create quarterly data release
+      if: steps.check_data.outputs.should_run == 'true' && github.event.inputs.check_only != 'true' && success()
+      run: |
+        # Create quarterly release with data insights
+        YEAR=${{ github.event.inputs.year || '2024' }}
+        QUARTER="Q$(( ($(date +%-m) - 1) / 3 + 1 ))"
+        TAG="data-$YEAR-$QUARTER-$(date +%Y%m%d)"
+        
+        # Get data statistics for release notes
+        STATS=$(cd data-pipeline && python -c "
+        import os, json
+        try:
+            with open('../data/processed/datapackage.json') as f:
+                dp = json.load(f)
+            
+            with open('../data/processed/georgian_budget.csv') as f:
+                import pandas as pd
+                df = pd.read_csv(f)
+                
+            print(f'📊 **Data Statistics:**')
+            print(f'- Records: {len(df):,}')
+            print(f'- Year range: {df[\"year\"].min()}-{df[\"year\"].max()}')
+            print(f'- Departments: {df[\"name\"].nunique()}')
+            print(f'- Total budget: {df[\"budget\"].sum():,.1f}M ₾')
+            print(f'- Last updated: {dp.get(\"updated\", \"Unknown\")}')
+        except Exception as e:
+            print(f'Error generating stats: {e}')
+        ")
+        
+        # Only create release if tag doesn't exist
+        if ! git tag -l | grep -q "$TAG"; then
+          gh release create "$TAG" \
+            --title "🇬🇪 Georgian Budget Data $YEAR $QUARTER" \
+            --notes "## Quarterly Georgian Budget Data Release
+
+          This release contains the latest processed Georgian government budget data.
+
+          $STATS
+
+          ### 🔍 **Usage**
+          - **API**: Use with FastAPI backend for real-time data access
+          - **Dashboard**: View at your Flask dashboard for visual analysis
+          - **Raw Data**: Download CSV files for analysis
+
+          ### 🤖 **Automation**
+          This release was generated automatically by the quarterly data pipeline.
+          " \
+            --latest
+          echo "🏷️ Created release: $TAG"
+        else
+          echo "📦 Release $TAG already exists"
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Upload artifacts
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: pipeline-logs-${{ github.run_number }}
+        path: |
+          data-pipeline/*.log
+          data/raw/*.xlsx
+          data/processed/datapackage.json
+        retention-days: 90
+
+        
+    - name: Pipeline summary
+      if: always()
+      run: |
+        echo "## 🇬🇪 Georgian Budget Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status**: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Year**: ${{ github.event.inputs.year || '2024' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Check Only**: ${{ github.event.inputs.check_only || 'false' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Force Download**: ${{ github.event.inputs.force_download || 'false' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Should Run**: ${{ steps.check_data.outputs.should_run || 'unknown' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Timestamp**: $(date -u)" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "${{ steps.check_data.outputs.should_run }}" = "true" ]; then
+          echo "- **Action**: Data pipeline executed" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- **Action**: Pipeline skipped (recent data available)" >> $GITHUB_STEP_SUMMARY
+        fi 

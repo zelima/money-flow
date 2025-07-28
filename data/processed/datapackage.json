@@ -1,0 +1,56 @@
+{
+  "bytes": 16628,
+  "count_of_rows": 230,
+  "hash": "07bc7194a94f146bd72953c447e2dd6c",
+  "name": "_",
+  "profile": "data-package",
+  "resources": [
+    {
+      "bytes": 16628,
+      "dialect": {
+        "caseSensitiveHeader": false,
+        "delimiter": ",",
+        "doubleQuote": true,
+        "header": true,
+        "lineTerminator": "\r\n",
+        "quoteChar": "\"",
+        "skipInitialSpace": false
+      },
+      "dpp:streamedFrom": "https://geostat.ge/media/72030/saxelmwifo-biujeti-funqcionalur-chrilshi.xlsx",
+      "dpp:streaming": true,
+      "encoding": "utf-8",
+      "format": "csv",
+      "hash": "bfad62ece312141b4e9ada6f8e121bba",
+      "mediatype": "text/json",
+      "name": "georgian_budget",
+      "path": "georgian_budget.csv",
+      "profile": "tabular-data-resource",
+      "schema": {
+        "fields": [
+          {
+            "decimalChar": ".",
+            "format": "default",
+            "groupChar": "",
+            "name": "year",
+            "type": "number"
+          },
+          {
+            "decimalChar": ".",
+            "format": "default",
+            "groupChar": "",
+            "name": "budget",
+            "type": "number"
+          },
+          {
+            "format": "default",
+            "name": "name",
+            "type": "any"
+          }
+        ],
+        "missingValues": [
+          ""
+        ]
+      }
+    }
+  ]
+}

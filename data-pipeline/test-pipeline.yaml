@@ -1,0 +1,43 @@
+test-georgian-budget:
+  title: Test Georgian Budget Data Processing Pipeline
+  description: Test pipeline with mock data to verify processors work
+  pipeline:
+    # Step 1: Create mock data instead of fetching
+    - run: processors/create_mock_data
+      parameters:
+        output_name: "test_budget_data"
+    
+    # Step 2: Clean and normalize the Excel data
+    - run: processors/clean_georgian_excel
+      parameters:
+        resource: "test_budget_data"
+        header_row: 0
+        encoding: "utf-8"
+    
+    # Step 3: Translate Georgian headers to English
+    - run: processors/translate_headers
+      parameters:
+        resource: "test_budget_data"
+        translation_file: "translations/headers.csv"
+    
+    # Step 4: Normalize department names and codes
+    - run: processors/normalize_departments
+      parameters:
+        resource: "test_budget_data"
+        department_mapping: "translations/departments.csv"
+    
+    # Step 5: Convert amounts and handle currency
+    - run: processors/process_amounts
+      parameters:
+        resource: "test_budget_data"
+        currency: "GEL"
+        scale_factor: 1000
+    
+    # Step 6: Add metadata
+    - run: processors/add_metadata
+      parameters:
+        name: "test-georgian-budget"
+        title: "Test Georgian Government Budget Data"
+        description: "Test data for Georgian budget processing pipeline"
+        version: "1.0.0-test"
+        source: "mock-data" 
