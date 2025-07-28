@@ -7,4 +7,3 @@ tabulator>=1.53.0
 dataflows>=0.2.0
 pyyaml>=6.0
 chardet>=5.0.0
-distutils
