@@ -157,7 +157,7 @@ jobs:
           echo "📦 Release $TAG already exists"
         fi
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GEORGIAN_BUDGET_TOKEN }}
         
     - name: Upload artifacts
       if: always()
