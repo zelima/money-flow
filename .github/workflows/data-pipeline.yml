@@ -56,68 +56,9 @@ jobs:
         mkdir -p data/raw
         mkdir -p data/processed
         mkdir -p api/data
-        
-    - name: Check for new data availability
-      id: check_data
-      run: |
-        cd data-pipeline
-        export YEAR=${{ github.event.inputs.year || '2024' }}
-        export CHECK_ONLY=${{ github.event.inputs.check_only || 'false' }}
-        
-        echo "Checking for Georgian budget data availability for year: $YEAR"
-        
-        # Check if source URL is accessible and has been updated
-        CURRENT_DATE=$(date +%Y-%m-%d)
-        echo "current_date=$CURRENT_DATE" >> $GITHUB_OUTPUT
-        
-        # Get file modification date from geostat.ge (if available)
-        SOURCE_URL="https://geostat.ge/media/72030/saxelmwifo-biujeti-funqcionalur-chrilshi.xlsx"
-        
-        # Check if we already have recent data
-        if [ -f "../data/processed/datapackage.json" ]; then
-          LAST_UPDATE=$(python -c "
-          import json, os
-          try:
-              with open('../data/processed/datapackage.json') as f:
-                  dp = json.load(f)
-                  print(dp.get('updated', '2000-01-01'))
-          except:
-              print('2000-01-01')
-          ")
-          echo "Last data update: $LAST_UPDATE"
-          echo "last_update=$LAST_UPDATE" >> $GITHUB_OUTPUT
-          
-          # Skip if data was updated in the last 60 days and not forcing
-          if [ "${{ github.event.inputs.force_download }}" != "true" ]; then
-            DAYS_SINCE_UPDATE=$(python -c "
-            from datetime import datetime, timedelta
-            import sys
-            try:
-                last = datetime.strptime('$LAST_UPDATE', '%Y-%m-%d')
-                now = datetime.now()
-                days = (now - last).days
-                print(days)
-            except:
-                print(999)
-            ")
-            
-            if [ "$DAYS_SINCE_UPDATE" -lt 60 ]; then
-              echo "Data was updated $DAYS_SINCE_UPDATE days ago. Skipping pipeline run."
-              echo "should_run=false" >> $GITHUB_OUTPUT
-              exit 0
-            fi
-          fi
-        fi
-        
-        echo "should_run=true" >> $GITHUB_OUTPUT
-        
-        if [ "$CHECK_ONLY" = "true" ]; then
-          echo "Check-only mode enabled. Exiting."
-          exit 0
-        fi
-        
+
     - name: Run data pipeline
-      if: steps.check_data.outputs.should_run == 'true' && github.event.inputs.check_only != 'true'
+      if: github.event.inputs.check_only != 'true'
       run: |
         cd data-pipeline
         export YEAR=${{ github.event.inputs.year || '2024' }}
@@ -127,7 +68,7 @@ jobs:
         dpp run georgian-budget-pipeline
         
     - name: Validate processed data
-      if: steps.check_data.outputs.should_run == 'true' && github.event.inputs.check_only != 'true'
+      if: github.event.inputs.check_only != 'true'
       run: |
         cd data-pipeline
         python -c "
@@ -180,7 +121,7 @@ jobs:
         "
         
     - name: Commit and push processed data
-      if: steps.check_data.outputs.should_run == 'true' && github.event.inputs.check_only != 'true'
+      if: github.event.inputs.check_only != 'true'
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "Georgian Budget Pipeline Bot"
@@ -217,7 +158,7 @@ jobs:
         fi
         
     - name: Create quarterly data release
-      if: steps.check_data.outputs.should_run == 'true' && github.event.inputs.check_only != 'true' && success()
+      if: github.event.inputs.check_only != 'true' && success()
       run: |
         # Create quarterly release with data insights
         YEAR=${{ github.event.inputs.year || '2024' }}
