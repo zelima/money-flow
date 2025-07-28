@@ -22,7 +22,7 @@ on:
         default: 'false'
 
 env:
-  PYTHON_VERSION: '3.11'
+  PYTHON_VERSION: '3.11.9'
 
 jobs:
   process-budget-data:
@@ -33,9 +33,10 @@ jobs:
       uses: actions/checkout@v4
       
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
+        check-latest: false
         
     - name: Cache Python dependencies
       uses: actions/cache@v3
@@ -69,8 +70,8 @@ jobs:
     - name: Commit and push processed data
       if: github.event.inputs.check_only != 'true'
       run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "Georgian Budget Pipeline Bot"
+        git config --local user.email "ir.mchedlishvili@gmail.com"
+        git config --local user.name "zelima"
         
         # Add processed data files
         git add data/processed/ || true
