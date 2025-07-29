@@ -286,6 +286,7 @@
         let currentData = [];
         let allDepartments = [];
         let yearChart, departmentChart;
+        let latestYear = null; // Store the latest available year
         
         // Initialize dashboard
         async function init() {
@@ -326,9 +327,10 @@
                 document.getElementById('total-budget').textContent = summary.total_budget ? summary.total_budget.toLocaleString(undefined, {maximumFractionDigits: 1}) + 'M ₾' : '-';
                 document.getElementById('departments-count').textContent = summary.departments_count || '-';
                 
-                // Populate year filter
+                // Populate year filter and store latest year
                 if (summary.year_range) {
                     const yearFilter = document.getElementById('year-filter');
+                    latestYear = summary.year_range[1]; // Store the latest year
                     for (let year = summary.year_range[0]; year <= summary.year_range[1]; year++) {
                         const option = document.createElement('option');
                         option.value = year;
@@ -486,16 +488,18 @@
         
         async function updateSubDepartmentChart(department, year) {
             try {
+                // Use latest year as default if no year is selected
+                const effectiveYear = year || latestYear;
+                
                 // Fetch drill-down data for the selected department
                 let drillDownUrl = `/api/drill-down/${encodeURIComponent(department)}`;
-                if (year) drillDownUrl += `?year=${year}`;
+                if (effectiveYear) drillDownUrl += `?year=${effectiveYear}`;
                 
                 const response = await fetch(drillDownUrl);
                 const drillDownData = await response.json();
                 
-                // Debug: Log the drill-down data
-                console.log('🔍 Chart drill-down data received:', drillDownData);
-                console.log('🔍 Chart sub-departments:', drillDownData.sub_departments);
+                // Debug: Log the drill-down data (remove in production)
+                // console.log('🔍 Chart drill-down data received:', drillDownData);
                 
                 if (drillDownData.error || !drillDownData.sub_departments) {
                     // Fall back to regular department chart if drill-down fails
@@ -522,7 +526,9 @@
                 // Update chart title to show it's sub-departments
                 const totalBudget = drillDownData.total_budget;
                 const budgetText = totalBudget ? ` - ${totalBudget.toLocaleString()}M ₾` : '';
-                departmentChart.options.plugins.title.text = `🔍 ${department} Sub-Departments${budgetText}`;
+                const yearText = effectiveYear ? ` (${effectiveYear})` : '';
+                const defaultYearIndicator = (!year && effectiveYear) ? ' 📅' : ''; // Show calendar icon when using default year
+                departmentChart.options.plugins.title.text = `🔍 ${department} Sub-Departments${budgetText}${yearText}${defaultYearIndicator}`;
                 
                 // Use different colors for sub-departments
                 const subDeptColors = [
@@ -597,21 +603,18 @@
         
         async function updateSubDepartmentTable(department, year, container) {
             try {
+                // Use latest year as default if no year is selected
+                const effectiveYear = year || latestYear;
+                
                 // Fetch drill-down data
                 let drillDownUrl = `/api/drill-down/${encodeURIComponent(department)}`;
-                if (year) drillDownUrl += `?year=${year}`;
+                if (effectiveYear) drillDownUrl += `?year=${effectiveYear}`;
                 
                 const response = await fetch(drillDownUrl);
                 const drillDownData = await response.json();
                 
-                // Debug: Log the drill-down data
-                console.log('🔍 Table drill-down data received:', drillDownData);
-                console.log('🔍 Table sub-departments:', drillDownData.sub_departments);
-                
-                // Debug: Check specific budget amounts
-                drillDownData.sub_departments.forEach((sub, index) => {
-                    console.log(`🔍 Sub-dept ${index}: ${sub.name_english} - budget_amount: ${sub.budget_amount} (type: ${typeof sub.budget_amount})`);
-                });
+                // Debug: Log the drill-down data (remove in production)
+                // console.log('🔍 Table drill-down data received:', drillDownData);
                 
                 if (drillDownData.error || !drillDownData.sub_departments) {
                     updateMainDataTable(container);
@@ -624,7 +627,7 @@
                 const table = `
                     <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
                         <h4>🔍 ${department} - Sub-Department Breakdown</h4>
-                        ${totalBudget ? `<p><strong>Total Department Budget:</strong> ${totalBudget.toLocaleString()}M ₾ ${year ? `(${year})` : ''}</p>` : ''}
+                        ${totalBudget ? `<p><strong>Total Department Budget:</strong> ${totalBudget.toLocaleString()}M ₾ (${effectiveYear})${(!year && effectiveYear) ? ' 📅 Using latest year' : ''}</p>` : ''}
                         <p><strong>Sub-Departments:</strong> ${subDepts.length}</p>
                     </div>
                     <table>
