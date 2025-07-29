@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for Sub-Department Data
+  postgres:
+    image: postgres:15
+    container_name: georgian_budget_db
+    environment:
+      POSTGRES_DB: georgian_budget
+      POSTGRES_USER: budget_user
+      POSTGRES_PASSWORD: budget_pass
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U budget_user -d georgian_budget"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # FastAPI Backend
+  api:
+    build: 
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: georgian_budget_api
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://budget_user:budget_pass@postgres:5432/georgian_budget
+      GITHUB_DATA_URL: https://raw.githubusercontent.com/zelima/money-flow/main/data/processed/georgian_budget.csv
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - ./api:/app
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  # Flask Frontend  
+  frontend:
+    build:
+      context: ./web-app
+      dockerfile: Dockerfile
+    container_name: georgian_budget_frontend
+    ports:
+      - "5000:5000"
+    environment:
+      API_BASE_URL: http://api:8000
+    depends_on:
+      - api
+    restart: unless-stopped
+    volumes:
+      - ./web-app:/app
+    command: ["python", "main.py"]
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    name: georgian_budget_network 

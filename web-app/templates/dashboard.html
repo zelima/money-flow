@@ -379,8 +379,8 @@
                 currentData = await response.json();
                 
                 updateYearChart();
-                updateDepartmentChart();
-                updateDataTable();
+                await updateDepartmentChart(); // Make this async to fetch drill-down data
+                await updateDataTable(); // Make this async for sub-department data
                 
                 document.getElementById('charts').style.display = 'grid';
                 document.getElementById('data-section').style.display = 'block';
@@ -443,7 +443,20 @@
             yearChart.update();
         }
         
-        function updateDepartmentChart() {
+        async function updateDepartmentChart() {
+            const year = document.getElementById('year-filter').value;
+            const department = document.getElementById('department-filter').value;
+            
+            // If a single department is selected, show sub-departments
+            if (department && department.trim() !== '') {
+                await updateSubDepartmentChart(department, year);
+            } else {
+                // Show regular department breakdown
+                updateMainDepartmentChart();
+            }
+        }
+        
+        function updateMainDepartmentChart() {
             const deptData = {};
             currentData.forEach(record => {
                 const shortName = record.name.length > 30 ? record.name.substring(0, 30) + '...' : record.name;
@@ -457,6 +470,9 @@
             const labels = sortedDepts.map(d => d[0]);
             const data = sortedDepts.map(d => d[1]);
             
+            // Update chart title
+            departmentChart.options.plugins.title.text = '🏛️ Budget Distribution by Department';
+            
             departmentChart.data.labels = labels;
             departmentChart.data.datasets = [{
                 data: data,
@@ -468,9 +484,81 @@
             departmentChart.update();
         }
         
-        function updateDataTable() {
+        async function updateSubDepartmentChart(department, year) {
+            try {
+                // Fetch drill-down data for the selected department
+                let drillDownUrl = `/api/drill-down/${encodeURIComponent(department)}`;
+                if (year) drillDownUrl += `?year=${year}`;
+                
+                const response = await fetch(drillDownUrl);
+                const drillDownData = await response.json();
+                
+                // Debug: Log the drill-down data
+                console.log('🔍 Chart drill-down data received:', drillDownData);
+                console.log('🔍 Chart sub-departments:', drillDownData.sub_departments);
+                
+                if (drillDownData.error || !drillDownData.sub_departments) {
+                    // Fall back to regular department chart if drill-down fails
+                    updateMainDepartmentChart();
+                    return;
+                }
+                
+                // Extract sub-department data
+                const subDepts = drillDownData.sub_departments;
+                const labels = subDepts.map(sub => {
+                    const name = sub.name_english.length > 25 ? sub.name_english.substring(0, 25) + '...' : sub.name_english;
+                    return name;
+                });
+                
+                const data = subDepts.map(sub => sub.budget_amount || 0);
+                const percentages = subDepts.map(sub => sub.allocation_percentage);
+                
+                // Create enhanced labels with percentages and employee counts
+                const enhancedLabels = subDepts.map(sub => {
+                    const name = sub.name_english.length > 20 ? sub.name_english.substring(0, 20) + '...' : sub.name_english;
+                    return `${name} (${sub.allocation_percentage}%)`;
+                });
+                
+                // Update chart title to show it's sub-departments
+                const totalBudget = drillDownData.total_budget;
+                const budgetText = totalBudget ? ` - ${totalBudget.toLocaleString()}M ₾` : '';
+                departmentChart.options.plugins.title.text = `🔍 ${department} Sub-Departments${budgetText}`;
+                
+                // Use different colors for sub-departments
+                const subDeptColors = [
+                    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+                    '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
+                ];
+                
+                departmentChart.data.labels = enhancedLabels;
+                departmentChart.data.datasets = [{
+                    data: data,
+                    backgroundColor: subDeptColors.slice(0, data.length)
+                }];
+                
+                departmentChart.update();
+                
+            } catch (error) {
+                console.error('Error fetching drill-down data:', error);
+                // Fall back to regular department chart
+                updateMainDepartmentChart();
+            }
+        }
+        
+        async function updateDataTable() {
             const container = document.getElementById('table-container');
+            const department = document.getElementById('department-filter').value;
+            const year = document.getElementById('year-filter').value;
             
+            // If a single department is selected, show sub-department table
+            if (department && department.trim() !== '') {
+                await updateSubDepartmentTable(department, year, container);
+            } else {
+                updateMainDataTable(container);
+            }
+        }
+        
+        function updateMainDataTable(container) {
             if (currentData.length === 0) {
                 container.innerHTML = '<p>No data available for the selected filters.</p>';
                 return;
@@ -505,6 +593,73 @@
             `;
             
             container.innerHTML = table;
+        }
+        
+        async function updateSubDepartmentTable(department, year, container) {
+            try {
+                // Fetch drill-down data
+                let drillDownUrl = `/api/drill-down/${encodeURIComponent(department)}`;
+                if (year) drillDownUrl += `?year=${year}`;
+                
+                const response = await fetch(drillDownUrl);
+                const drillDownData = await response.json();
+                
+                // Debug: Log the drill-down data
+                console.log('🔍 Table drill-down data received:', drillDownData);
+                console.log('🔍 Table sub-departments:', drillDownData.sub_departments);
+                
+                // Debug: Check specific budget amounts
+                drillDownData.sub_departments.forEach((sub, index) => {
+                    console.log(`🔍 Sub-dept ${index}: ${sub.name_english} - budget_amount: ${sub.budget_amount} (type: ${typeof sub.budget_amount})`);
+                });
+                
+                if (drillDownData.error || !drillDownData.sub_departments) {
+                    updateMainDataTable(container);
+                    return;
+                }
+                
+                const subDepts = drillDownData.sub_departments;
+                const totalBudget = drillDownData.total_budget;
+                
+                const table = `
+                    <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;">
+                        <h4>🔍 ${department} - Sub-Department Breakdown</h4>
+                        ${totalBudget ? `<p><strong>Total Department Budget:</strong> ${totalBudget.toLocaleString()}M ₾ ${year ? `(${year})` : ''}</p>` : ''}
+                        <p><strong>Sub-Departments:</strong> ${subDepts.length}</p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Sub-Department</th>
+                                <th>Allocation %</th>
+                                <th>Budget (Million ₾)</th>
+                                <th>Employees</th>
+                                <th>Projects</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${subDepts.map(sub => `
+                                <tr>
+                                    <td>${sub.name_english}</td>
+                                    <td>${sub.allocation_percentage}%</td>
+                                    <td>${sub.budget_amount ? sub.budget_amount.toLocaleString(undefined, {maximumFractionDigits: 1}) : 'N/A'}</td>
+                                    <td>${sub.employee_count.toLocaleString()}</td>
+                                    <td>${sub.projects_count}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                        <p><em>💡 Tip: Select "All Departments" to see the overview again</em></p>
+                    </div>
+                `;
+                
+                container.innerHTML = table;
+                
+            } catch (error) {
+                console.error('Error fetching sub-department table data:', error);
+                updateMainDataTable(container);
+            }
         }
         
         function downloadData() {

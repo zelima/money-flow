@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 import pandas as pd
@@ -6,10 +6,16 @@ import requests
 import io
 from datetime import datetime
 import logging
+from sqlalchemy.orm import Session
 
 from models import (
     BudgetRecord, BudgetSummary, DepartmentTrend, 
-    YearSummary, APIResponse, ErrorResponse
+    YearSummary, APIResponse, ErrorResponse,
+    SubDepartment, DepartmentDetail, BudgetDrillDown, DrillDownSummary
+)
+from database import (
+    get_db, test_connection, get_department_by_name,
+    get_sub_departments_by_department, get_budget_drill_down
 )
 
 # Configure logging
@@ -94,6 +100,14 @@ def load_budget_data():
 # Load data on startup
 @app.on_event("startup")
 async def startup_event():
+    # Test PostgreSQL connection
+    db_connected = test_connection()
+    if db_connected:
+        logger.info("🐘 PostgreSQL connection verified")
+    else:
+        logger.warning("⚠️ PostgreSQL connection failed - drill-down features disabled")
+    
+    # Load GitHub budget data
     load_budget_data()
 
 
@@ -109,7 +123,8 @@ async def root():
             "departments": budget_data['name'].nunique(),
             "total_budget_millions": f"{budget_data['budget'].sum():,.1f}M ₾",
             "data_source": "🌐 Fetched from GitHub repository",
-            "github_repo": "https://github.com/zelima/money-flow"
+            "github_repo": "https://github.com/zelima/money-flow",
+            "drill_down_enabled": "🐘 PostgreSQL sub-departments available"
         }
     
     return APIResponse(
@@ -126,7 +141,9 @@ async def root():
                 "/departments - List departments",
                 "/trends/{department} - Department trends",
                 "/years/{year} - Year summary",
-                "/search - Search departments"
+                "/search - Search departments",
+                "/drill-down/{department} - Sub-department breakdown",
+                "/drill-down/analysis/{department}/{year} - Detailed drill-down analysis"
             ]
         }
     )
@@ -308,6 +325,178 @@ async def search_departments(
         "results": matching_depts[:limit].tolist(),
         "total_found": len(matching_depts)
     }
+
+
+# New PostgreSQL drill-down endpoints
+@app.get("/drill-down/{department}", response_model=DepartmentDetail)
+async def get_department_drill_down(
+    department: str, 
+    year: Optional[int] = Query(None, description="Year for budget data"),
+    db: Session = Depends(get_db)
+):
+    """
+    Get sub-department breakdown for a specific department
+    Combines PostgreSQL sub-department data with GitHub main department data
+    """
+    # Check if database is available
+    if db is None:
+        raise HTTPException(
+            status_code=503, 
+            detail="PostgreSQL drill-down database not available. Please start the database to access sub-department data."
+        )
+    
+    # Find department in PostgreSQL
+    dept = get_department_by_name(db, department)
+    if not dept:
+        raise HTTPException(status_code=404, detail=f"Department '{department}' not found in drill-down database")
+    
+    # Get sub-departments with optional budget data
+    sub_depts = get_sub_departments_by_department(db, dept.id, year)
+    
+    # Get main department budget from GitHub data (if available)
+    main_budget = None
+    if budget_data is not None and year:
+        dept_data = budget_data[(budget_data['name'] == department) & (budget_data['year'] == year)]
+        if not dept_data.empty:
+            main_budget = float(dept_data['budget'].iloc[0])
+    
+    # Convert to response models
+    sub_dept_models = []
+    for sub_dept in sub_depts:
+        budget_amount = None
+        notes = None
+        
+        # Always calculate from allocation percentage when we have main budget data
+        if main_budget:
+            # Calculate from allocation percentage (this is the correct approach)
+            budget_amount = main_budget * float(sub_dept.allocation_percentage) / 100.0
+            # Try to get notes from stored budget allocations
+            if hasattr(sub_dept, 'budget_allocations') and sub_dept.budget_allocations:
+                for budget in sub_dept.budget_allocations:
+                    if budget.year == year:
+                        notes = budget.notes  # Keep notes but calculate amount
+                        break
+        
+        sub_dept_models.append(SubDepartment(
+            id=sub_dept.id,
+            name_english=sub_dept.name_english,
+            name_georgian=sub_dept.name_georgian,
+            allocation_percentage=float(sub_dept.allocation_percentage),
+            employee_count=sub_dept.employee_count,
+            projects_count=sub_dept.projects_count,
+            budget_amount=budget_amount,
+            notes=notes
+        ))
+    
+    return DepartmentDetail(
+        id=dept.id,
+        name_english=dept.name_english,
+        name_georgian=dept.name_georgian,
+        description=dept.description,
+        total_budget=main_budget,
+        sub_departments=sub_dept_models
+    )
+
+
+@app.get("/drill-down/analysis/{department}/{year}", response_model=DrillDownSummary)
+async def get_drill_down_analysis(
+    department: str,
+    year: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Get comprehensive drill-down analysis for a department and year
+    Shows how the main department budget is allocated across sub-departments
+    """
+    # Check if database is available
+    if db is None:
+        raise HTTPException(
+            status_code=503, 
+            detail="PostgreSQL drill-down database not available. Please start the database to access sub-department analysis."
+        )
+    
+    # Get main department budget from GitHub data
+    if budget_data is None:
+        raise HTTPException(status_code=503, detail="GitHub budget data not available")
+    
+    dept_data = budget_data[(budget_data['name'] == department) & (budget_data['year'] == year)]
+    if dept_data.empty:
+        raise HTTPException(status_code=404, detail=f"No budget data found for {department} in {year}")
+    
+    main_budget = float(dept_data['budget'].iloc[0])
+    
+    # Get drill-down data from PostgreSQL
+    drill_down_data = get_budget_drill_down(db, department, year, limit=50)
+    
+    # Convert to sub-department models and calculate totals
+    sub_departments = []
+    total_sub_budget = 0.0
+    
+    for item in drill_down_data:
+        # Calculate budget amount from allocation percentage and main budget
+        budget_amount = main_budget * float(item.allocation_percentage) / 100.0
+        total_sub_budget += budget_amount
+        
+        sub_departments.append(SubDepartment(
+            id=0,  # Not needed for this view
+            name_english=item.sub_department_name,
+            name_georgian=item.sub_department_name_georgian,
+            allocation_percentage=float(item.allocation_percentage),
+            employee_count=item.employee_count,
+            projects_count=item.projects_count,
+            budget_amount=budget_amount,
+            notes=item.notes
+        ))
+    
+    # Calculate coverage percentage
+    coverage_percentage = (total_sub_budget / main_budget * 100.0) if main_budget > 0 else 0.0
+    
+    return DrillDownSummary(
+        department=department,
+        year=year,
+        total_department_budget=main_budget,
+        sub_departments_count=len(sub_departments),
+        total_sub_budget=total_sub_budget,
+        coverage_percentage=coverage_percentage,
+        sub_departments=sub_departments
+    )
+
+
+@app.get("/drill-down/explore", response_model=List[BudgetDrillDown])
+async def explore_drill_down_data(
+    department: Optional[str] = Query(None, description="Filter by department name"),
+    year: Optional[int] = Query(None, description="Filter by year"),
+    limit: int = Query(100, description="Maximum number of records"),
+    db: Session = Depends(get_db)
+):
+    """
+    Explore drill-down data across departments and years
+    This is the "BigQuery-style" analytics endpoint for complex queries
+    """
+    # Check if database is available
+    if db is None:
+        raise HTTPException(
+            status_code=503, 
+            detail="PostgreSQL drill-down database not available. Please start the database to explore sub-department data."
+        )
+    
+    drill_down_data = get_budget_drill_down(db, department, year, limit)
+    
+    return [
+        BudgetDrillDown(
+            department_name=item.department_name,
+            department_name_georgian=item.department_name_georgian,
+            sub_department_name=item.sub_department_name,
+            sub_department_name_georgian=item.sub_department_name_georgian,
+            allocation_percentage=float(item.allocation_percentage),
+            employee_count=item.employee_count,
+            projects_count=item.projects_count,
+            year=item.year,
+            budget_amount=float(item.budget_amount) if item.budget_amount else None,
+            notes=item.notes
+        )
+        for item in drill_down_data
+    ]
 
 
 if __name__ == "__main__":

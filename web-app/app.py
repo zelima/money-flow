@@ -71,5 +71,24 @@ def api_year(year):
     year_data = fetch_api_data(f"/years/{year}")
     return jsonify(year_data or {"error": "Year not found"})
 
+# New drill-down endpoints
+@app.route('/api/drill-down/<department>')
+def api_drill_down(department):
+    """Get sub-department breakdown for a specific department"""
+    year = request.args.get('year')
+    
+    endpoint = f"/drill-down/{department}"
+    if year:
+        endpoint += f"?year={year}"
+    
+    drill_down_data = fetch_api_data(endpoint)
+    return jsonify(drill_down_data or {"error": "Department not found"})
+
+@app.route('/api/drill-down/analysis/<department>/<int:year>')
+def api_drill_down_analysis(department, year):
+    """Get comprehensive drill-down analysis for a department and year"""
+    analysis_data = fetch_api_data(f"/drill-down/analysis/{department}/{year}")
+    return jsonify(analysis_data or {"error": "Analysis not available"})
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000) 
