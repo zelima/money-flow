@@ -1,15 +1,17 @@
 # Georgian Budget Data API
 
-FastAPI backend for serving Georgian government budget data (2002-2020).
+Cloud-native FastAPI backend that fetches and serves real-time Georgian government budget data directly from GitHub repository.
 
 ## Features
 
 - 🚀 **Fast API** with automatic documentation
+- 🌐 **GitHub Integration** - Fetches latest data from repository
 - 📊 **Budget Data Access** with filtering and pagination
 - 🔍 **Search** departments by name
 - 📈 **Trends Analysis** for individual departments
 - 📅 **Year Summaries** with top departments
 - 🔧 **Data Validation** with Pydantic models
+- ☁️ **Cloud Native** - Deploy anywhere, data always fresh
 
 ## Quick Start
 
@@ -35,6 +37,13 @@ python main.py
 - **API Documentation**: http://localhost:8000/docs
 - **Alternative Docs**: http://localhost:8000/redoc
 - **Health Check**: http://localhost:8000/health
+
+### 4. Data Source
+
+The API automatically fetches the latest budget data from:
+- **GitHub Repository**: https://github.com/zelima/money-flow
+- **Data URL**: https://raw.githubusercontent.com/zelima/money-flow/main/data/processed/georgian_budget.csv
+- **Auto-Update**: Data refreshes when the automated pipeline commits new data
 
 ## API Endpoints
 

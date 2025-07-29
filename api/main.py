@@ -2,8 +2,9 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 import pandas as pd
-import os
-from pathlib import Path
+import requests
+import io
+from datetime import datetime
 import logging
 
 from models import (
@@ -38,26 +39,56 @@ budget_data: pd.DataFrame = None
 
 
 def load_budget_data():
-    """Load budget data from processed CSV file"""
+    """Load budget data from GitHub repository (latest pipeline data)"""
     global budget_data
     
-    # Look for the data file
-    current_dir = Path(__file__).parent
-    data_path = current_dir.parent / "data" / "processed" / "georgian_budget.csv"
+    # GitHub raw file URLs for the pipeline-generated data
+    GITHUB_REPO = "https://raw.githubusercontent.com/zelima/money-flow/main"
+    CSV_URL = f"{GITHUB_REPO}/data/processed/georgian_budget.csv"
+    DATAPACKAGE_URL = f"{GITHUB_REPO}/data/processed/datapackage.json"
     
     try:
-        if data_path.exists():
-            budget_data = pd.read_csv(data_path)
-            budget_data['budget'] = pd.to_numeric(budget_data['budget'], errors='coerce')
-            budget_data['year'] = pd.to_numeric(budget_data['year'], errors='coerce')
-            budget_data = budget_data.dropna()
-            logger.info(f"Loaded {len(budget_data)} budget records")
-        else:
-            logger.error(f"Data file not found at {data_path}")
-            raise FileNotFoundError(f"Budget data file not found at {data_path}")
+        logger.info("🌐 Fetching latest budget data from GitHub repository...")
+        
+        # Fetch CSV data from GitHub
+        response = requests.get(CSV_URL, timeout=30)
+        response.raise_for_status()
+        
+        # Read CSV data directly from the response
+        budget_data = pd.read_csv(io.StringIO(response.text))
+        budget_data['budget'] = pd.to_numeric(budget_data['budget'], errors='coerce')
+        budget_data['year'] = pd.to_numeric(budget_data['year'], errors='coerce')
+        budget_data = budget_data.dropna()
+        
+        # Get data statistics
+        years_range = f"{budget_data['year'].min():.0f}-{budget_data['year'].max():.0f}"
+        departments_count = budget_data['name'].nunique()
+        total_budget = budget_data['budget'].sum()
+        
+        # Try to get metadata from datapackage.json
+        try:
+            meta_response = requests.get(DATAPACKAGE_URL, timeout=10)
+            if meta_response.status_code == 200:
+                import json
+                metadata = json.loads(meta_response.text)
+                last_update = metadata.get('updated', 'Unknown')
+                logger.info(f"📊 Data last updated: {last_update}")
+        except:
+            logger.warning("Could not fetch metadata from datapackage.json")
+        
+        logger.info(f"✅ Loaded {len(budget_data)} budget records from GitHub pipeline data")
+        logger.info(f"📅 Years: {years_range} | 🏛️ Departments: {departments_count} | 💰 Total: {total_budget:,.1f}M ₾")
+        logger.info(f"🌐 Data source: {CSV_URL}")
+        
+    except requests.exceptions.RequestException as e:
+        logger.error(f"❌ Network error fetching data from GitHub: {e}")
+        raise HTTPException(status_code=503, detail="Unable to fetch data from GitHub repository")
+    except pd.errors.EmptyDataError:
+        logger.error("❌ Empty or invalid CSV data received from GitHub")
+        raise HTTPException(status_code=503, detail="Invalid data format received from GitHub")
     except Exception as e:
-        logger.error(f"Error loading budget data: {e}")
-        raise
+        logger.error(f"❌ Error loading budget data from GitHub: {e}")
+        raise HTTPException(status_code=503, detail=f"Data loading error: {str(e)}")
 
 
 # Load data on startup
@@ -69,17 +100,33 @@ async def startup_event():
 @app.get("/", response_model=APIResponse)
 async def root():
     """Root endpoint with API information"""
+    # Get real-time data stats
+    data_stats = {}
+    if budget_data is not None:
+        data_stats = {
+            "records": len(budget_data),
+            "years": f"{budget_data['year'].min():.0f}-{budget_data['year'].max():.0f}",
+            "departments": budget_data['name'].nunique(),
+            "total_budget_millions": f"{budget_data['budget'].sum():,.1f}M ₾",
+            "data_source": "🌐 Fetched from GitHub repository",
+            "github_repo": "https://github.com/zelima/money-flow"
+        }
+    
     return APIResponse(
         data={
-            "message": "Georgian Budget Data API",
+            "message": "🇬🇪 Georgian Budget Data API",
             "version": "1.0.0",
+            "description": "Serving real Georgian government budget data processed by automated quarterly pipeline",
+            "data_statistics": data_stats,
             "endpoints": [
                 "/docs - API documentation",
                 "/health - Health check",
                 "/budget - Get budget data",
                 "/summary - Data summary",
+                "/departments - List departments",
                 "/trends/{department} - Department trends",
-                "/years/{year} - Year summary"
+                "/years/{year} - Year summary",
+                "/search - Search departments"
             ]
         }
     )

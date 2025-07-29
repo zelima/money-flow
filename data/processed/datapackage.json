@@ -1,12 +1,12 @@
 {
-  "bytes": 16628,
+  "bytes": 7267,
   "count_of_rows": 230,
-  "hash": "07bc7194a94f146bd72953c447e2dd6c",
+  "hash": "a0918876a845f8783200872dc23075d8",
   "name": "_",
   "profile": "data-package",
   "resources": [
     {
-      "bytes": 16628,
+      "bytes": 7267,
       "dialect": {
         "caseSensitiveHeader": false,
         "delimiter": ",",
@@ -20,7 +20,7 @@
       "dpp:streaming": true,
       "encoding": "utf-8",
       "format": "csv",
-      "hash": "bfad62ece312141b4e9ada6f8e121bba",
+      "hash": "e4be28f983669cd9710110dbd16f30d8",
       "mediatype": "text/json",
       "name": "georgian_budget",
       "path": "georgian_budget.csv",
@@ -42,8 +42,10 @@
             "type": "number"
           },
           {
+            "description": "Translated department name",
             "format": "default",
             "name": "name",
+            "title": "Department Name (English)",
             "type": "any"
           }
         ],

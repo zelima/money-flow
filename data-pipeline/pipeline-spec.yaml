@@ -51,6 +51,11 @@ georgian-budget-pipeline:
             operation: format
             target: name
             with: '{დ  ა ს ა ხ ე ლ ე ბ ა}'
+
+    - run: processors/translate_departments
+      parameters:
+        resources: georgian_budget
+
     
     - run: delete_fields
       parameters:
@@ -69,7 +74,8 @@ georgian-budget-pipeline:
            "name":
               type: any
     
-    # Step 3: Save as files
+    
+    # Step 4: Save as files
     - run: dump_to_path
       parameters:
         out-path: "../data/processed"
