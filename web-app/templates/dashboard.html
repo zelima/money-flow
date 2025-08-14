@@ -41,23 +41,7 @@
             opacity: 0.9;
         }
         
-        .status {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .status.error {
-            background: #fee;
-            border-left: 4px solid #e53e3e;
-        }
-        
-        .status.success {
-            background: #f0fff4;
-            border-left: 4px solid #38a169;
-        }
+
         
         .metrics-grid {
             display: grid;
@@ -181,14 +165,7 @@
             color: #555;
         }
         
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 200px;
-            color: #666;
-            font-size: 1.1rem;
-        }
+
         
         .footer {
             text-align: center;
@@ -219,15 +196,9 @@
             <p>Where does our money go as Georgian citizens?</p>
         </div>
         
-        <div id="status" class="status">
-            <div class="loading">Connecting to API...</div>
-        </div>
+
         
         <div id="metrics" class="metrics-grid" style="display: none;">
-            <div class="metric-card">
-                <div id="total-records" class="metric-value">-</div>
-                <div class="metric-label">Total Records</div>
-            </div>
             <div class="metric-card">
                 <div id="year-range" class="metric-value">-</div>
                 <div class="metric-label">Years Covered</div>
@@ -302,17 +273,12 @@
                 const response = await fetch('/api/health');
                 const health = await response.json();
                 
-                const statusDiv = document.getElementById('status');
-                if (health.status === 'healthy') {
-                    statusDiv.className = 'status success';
-                    statusDiv.innerHTML = `✅ API Connected (${health.records_count || 0} records available)`;
-                } else {
+                if (health.status !== 'healthy') {
                     throw new Error('API not healthy');
                 }
+                // API is healthy - continue silently
             } catch (error) {
-                const statusDiv = document.getElementById('status');
-                statusDiv.className = 'status error';
-                statusDiv.innerHTML = '❌ Cannot connect to API. Make sure the FastAPI server is running on port 8000.';
+                console.error('❌ Cannot connect to API. Make sure the FastAPI server is running on port 8000.');
                 throw error;
             }
         }
@@ -322,7 +288,6 @@
                 const response = await fetch('/api/summary');
                 const summary = await response.json();
                 
-                document.getElementById('total-records').textContent = summary.total_records?.toLocaleString() || '-';
                 document.getElementById('year-range').textContent = summary.year_range ? `${summary.year_range[0]}-${summary.year_range[1]}` : '-';
                 document.getElementById('total-budget').textContent = summary.total_budget ? summary.total_budget.toLocaleString(undefined, {maximumFractionDigits: 1}) + 'M ₾' : '-';
                 document.getElementById('departments-count').textContent = summary.departments_count || '-';
