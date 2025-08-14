@@ -56,7 +56,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./web-app:/app
-    command: ["python", "main.py"]
+    command: ["python", "app.py"]
 
 volumes:
   postgres_data:

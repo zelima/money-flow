@@ -1,12 +1,13 @@
 from flask import Flask, render_template, jsonify, request
 import requests
 import json
+import os
 from datetime import datetime
 
 app = Flask(__name__)
 
 # API Configuration
-API_BASE_URL = "http://localhost:8000"
+API_BASE_URL = os.environ.get('API_BASE_URL', 'http://localhost:8000')
 
 def fetch_api_data(endpoint):
     """Fetch data from the API"""
@@ -91,4 +92,4 @@ def api_drill_down_analysis(department, year):
     return jsonify(analysis_data or {"error": "Analysis not available"})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000) 
+    app.run(debug=True, host='0.0.0.0', port=5000) 
