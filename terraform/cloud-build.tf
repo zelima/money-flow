@@ -80,6 +80,7 @@ resource "google_cloudbuild_trigger" "frontend_trigger" {
    substitutions = {
      _ARTIFACT_REGISTRY_REPO = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker_repo.repository_id}"
      _ARTIFACT_REGISTRY_LOCATION = var.region
+     _BACKEND_URL = "https://georgian-budget-backend-api-77707349675.europe-west1.run.app"
    }
    
    service_account = google_service_account.cloud_build_sa.id
