@@ -1,0 +1,268 @@
+name: Check Deployment Status
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Check status daily at 8 AM UTC
+    - cron: '0 8 * * *'
+
+env:
+  PROJECT_ID: 'money-flow-469011'
+  REGION: 'europe-west1'
+
+jobs:
+  check-status:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ env.PROJECT_ID }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        project_id: ${{ env.PROJECT_ID }}
+
+    - name: Check CloudBuild Triggers
+      run: |
+        echo "🔍 Checking CloudBuild triggers..."
+        echo ""
+        
+        # List all triggers
+        echo "📋 All CloudBuild triggers:"
+        gcloud builds triggers list --region=${{ env.REGION }} --format="table(name,github.name,github.owner,status,disabled)" || echo "❌ Failed to list triggers"
+        echo ""
+        
+        # Check specific triggers
+        BACKEND_EXISTS=false
+        FRONTEND_EXISTS=false
+        
+        if gcloud builds triggers describe georgian-budget-backend-trigger --region=${{ env.REGION }} > /dev/null 2>&1; then
+          echo "✅ Backend trigger exists"
+          BACKEND_EXISTS=true
+        else
+          echo "❌ Backend trigger missing"
+        fi
+        
+        if gcloud builds triggers describe georgian-budget-frontend-trigger --region=${{ env.REGION }} > /dev/null 2>&1; then
+          echo "✅ Frontend trigger exists"
+          FRONTEND_EXISTS=true
+        else
+          echo "❌ Frontend trigger missing"
+        fi
+        
+        echo "BACKEND_TRIGGER_EXISTS=$BACKEND_EXISTS" >> $GITHUB_ENV
+        echo "FRONTEND_TRIGGER_EXISTS=$FRONTEND_EXISTS" >> $GITHUB_ENV
+
+    - name: Check Cloud Run Services
+      run: |
+        echo "🔍 Checking Cloud Run services..."
+        echo ""
+        
+        # List all Cloud Run services
+        echo "📋 All Cloud Run services:"
+        gcloud run services list --region=${{ env.REGION }} --format="table(metadata.name,status.url,status.conditions[0].status,metadata.labels)" || echo "❌ Failed to list services"
+        echo ""
+        
+        # Check specific services
+        BACKEND_RUNNING=false
+        FRONTEND_RUNNING=false
+        BACKEND_URL=""
+        FRONTEND_URL=""
+        
+        if gcloud run services describe georgian-budget-backend-api --region=${{ env.REGION }} > /dev/null 2>&1; then
+          STATUS=$(gcloud run services describe georgian-budget-backend-api --region=${{ env.REGION }} --format="value(status.conditions[0].status)")
+          if [ "$STATUS" = "True" ]; then
+            echo "✅ Backend service is running"
+            BACKEND_RUNNING=true
+            BACKEND_URL=$(gcloud run services describe georgian-budget-backend-api --region=${{ env.REGION }} --format="value(status.url)")
+            echo "   URL: $BACKEND_URL"
+          else
+            echo "⚠️ Backend service exists but not ready (Status: $STATUS)"
+          fi
+        else
+          echo "❌ Backend service not found"
+        fi
+        
+        if gcloud run services describe georgian-budget-frontend --region=${{ env.REGION }} > /dev/null 2>&1; then
+          STATUS=$(gcloud run services describe georgian-budget-frontend --region=${{ env.REGION }} --format="value(status.conditions[0].status)")
+          if [ "$STATUS" = "True" ]; then
+            echo "✅ Frontend service is running"
+            FRONTEND_RUNNING=true
+            FRONTEND_URL=$(gcloud run services describe georgian-budget-frontend --region=${{ env.REGION }} --format="value(status.url)")
+            echo "   URL: $FRONTEND_URL"
+          else
+            echo "⚠️ Frontend service exists but not ready (Status: $STATUS)"
+          fi
+        else
+          echo "❌ Frontend service not found"
+        fi
+        
+        echo "BACKEND_RUNNING=$BACKEND_RUNNING" >> $GITHUB_ENV
+        echo "FRONTEND_RUNNING=$FRONTEND_RUNNING" >> $GITHUB_ENV
+        echo "BACKEND_URL=$BACKEND_URL" >> $GITHUB_ENV
+        echo "FRONTEND_URL=$FRONTEND_URL" >> $GITHUB_ENV
+
+    - name: Check Infrastructure Components
+      run: |
+        echo "🔍 Checking infrastructure components..."
+        echo ""
+        
+        # Check Artifact Registry
+        echo "📦 Artifact Registry repositories:"
+        gcloud artifacts repositories list --format="table(name,format,location)" || echo "❌ Failed to list repositories"
+        echo ""
+        
+        # Check Load Balancer
+        echo "⚖️ Load Balancers:"
+        gcloud compute url-maps list --filter="name~georgian-budget" --format="table(name,defaultService)" || echo "❌ No load balancers found"
+        echo ""
+        
+        # Check VPC
+        echo "🔒 VPC Networks:"
+        gcloud compute networks list --filter="name~georgian" --format="table(name,subnet_mode,IPv4_range)" || echo "❌ No custom VPC found"
+        echo ""
+        
+        # Check Cloud SQL
+        echo "🐘 Cloud SQL instances:"
+        gcloud sql instances list --format="table(name,databaseVersion,region,settings.tier,state)" || echo "❌ No Cloud SQL instances found"
+
+    - name: Health Check Services
+      run: |
+        echo "🏥 Performing health checks..."
+        echo ""
+        
+        # Health check backend
+        if [ "${{ env.BACKEND_RUNNING }}" = "true" ] && [ -n "${{ env.BACKEND_URL }}" ]; then
+          echo "🔍 Checking backend health..."
+          if curl -f -s "${{ env.BACKEND_URL }}/health" > /dev/null 2>&1; then
+            echo "✅ Backend health check passed"
+            echo "BACKEND_HEALTHY=true" >> $GITHUB_ENV
+          else
+            echo "❌ Backend health check failed"
+            echo "BACKEND_HEALTHY=false" >> $GITHUB_ENV
+          fi
+        else
+          echo "⏭️ Skipping backend health check (service not running)"
+          echo "BACKEND_HEALTHY=false" >> $GITHUB_ENV
+        fi
+        
+        # Health check frontend
+        if [ "${{ env.FRONTEND_RUNNING }}" = "true" ] && [ -n "${{ env.FRONTEND_URL }}" ]; then
+          echo "🔍 Checking frontend health..."
+          if curl -f -s "${{ env.FRONTEND_URL }}" > /dev/null 2>&1; then
+            echo "✅ Frontend health check passed"
+            echo "FRONTEND_HEALTHY=true" >> $GITHUB_ENV
+          else
+            echo "❌ Frontend health check failed"
+            echo "FRONTEND_HEALTHY=false" >> $GITHUB_ENV
+          fi
+        else
+          echo "⏭️ Skipping frontend health check (service not running)"
+          echo "FRONTEND_HEALTHY=false" >> $GITHUB_ENV
+        fi
+
+    - name: Check Recent Builds
+      run: |
+        echo "🔍 Checking recent builds..."
+        echo ""
+        
+        # Get recent builds
+        echo "📋 Recent CloudBuild builds (last 10):"
+        gcloud builds list --limit=10 --format="table(id,status,source.repoSource.branchName,createTime,duration)" || echo "❌ Failed to list builds"
+        echo ""
+        
+        # Check for recent failures
+        echo "🔍 Recent failed builds:"
+        gcloud builds list --filter="status=FAILURE" --limit=5 --format="table(id,status,source.repoSource.branchName,createTime)" || echo "✅ No recent failures"
+
+    - name: Generate Deployment Report
+      run: |
+        echo "📊 Generating deployment status report..."
+        
+        # Calculate overall status
+        OVERALL_STATUS="❌ UNHEALTHY"
+        if [ "${{ env.BACKEND_TRIGGER_EXISTS }}" = "true" ] && [ "${{ env.FRONTEND_TRIGGER_EXISTS }}" = "true" ] && [ "${{ env.BACKEND_RUNNING }}" = "true" ] && [ "${{ env.FRONTEND_RUNNING }}" = "true" ]; then
+          if [ "${{ env.BACKEND_HEALTHY }}" = "true" ] && [ "${{ env.FRONTEND_HEALTHY }}" = "true" ]; then
+            OVERALL_STATUS="✅ HEALTHY"
+          else
+            OVERALL_STATUS="⚠️ PARTIALLY HEALTHY"
+          fi
+        elif [ "${{ env.BACKEND_RUNNING }}" = "true" ] || [ "${{ env.FRONTEND_RUNNING }}" = "true" ]; then
+          OVERALL_STATUS="⚠️ PARTIALLY DEPLOYED"
+        fi
+        
+        echo "OVERALL_STATUS=$OVERALL_STATUS" >> $GITHUB_ENV
+
+    - name: Create Status Summary
+      if: always()
+      run: |
+        echo "## 🇬🇪 Georgian Budget Application Status Report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🎯 Overall Status: ${{ env.OVERALL_STATUS }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Generated**: $(date -u)" >> $GITHUB_STEP_SUMMARY
+        echo "**Project**: ${{ env.PROJECT_ID }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Region**: ${{ env.REGION }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        echo "### 🔨 CloudBuild Triggers" >> $GITHUB_STEP_SUMMARY
+        echo "- **Backend Trigger**: ${{ env.BACKEND_TRIGGER_EXISTS == 'true' && '✅ Exists' || '❌ Missing' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Frontend Trigger**: ${{ env.FRONTEND_TRIGGER_EXISTS == 'true' && '✅ Exists' || '❌ Missing' }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        echo "### ☁️ Cloud Run Services" >> $GITHUB_STEP_SUMMARY
+        echo "- **Backend API**: ${{ env.BACKEND_RUNNING == 'true' && '✅ Running' || '❌ Not Running' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Frontend Web App**: ${{ env.FRONTEND_RUNNING == 'true' && '✅ Running' || '❌ Not Running' }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        echo "### 🏥 Health Checks" >> $GITHUB_STEP_SUMMARY
+        echo "- **Backend Health**: ${{ env.BACKEND_HEALTHY == 'true' && '✅ Healthy' || '❌ Unhealthy' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Frontend Health**: ${{ env.FRONTEND_HEALTHY == 'true' && '✅ Healthy' || '❌ Unhealthy' }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ -n "${{ env.BACKEND_URL }}" ] || [ -n "${{ env.FRONTEND_URL }}" ]; then
+          echo "### 🌐 Service URLs" >> $GITHUB_STEP_SUMMARY
+          if [ -n "${{ env.BACKEND_URL }}" ]; then
+            echo "- **Backend API**: ${{ env.BACKEND_URL }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -n "${{ env.FRONTEND_URL }}" ]; then
+            echo "- **Frontend Web App**: ${{ env.FRONTEND_URL }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "### 🔧 Recommended Actions" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ env.BACKEND_TRIGGER_EXISTS }}" != "true" ] || [ "${{ env.FRONTEND_TRIGGER_EXISTS }}" != "true" ]; then
+          echo "- ⚠️ **Missing Triggers**: Run \`terraform apply\` to create CloudBuild triggers" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔗 **GitHub Connection**: Ensure GitHub repository is connected in Cloud Build Console" >> $GITHUB_STEP_SUMMARY
+        fi
+        if [ "${{ env.BACKEND_RUNNING }}" != "true" ] || [ "${{ env.FRONTEND_RUNNING }}" != "true" ]; then
+          echo "- ⚠️ **Missing Services**: Run 'Full Application Deployment' workflow" >> $GITHUB_STEP_SUMMARY
+        fi
+        if [ "${{ env.BACKEND_HEALTHY }}" != "true" ] || [ "${{ env.FRONTEND_HEALTHY }}" != "true" ]; then
+          echo "- ⚠️ **Health Issues**: Check Cloud Run service logs" >> $GITHUB_STEP_SUMMARY
+        fi
+        if [ "${{ env.OVERALL_STATUS }}" = "✅ HEALTHY" ]; then
+          echo "- ✅ **All Good**: System is fully operational" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: Send Notification on Issues
+      if: env.OVERALL_STATUS != '✅ HEALTHY'
+      run: |
+        echo "⚠️ Deployment issues detected!"
+        echo "Overall Status: ${{ env.OVERALL_STATUS }}"
+        echo "Consider running the appropriate workflows to fix issues."
+        
+        # Create an issue comment or notification here if needed
+        # This could be extended to send Slack notifications, emails, etc.

@@ -1,5 +1,13 @@
 # Cloud Build Configuration for Georgian Budget Application
 # Phase 2: Automated CI/CD Pipeline
+#
+# IMPORTANT: Before applying this configuration, you must manually connect
+# the GitHub repository in GCP Console:
+# 1. Go to Cloud Build > Repositories
+# 2. Click "Connect Repository"
+# 3. Select GitHub and authorize the connection
+# 4. Choose the "zelima/money-flow" repository
+# 5. Then run `terraform apply` to create the triggers
 
 # Cloud Build Trigger for Backend API
 resource "google_cloudbuild_trigger" "backend_trigger" {
@@ -20,6 +28,11 @@ resource "google_cloudbuild_trigger" "backend_trigger" {
     revision  = "refs/heads/main"
     repo_type = "GITHUB"
   }
+
+  # Only trigger on changes to API files
+  included_files = [
+    "money-flow/api/**"
+  ]
   
   # Substitution variables for Cloud Build
   substitutions = {
@@ -57,6 +70,11 @@ resource "google_cloudbuild_trigger" "frontend_trigger" {
     revision  = "refs/heads/main"
     repo_type = "GITHUB"
   }
+
+  # Only trigger on changes to web-app files
+  included_files = [
+    "money-flow/web-app/**"
+  ]
   
      # Substitution variables for Cloud Build
    substitutions = {
@@ -103,7 +121,7 @@ resource "google_project_iam_member" "cloud_build_run_invoker" {
 # Artifact Registry Repository for Docker Images
 resource "google_artifact_registry_repository" "docker_repo" {
   location      = var.region
-  repository_id = "georgian-budget-docker"
+  repository_id = "docker-repo"
   description   = "Docker repository for Georgian Budget application images"
   format        = "DOCKER"
   
