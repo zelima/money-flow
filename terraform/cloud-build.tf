@@ -37,7 +37,7 @@ resource "google_cloudbuild_trigger" "backend_trigger" {
   # Substitution variables for Cloud Build
   substitutions = {
     _CLOUD_STORAGE_BUCKET = google_storage_bucket.data_bucket.name
-    _DATABASE_URL = "postgresql://${google_sql_user.database_user.name}:${google_sql_user.database_user.password}@${google_sql_database_instance.instance.connection_name}/${google_sql_database.database.name}"
+    _DATABASE_URL = "postgresql://${google_sql_user.database_user.name}:${google_sql_user.database_user.password}@${google_sql_database_instance.instance.private_ip_address}:5432/${google_sql_database.database.name}"
     _ARTIFACT_REGISTRY_REPO = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker_repo.repository_id}"
     _ARTIFACT_REGISTRY_LOCATION = var.region
   }

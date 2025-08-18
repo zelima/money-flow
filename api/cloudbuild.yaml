@@ -89,9 +89,4 @@ options:
   defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
   logging: CLOUD_LOGGING_ONLY
 
-# These substitution variables are set by Terraform
-substitutions:
-  _CLOUD_STORAGE_BUCKET: 'placeholder-bucket-name'
-  _DATABASE_URL: 'placeholder-database-url'
-  _ARTIFACT_REGISTRY_REPO: 'placeholder-repo'
-  _ARTIFACT_REGISTRY_LOCATION: 'placeholder-location'
+# Substitution variables are provided by Terraform CloudBuild trigger
