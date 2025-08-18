@@ -36,9 +36,9 @@ steps:
           --region=${_ARTIFACT_REGISTRY_LOCATION} \
           --platform=managed \
           --memory=512Mi \
-          --cpu=500m \
+          --cpu=1000m \
           --timeout=300 \
-          --concurrency=80 \
+          --concurrency=10 \
           --min-instances=0 \
           --max-instances=10 \
           --port=5000 \
