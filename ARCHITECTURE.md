@@ -26,39 +26,39 @@ The system follows a modern three-tier architecture with data pipeline automatio
 ```mermaid
 graph TB
     %% External Sources
-    GeoStat[🌐 geostat.ge<br/>Government Data Source]
-    GitHub[📱 GitHub Repository<br/>Code Changes]
-    Users[👥 End Users<br/>Budget Analysis]
+    GeoStat["🌐 geostat.ge<br/>Government Data Source"]
+    GitHub["📱 GitHub Repository<br/>Code Changes"]
+    Users["👥 End Users<br/>Budget Analysis"]
 
     %% Cloud Scheduler and Triggers
-    Scheduler[⏰ Cloud Scheduler<br/>Quarterly Triggers]
-    PubSub[📨 Pub/Sub Topic<br/>Pipeline Events]
+    Scheduler["⏰ Cloud Scheduler<br/>Quarterly Triggers"]
+    PubSub["📨 Pub/Sub Topic<br/>Pipeline Events"]
 
     %% Data Pipeline
-    CloudFunction[⚡ Cloud Function<br/>Data Processor<br/>Python Pipeline]
+    CloudFunction["⚡ Cloud Function<br/>Data Processor<br/>Python Pipeline"]
     
     %% Storage
-    CloudStorage[🗄️ Cloud Storage<br/>Raw Data: Excel<br/>Processed: CSV/JSON]
+    CloudStorage["🗄️ Cloud Storage<br/>Raw Data Excel<br/>Processed CSV JSON"]
     
     %% Database
-    CloudSQL[🐘 Cloud SQL<br/>PostgreSQL<br/>Analytics Data]
+    CloudSQL["🐘 Cloud SQL<br/>PostgreSQL<br/>Analytics Data"]
     
     %% Applications
-    Backend[🔧 Backend API<br/>FastAPI<br/>Cloud Run]
-    Frontend[🌐 Frontend App<br/>Flask Dashboard<br/>Cloud Run]
+    Backend["🔧 Backend API<br/>FastAPI<br/>Cloud Run"]
+    Frontend["🌐 Frontend App<br/>Flask Dashboard<br/>Cloud Run"]
     
     %% Infrastructure
-    LoadBalancer[⚖️ Global Load Balancer<br/>HTTP(S) + SSL<br/>CDN Enabled]
+    LoadBalancer["⚖️ Global Load Balancer<br/>HTTPS SSL<br/>CDN Enabled"]
     
     %% CI/CD
-    CloudBuild[🔨 Cloud Build<br/>Docker Build<br/>Auto Deploy]
-    ArtifactRegistry[📦 Artifact Registry<br/>Container Images]
+    CloudBuild["🔨 Cloud Build<br/>Docker Build<br/>Auto Deploy"]
+    ArtifactRegistry["📦 Artifact Registry<br/>Container Images"]
     
     %% Secrets
-    SecretManager[🔐 Secret Manager<br/>Database Credentials<br/>API Keys]
+    SecretManager["🔐 Secret Manager<br/>Database Credentials<br/>API Keys"]
     
     %% VPC and Networking
-    VPC[🔒 Private VPC<br/>Secure Networking<br/>VPC Connector]
+    VPC["🔒 Private VPC<br/>Secure Networking<br/>VPC Connector"]
 
     %% Data Flow
     GeoStat --> CloudFunction
@@ -283,17 +283,17 @@ CREATE TABLE sub_department_budgets (
 ```mermaid
 graph TB
     subgraph "Terraform State"
-        TerraformState[📋 Terraform State<br/>Infrastructure Definition]
+        TerraformState["📋 Terraform State<br/>Infrastructure Definition"]
     end
 
     subgraph "GCP Resources"
-        VPC[🔒 VPC Network]
-        CloudSQL[🐘 Cloud SQL]
-        ServiceAccounts[👤 Service Accounts]
-        LoadBalancer[⚖️ Load Balancer]
-        ArtifactRegistry[📦 Artifact Registry]
-        SecretManager[🔐 Secret Manager]
-        CloudBuild[🔨 Cloud Build Triggers]
+        VPC["🔒 VPC Network"]
+        CloudSQL["🐘 Cloud SQL"]
+        ServiceAccounts["👤 Service Accounts"]
+        LoadBalancer["⚖️ Load Balancer"]
+        ArtifactRegistry["📦 Artifact Registry"]
+        SecretManager["🔐 Secret Manager"]
+        CloudBuild["🔨 Cloud Build Triggers"]
     end
 
     TerraformState --> VPC
@@ -315,18 +315,18 @@ graph TB
 ```mermaid
 graph LR
     subgraph "Source Code"
-        API[📁 api/<br/>FastAPI Code]
-        WebApp[📁 web-app/<br/>Flask Code]
+        API["📁 api/<br/>FastAPI Code"]
+        WebApp["📁 web-app/<br/>Flask Code"]
     end
 
     subgraph "Cloud Build"
-        BuildAPI[🔨 Build API<br/>Docker Image]
-        BuildWeb[🔨 Build Web<br/>Docker Image]
+        BuildAPI["🔨 Build API<br/>Docker Image"]
+        BuildWeb["🔨 Build Web<br/>Docker Image"]
     end
 
     subgraph "Deployment"
-        CloudRunAPI[☁️ Cloud Run<br/>Backend API]
-        CloudRunWeb[☁️ Cloud Run<br/>Frontend Web]
+        CloudRunAPI["☁️ Cloud Run<br/>Backend API"]
+        CloudRunWeb["☁️ Cloud Run<br/>Frontend Web"]
     end
 
     API --> BuildAPI
