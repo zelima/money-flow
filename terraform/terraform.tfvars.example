@@ -1,0 +1,32 @@
+# Example Terraform variables for Georgian Budget Data Pipeline
+# Copy this file to terraform.tfvars and update with your values
+
+# GCP Project Configuration
+project_id = "your-gcp-project-id"
+region     = "europe-west1"  # Choose region close to Georgia for better performance
+zone       = "europe-west1-b"
+
+# Environment Configuration
+environment = "prod"  # or "dev", "staging"
+
+# Pipeline Configuration
+pipeline_schedule         = "0 6 15 3,6,9,12 *"  # Quarterly on 15th at 6 AM UTC
+data_retention_days       = 365                   # Keep data for 1 year
+function_timeout_seconds  = 540                   # 9 minutes for processing
+function_memory          = "1Gi"                  # Memory for data processing
+
+# Security Configuration
+enable_public_api_access = true  # Allow public access to manual trigger API
+
+# Monitoring Configuration
+budget_alert_threshold = 200                        # Alert when costs exceed $200
+notification_email    = "your-email@example.com"    # Email for alerts
+
+# Resource Labels
+labels = {
+  project     = "georgian-budget"
+  managed_by  = "terraform"
+  environment = "prod"
+  team        = "data-team"
+  cost_center = "analytics"
+}

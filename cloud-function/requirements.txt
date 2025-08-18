@@ -1,0 +1,21 @@
+# Requirements for Georgian Budget Data Pipeline Cloud Function
+
+# Core Cloud Function dependencies
+# No Flask needed for pure Cloud Functions 2nd gen
+
+# Google Cloud services
+google-cloud-storage==2.12.0
+google-cloud-logging==3.8.0
+google-cloud-pubsub==2.18.4
+
+# Core dependencies
+requests==2.31.0
+
+# Data pipeline dependencies (from data-pipeline/requirements.txt)
+# Using flexible version constraints to avoid pip conflicts
+git+https://github.com/zelima/datapackage-pipelines.git@master
+openpyxl
+xlrd
+python-dateutil
+pyyaml
+chardet
