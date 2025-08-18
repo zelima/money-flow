@@ -10,7 +10,7 @@ steps:
       '-t', '${_ARTIFACT_REGISTRY_REPO}/georgian-budget-frontend:latest',
       '.'
     ]
-    dir: 'money-flow/web-app'
+    dir: 'web-app'
 
   # Push the Docker image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
@@ -108,6 +108,11 @@ images:
 
 # Build timeout
 timeout: '1200s'
+
+# Logging configuration (required when using custom service account)
+options:
+  defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
+  logging: CLOUD_LOGGING_ONLY
 
 # These substitution variables are set by Terraform
 substitutions:

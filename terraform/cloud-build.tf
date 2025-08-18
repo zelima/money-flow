@@ -23,7 +23,7 @@ resource "google_cloudbuild_trigger" "backend_trigger" {
   }
   
   git_file_source {
-    path      = "money-flow/api/cloudbuild.yaml"
+    path      = "api/cloudbuild.yaml"
     uri       = "https://github.com/zelima/money-flow"
     revision  = "refs/heads/main"
     repo_type = "GITHUB"
@@ -31,7 +31,7 @@ resource "google_cloudbuild_trigger" "backend_trigger" {
 
   # Only trigger on changes to API files
   included_files = [
-    "money-flow/api/**"
+    "api/**"
   ]
   
   # Substitution variables for Cloud Build
@@ -65,7 +65,7 @@ resource "google_cloudbuild_trigger" "frontend_trigger" {
   }
   
   git_file_source {
-    path      = "money-flow/web-app/cloudbuild.yaml"
+    path      = "web-app/cloudbuild.yaml"
     uri       = "https://github.com/zelima/money-flow"
     revision  = "refs/heads/main"
     repo_type = "GITHUB"
@@ -73,7 +73,7 @@ resource "google_cloudbuild_trigger" "frontend_trigger" {
 
   # Only trigger on changes to web-app files
   included_files = [
-    "money-flow/web-app/**"
+    "web-app/**"
   ]
   
      # Substitution variables for Cloud Build
