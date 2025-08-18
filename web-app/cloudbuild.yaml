@@ -31,8 +31,8 @@ steps:
     args:
       - '-c'
       - |
-        # Get the backend API URL
-        BACKEND_URL=$(gcloud run services describe georgian-budget-backend-api --region=${_ARTIFACT_REGISTRY_LOCATION} --format='value(status.url)' || echo "http://placeholder-backend-url")
+        # Use the actual backend API URL
+        BACKEND_URL="https://georgian-budget-backend-api-77707349675.europe-west1.run.app"
         echo "Backend URL: $BACKEND_URL"
         # Store for next step
         echo "$BACKEND_URL" > /workspace/backend_url.txt

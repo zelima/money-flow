@@ -20,7 +20,7 @@ from database import (
     get_sub_departments_by_department, get_budget_drill_down
 )
 
-# Configure logging
+# Configure logging  
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
