@@ -25,7 +25,7 @@ variable "zone" {
   default     = "europe-west1-b"
   validation {
     condition = can(regex("^[a-z]+-[a-z]+[0-9]+-[a-z]$", var.zone))
-    error_message = "Zone must be a valid GCP zone format."
+    error_message = "Zone must be a valid GCP region format."
   }
 }
 
@@ -36,6 +36,16 @@ variable "environment" {
   validation {
     condition     = contains(["dev", "staging", "prod"], var.environment)
     error_message = "Environment must be one of: dev, staging, prod."
+  }
+}
+
+variable "domain_name" {
+  description = "Custom domain name for the application (optional)"
+  type        = string
+  default     = ""
+  validation {
+    condition = var.domain_name == "" || can(regex("^[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.[a-zA-Z]{2,}$", var.domain_name))
+    error_message = "Domain name must be a valid domain format or empty."
   }
 }
 

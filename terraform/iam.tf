@@ -53,16 +53,10 @@ resource "google_project_iam_member" "scheduler_run_invoker" {
   member  = "serviceAccount:${google_service_account.scheduler_sa.email}"
 }
 
-# Grant Cloud Build access to deploy the function
+# Grant default Cloud Build service account access to deploy the function
 resource "google_project_iam_member" "cloudbuild_function_developer" {
   project = var.project_id
   role    = "roles/cloudfunctions.developer"
-  member  = "serviceAccount:${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
-}
-
-resource "google_project_iam_member" "cloudbuild_storage_admin" {
-  project = var.project_id
-  role    = "roles/storage.admin"
   member  = "serviceAccount:${data.google_project.project.number}@cloudbuild.gserviceaccount.com"
 }
 

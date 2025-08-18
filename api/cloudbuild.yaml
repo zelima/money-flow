@@ -1,0 +1,92 @@
+# Cloud Build configuration for Georgian Budget Backend API
+# This file builds and deploys the backend API to Cloud Run
+
+steps:
+  # Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', '${_ARTIFACT_REGISTRY_REPO}/georgian-budget-backend-api:$COMMIT_SHA',
+      '-t', '${_ARTIFACT_REGISTRY_REPO}/georgian-budget-backend-api:latest',
+      '.'
+    ]
+    dir: 'money-flow/api'
+
+  # Push the Docker image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'push',
+      '${_ARTIFACT_REGISTRY_REPO}/georgian-budget-backend-api:$COMMIT_SHA'
+    ]
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'push',
+      '${_ARTIFACT_REGISTRY_REPO}/georgian-budget-backend-api:latest'
+    ]
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args: [
+      'run',
+      'deploy',
+      'georgian-budget-backend-api',
+      '--image', '${_ARTIFACT_REGISTRY_REPO}/georgian-budget-backend-api:$COMMIT_SHA',
+      '--region', '${_ARTIFACT_REGISTRY_LOCATION}',
+      '--platform', 'managed',
+      '--memory', '1Gi',
+      '--cpu', '1000m',
+      '--timeout', '300',
+      '--concurrency', '80',
+      '--min-instances', '0',
+      '--max-instances', '10',
+      '--port', '8000',
+      '--service-account', 'georgian-budget-backend-sa@$PROJECT_ID.iam.gserviceaccount.com',
+      '--vpc-connector', 'gb-vpc-connector',
+      '--vpc-egress', 'private-ranges-only',
+      '--ingress', 'internal',
+      '--set-env-vars', 'ENVIRONMENT=prod',
+      '--set-env-vars', 'CLOUD_STORAGE_BUCKET=${_CLOUD_STORAGE_BUCKET}',
+      '--set-env-vars', 'CLOUD_STORAGE_PREFIX=data/processed',
+      '--set-env-vars', 'DATABASE_URL=${_DATABASE_URL}',
+      '--quiet'
+    ]
+
+  # Update Load Balancer Backend Services to point to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        # Get the Cloud Run service URL
+        BACKEND_URL=$(gcloud run services describe georgian-budget-backend-api --region=${_ARTIFACT_REGISTRY_LOCATION} --format='value(status.url)')
+        
+        # Create Network Endpoint Group for the Cloud Run service
+        gcloud compute network-endpoint-groups create georgian-budget-backend-neg \
+          --region=${_ARTIFACT_REGISTRY_LOCATION} \
+          --network-endpoint-type=serverless \
+          --cloud-run-service=georgian-budget-backend-api \
+          --quiet || true
+        
+        # Update the backend service to use the NEG
+        gcloud compute backend-services add-backend georgian-budget-default-backend \
+          --global \
+          --network-endpoint-group=georgian-budget-backend-neg \
+          --network-endpoint-group-region=${_ARTIFACT_REGISTRY_LOCATION} \
+          --quiet || true
+
+# Store images in Artifact Registry
+images:
+  - '${_ARTIFACT_REGISTRY_REPO}/georgian-budget-backend-api:$COMMIT_SHA'
+  - '${_ARTIFACT_REGISTRY_REPO}/georgian-budget-backend-api:latest'
+
+# Build timeout
+timeout: '1200s'
+
+# These substitution variables are set by Terraform
+substitutions:
+  _CLOUD_STORAGE_BUCKET: 'placeholder-bucket-name'
+  _DATABASE_URL: 'placeholder-database-url'
+  _ARTIFACT_REGISTRY_REPO: 'placeholder-repo'
+  _ARTIFACT_REGISTRY_LOCATION: 'placeholder-location'

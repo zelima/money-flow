@@ -1,12 +1,14 @@
 from fastapi import FastAPI, HTTPException, Query, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
-import pandas as pd
 import requests
 import io
 from datetime import datetime
 import logging
 from sqlalchemy.orm import Session
+import os
+from google.cloud import storage
+import json
 
 from models import (
     BudgetRecord, BudgetSummary, DepartmentTrend, 
@@ -41,60 +43,75 @@ app.add_middleware(
 )
 
 # Global variable to store budget data
-budget_data: pd.DataFrame = None
+budget_data: List[dict] = None
+
+# Environment configuration
+ENVIRONMENT = os.getenv("ENVIRONMENT", "local")
+CLOUD_STORAGE_BUCKET = os.getenv("CLOUD_STORAGE_BUCKET", "")
+CLOUD_STORAGE_PREFIX = os.getenv("CLOUD_STORAGE_PREFIX", "data/processed")
 
 
-def load_budget_data():
-    """Load budget data from GitHub repository (latest pipeline data)"""
+def load_budget_data_from_cloud_storage():
+    """Load budget data from Google Cloud Storage"""
     global budget_data
     
-    # GitHub raw file URLs for the pipeline-generated data
-    GITHUB_REPO = "https://raw.githubusercontent.com/zelima/money-flow/main"
-    CSV_URL = f"{GITHUB_REPO}/data/processed/georgian_budget.csv"
-    DATAPACKAGE_URL = f"{GITHUB_REPO}/data/processed/datapackage.json"
-    
     try:
-        logger.info("🌐 Fetching latest budget data from GitHub repository...")
+        logger.info("☁️ Fetching budget data from Cloud Storage...")
         
-        # Fetch CSV data from GitHub
-        response = requests.get(CSV_URL, timeout=30)
-        response.raise_for_status()
+        # Initialize Cloud Storage client
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(CLOUD_STORAGE_BUCKET)
         
-        # Read CSV data directly from the response
-        budget_data = pd.read_csv(io.StringIO(response.text))
-        budget_data['budget'] = pd.to_numeric(budget_data['budget'], errors='coerce')
-        budget_data['year'] = pd.to_numeric(budget_data['year'], errors='coerce')
-        budget_data = budget_data.dropna()
+        # Get JSON file from Cloud Storage (preferred over CSV)
+        json_blob = bucket.blob(f"{CLOUD_STORAGE_PREFIX}/georgian_budget.json")
+        if not json_blob.exists():
+            raise Exception(f"JSON file not found in bucket: {CLOUD_STORAGE_BUCKET}/{CLOUD_STORAGE_PREFIX}/georgian_budget.json")
+        
+        # Download and read JSON data
+        json_content = json_blob.download_as_text()
+        budget_data = json.loads(json_content)
+        
+        # Validate data structure
+        if not isinstance(budget_data, list) or len(budget_data) == 0:
+            raise Exception("Invalid JSON data structure - expected non-empty list")
         
         # Get data statistics
-        years_range = f"{budget_data['year'].min():.0f}-{budget_data['year'].max():.0f}"
-        departments_count = budget_data['name'].nunique()
-        total_budget = budget_data['budget'].sum()
+        years = [record.get('year') for record in budget_data if record.get('year')]
+        departments = [record.get('name') for record in budget_data if record.get('name')]
+        budgets = [record.get('budget') for record in budget_data if record.get('budget')]
+        
+        if years and departments and budgets:
+            years_range = f"{min(years)}-{max(years)}"
+            departments_count = len(set(departments))
+            total_budget = sum(budgets)
+            
+            logger.info(f"✅ Loaded {len(budget_data)} budget records from Cloud Storage")
+            logger.info(f"📅 Years: {years_range} | 🏛️ Departments: {departments_count} | 💰 Total: {total_budget:,.1f}M ₾")
+            logger.info(f"☁️ Data source: Cloud Storage bucket {CLOUD_STORAGE_BUCKET}")
+        else:
+            logger.warning("⚠️ Some budget records missing required fields")
         
         # Try to get metadata from datapackage.json
         try:
-            meta_response = requests.get(DATAPACKAGE_URL, timeout=10)
-            if meta_response.status_code == 200:
-                import json
-                metadata = json.loads(meta_response.text)
+            meta_blob = bucket.blob(f"{CLOUD_STORAGE_PREFIX}/datapackage.json")
+            if meta_blob.exists():
+                metadata = json.loads(meta_blob.download_as_text())
                 last_update = metadata.get('updated', 'Unknown')
                 logger.info(f"📊 Data last updated: {last_update}")
-        except:
-            logger.warning("Could not fetch metadata from datapackage.json")
+        except Exception as e:
+            logger.warning(f"Could not fetch metadata from datapackage.json: {e}")
         
-        logger.info(f"✅ Loaded {len(budget_data)} budget records from GitHub pipeline data")
-        logger.info(f"📅 Years: {years_range} | 🏛️ Departments: {departments_count} | 💰 Total: {total_budget:,.1f}M ₾")
-        logger.info(f"🌐 Data source: {CSV_URL}")
-        
-    except requests.exceptions.RequestException as e:
-        logger.error(f"❌ Network error fetching data from GitHub: {e}")
-        raise HTTPException(status_code=503, detail="Unable to fetch data from GitHub repository")
-    except pd.errors.EmptyDataError:
-        logger.error("❌ Empty or invalid CSV data received from GitHub")
-        raise HTTPException(status_code=503, detail="Invalid data format received from GitHub")
     except Exception as e:
-        logger.error(f"❌ Error loading budget data from GitHub: {e}")
-        raise HTTPException(status_code=503, detail=f"Data loading error: {str(e)}")
+        logger.error(f"❌ Error loading budget data from Cloud Storage: {e}")
+        raise HTTPException(status_code=503, detail=f"Unable to fetch data from Cloud Storage: {str(e)}")
+
+
+def load_budget_data():
+    """Load budget data from Cloud Storage"""
+    if not CLOUD_STORAGE_BUCKET:
+        raise HTTPException(status_code=500, detail="Cloud Storage bucket not configured")
+    
+    load_budget_data_from_cloud_storage()
 
 
 # Load data on startup
@@ -107,7 +124,7 @@ async def startup_event():
     else:
         logger.warning("⚠️ PostgreSQL connection failed - drill-down features disabled")
     
-    # Load GitHub budget data
+    # Load budget data from Cloud Storage
     load_budget_data()
 
 
@@ -117,15 +134,20 @@ async def root():
     # Get real-time data stats
     data_stats = {}
     if budget_data is not None:
-        data_stats = {
-            "records": len(budget_data),
-            "years": f"{budget_data['year'].min():.0f}-{budget_data['year'].max():.0f}",
-            "departments": budget_data['name'].nunique(),
-            "total_budget_millions": f"{budget_data['budget'].sum():,.1f}M ₾",
-            "data_source": "🌐 Fetched from GitHub repository",
-            "github_repo": "https://github.com/zelima/money-flow",
-            "drill_down_enabled": "🐘 PostgreSQL sub-departments available"
-        }
+        years = [record.get('year') for record in budget_data if record.get('year')]
+        departments = [record.get('name') for record in budget_data if record.get('name')]
+        budgets = [record.get('budget') for record in budget_data if record.get('budget')]
+        
+        if years and departments and budgets:
+            data_stats = {
+                "records": len(budget_data),
+                "years": f"{min(years)}-{max(years)}",
+                "departments": len(set(departments)),
+                "total_budget_millions": f"{sum(budgets):,.1f}M ₾",
+                "data_source": "☁️ Cloud Storage",
+                "environment": ENVIRONMENT,
+                "drill_down_enabled": "🐘 PostgreSQL sub-departments available" if test_connection() else "⚠️ PostgreSQL not available"
+            }
     
     return APIResponse(
         data={
@@ -153,10 +175,18 @@ async def root():
 async def health_check():
     """Health check endpoint"""
     global budget_data
+    
+    # Check database connection
+    db_status = "connected" if test_connection() else "disconnected"
+    
     return {
         "status": "healthy",
+        "environment": ENVIRONMENT,
         "data_loaded": budget_data is not None,
-        "records_count": len(budget_data) if budget_data is not None else 0
+        "records_count": len(budget_data) if budget_data is not None else 0,
+        "database": db_status,
+        "data_source": "cloud_storage",
+        "cloud_storage_bucket": CLOUD_STORAGE_BUCKET
     }
 
 
@@ -179,30 +209,31 @@ async def get_budget_data(
     filtered_data = budget_data.copy()
     
     if year:
-        filtered_data = filtered_data[filtered_data['year'] == year]
+        filtered_data = [record for record in filtered_data if record.get('year') == year]
     
     if department:
-        filtered_data = filtered_data[
-            filtered_data['name'].str.contains(department, case=False, na=False)
+        filtered_data = [
+            record for record in filtered_data 
+            if record.get('name') and department.lower() in record.get('name', '').lower()
         ]
     
     if min_budget is not None:
-        filtered_data = filtered_data[filtered_data['budget'] >= min_budget]
+        filtered_data = [record for record in filtered_data if record.get('budget', 0) >= min_budget]
     
     if max_budget is not None:
-        filtered_data = filtered_data[filtered_data['budget'] <= max_budget]
+        filtered_data = [record for record in filtered_data if record.get('budget', 0) <= max_budget]
     
     # Apply pagination
     total_records = len(filtered_data)
-    filtered_data = filtered_data.iloc[offset:offset + limit]
+    filtered_data = filtered_data[offset:offset + limit]
     
     # Convert to list of BudgetRecord objects
     records = []
-    for _, row in filtered_data.iterrows():
+    for record in filtered_data:
         records.append(BudgetRecord(
-            year=int(row['year']),
-            budget=float(row['budget']),
-            name=str(row['name'])
+            year=int(record.get('year', 0)),
+            budget=float(record.get('budget', 0)),
+            name=str(record.get('name', ''))
         ))
     
     return records
@@ -216,11 +247,18 @@ async def get_summary():
     if budget_data is None:
         raise HTTPException(status_code=500, detail="Budget data not loaded")
     
+    years = [record.get('year') for record in budget_data if record.get('year')]
+    budgets = [record.get('budget') for record in budget_data if record.get('budget')]
+    departments = [record.get('name') for record in budget_data if record.get('name')]
+    
+    if not years or not budgets or not departments:
+        raise HTTPException(status_code=500, detail="Invalid data structure")
+    
     return BudgetSummary(
         total_records=len(budget_data),
-        year_range=(int(budget_data['year'].min()), int(budget_data['year'].max())),
-        total_budget=float(budget_data['budget'].sum()),
-        departments_count=budget_data['name'].nunique()
+        year_range=(min(years), max(years)),
+        total_budget=sum(budgets),
+        departments_count=len(set(departments))
     )
 
 
@@ -232,7 +270,8 @@ async def get_departments():
     if budget_data is None:
         raise HTTPException(status_code=500, detail="Budget data not loaded")
     
-    return sorted(budget_data['name'].unique().tolist())
+    departments = [record.get('name') for record in budget_data if record.get('name')]
+    return sorted(list(set(departments)))
 
 
 @app.get("/trends/{department}", response_model=DepartmentTrend)
@@ -243,32 +282,33 @@ async def get_department_trend(department: str):
     if budget_data is None:
         raise HTTPException(status_code=500, detail="Budget data not loaded")
     
-    # Find department (partial match)
-    dept_data = budget_data[
-        budget_data['name'].str.contains(department, case=False, na=False)
-    ].copy()
+    # Find department records (partial match)
+    dept_data = [
+        record for record in budget_data 
+        if record.get('name') and department.lower() in record.get('name', '').lower()
+    ]
     
-    if dept_data.empty:
+    if not dept_data:
         raise HTTPException(status_code=404, detail=f"Department '{department}' not found")
     
     # Sort by year
-    dept_data = dept_data.sort_values('year')
+    dept_data = sorted(dept_data, key=lambda x: x.get('year', 0))
     
     # Calculate growth rate (if we have more than one year)
     growth_rate = None
     if len(dept_data) > 1:
-        first_budget = dept_data.iloc[0]['budget']
-        last_budget = dept_data.iloc[-1]['budget']
-        years_span = dept_data.iloc[-1]['year'] - dept_data.iloc[0]['year']
+        first_budget = dept_data[0].get('budget', 0)
+        last_budget = dept_data[-1].get('budget', 0)
+        years_span = dept_data[-1].get('year', 0) - dept_data[0].get('year', 0)
         if first_budget > 0 and years_span > 0:
             growth_rate = ((last_budget / first_budget) ** (1/years_span) - 1) * 100
     
     return DepartmentTrend(
-        department=dept_data.iloc[0]['name'],
-        years=dept_data['year'].tolist(),
-        budgets=dept_data['budget'].tolist(),
-        total_budget=float(dept_data['budget'].sum()),
-        avg_budget=float(dept_data['budget'].mean()),
+        department=dept_data[0].get('name', ''),
+        years=[record.get('year', 0) for record in dept_data],
+        budgets=[record.get('budget', 0) for record in dept_data],
+        total_budget=sum(record.get('budget', 0) for record in dept_data),
+        avg_budget=sum(record.get('budget', 0) for record in dept_data) / len(dept_data),
         growth_rate=growth_rate
     )
 
@@ -281,24 +321,24 @@ async def get_year_summary(year: int):
     if budget_data is None:
         raise HTTPException(status_code=500, detail="Budget data not loaded")
     
-    year_data = budget_data[budget_data['year'] == year].copy()
+    year_data = [record for record in budget_data if record.get('year') == year]
     
-    if year_data.empty:
+    if not year_data:
         raise HTTPException(status_code=404, detail=f"No data found for year {year}")
     
     # Sort by budget descending
-    year_data = year_data.sort_values('budget', ascending=False)
+    year_data = sorted(year_data, key=lambda x: x.get('budget', 0), reverse=True)
     
     departments = []
-    for _, row in year_data.iterrows():
+    for record in year_data:
         departments.append({
-            "name": row['name'],
-            "budget": row['budget']
+            "name": record.get('name', ''),
+            "budget": record.get('budget', 0)
         })
     
     return YearSummary(
         year=year,
-        total_budget=float(year_data['budget'].sum()),
+        total_budget=sum(record.get('budget', 0) for record in year_data),
         departments=departments,
         top_departments=departments[:10]  # Top 10 departments
     )
@@ -316,14 +356,17 @@ async def search_departments(
         raise HTTPException(status_code=500, detail="Budget data not loaded")
     
     # Search in department names
-    matching_depts = budget_data[
-        budget_data['name'].str.contains(q, case=False, na=False)
-    ]['name'].unique()
+    matching_depts = [
+        record.get('name') for record in budget_data 
+        if record.get('name') and q.lower() in record.get('name', '').lower()
+    ]
+    
+    unique_depts = list(set(matching_depts))
     
     return {
         "query": q,
-        "results": matching_depts[:limit].tolist(),
-        "total_found": len(matching_depts)
+        "results": unique_depts[:limit],
+        "total_found": len(unique_depts)
     }
 
 
@@ -336,7 +379,7 @@ async def get_department_drill_down(
 ):
     """
     Get sub-department breakdown for a specific department
-    Combines PostgreSQL sub-department data with GitHub main department data
+    Combines PostgreSQL sub-department data with Cloud Storage main department data
     """
     # Check if database is available
     if db is None:
@@ -353,12 +396,12 @@ async def get_department_drill_down(
     # Get sub-departments with optional budget data
     sub_depts = get_sub_departments_by_department(db, dept.id, year)
     
-    # Get main department budget from GitHub data (if available)
+    # Get main department budget from Cloud Storage data (if available)
     main_budget = None
     if budget_data is not None and year:
-        dept_data = budget_data[(budget_data['name'] == department) & (budget_data['year'] == year)]
-        if not dept_data.empty:
-            main_budget = float(dept_data['budget'].iloc[0])
+        dept_records = [record for record in budget_data if record.get('name') == department and record.get('year') == year]
+        if dept_records:
+            main_budget = float(dept_records[0].get('budget', 0))
     
     # Convert to response models
     sub_dept_models = []
@@ -415,15 +458,15 @@ async def get_drill_down_analysis(
             detail="PostgreSQL drill-down database not available. Please start the database to access sub-department analysis."
         )
     
-    # Get main department budget from GitHub data
+    # Get main department budget from Cloud Storage data
     if budget_data is None:
-        raise HTTPException(status_code=503, detail="GitHub budget data not available")
+        raise HTTPException(status_code=503, detail="Cloud Storage budget data not available")
     
-    dept_data = budget_data[(budget_data['name'] == department) & (budget_data['year'] == year)]
-    if dept_data.empty:
+    dept_records = [record for record in budget_data if record.get('name') == department and record.get('year') == year]
+    if not dept_records:
         raise HTTPException(status_code=404, detail=f"No budget data found for {department} in {year}")
     
-    main_budget = float(dept_data['budget'].iloc[0])
+    main_budget = float(dept_records[0].get('budget', 0))
     
     # Get drill-down data from PostgreSQL
     drill_down_data = get_budget_drill_down(db, department, year, limit=50)

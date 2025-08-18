@@ -1,0 +1,115 @@
+# Cloud Build configuration for Georgian Budget Frontend Web App
+# This file builds and deploys the frontend web app to Cloud Run
+
+steps:
+  # Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', '${_ARTIFACT_REGISTRY_REPO}/georgian-budget-frontend:$COMMIT_SHA',
+      '-t', '${_ARTIFACT_REGISTRY_REPO}/georgian-budget-frontend:latest',
+      '.'
+    ]
+    dir: 'money-flow/web-app'
+
+  # Push the Docker image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'push',
+      '${_ARTIFACT_REGISTRY_REPO}/georgian-budget-frontend:$COMMIT_SHA'
+    ]
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'push',
+      '${_ARTIFACT_REGISTRY_REPO}/georgian-budget-frontend:latest'
+    ]
+
+  # Get Backend URL for Frontend configuration
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        # Get the backend API URL
+        BACKEND_URL=$(gcloud run services describe georgian-budget-backend-api --region=${_ARTIFACT_REGISTRY_LOCATION} --format='value(status.url)' || echo "http://placeholder-backend-url")
+        echo "Backend URL: $BACKEND_URL"
+        # Store for next step
+        echo "$BACKEND_URL" > /workspace/backend_url.txt
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        # Read backend URL
+        BACKEND_URL=$(cat /workspace/backend_url.txt || echo "http://placeholder-backend-url")
+        
+        gcloud run deploy georgian-budget-frontend \
+          --image=${_ARTIFACT_REGISTRY_REPO}/georgian-budget-frontend:$COMMIT_SHA \
+          --region=${_ARTIFACT_REGISTRY_LOCATION} \
+          --platform=managed \
+          --memory=512Mi \
+          --cpu=500m \
+          --timeout=300 \
+          --concurrency=80 \
+          --min-instances=0 \
+          --max-instances=10 \
+          --port=5000 \
+          --service-account=georgian-budget-frontend-sa@$PROJECT_ID.iam.gserviceaccount.com \
+          --ingress=all \
+          --allow-unauthenticated \
+          --set-env-vars=ENVIRONMENT=prod \
+          --set-env-vars=API_BASE_URL="$BACKEND_URL" \
+          --quiet
+
+  # Update Load Balancer to include Frontend
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        # Get the Frontend service URL
+        FRONTEND_URL=$(gcloud run services describe georgian-budget-frontend --region=${_ARTIFACT_REGISTRY_LOCATION} --format='value(status.url)')
+        
+        # Create Network Endpoint Group for the Frontend service
+        gcloud compute network-endpoint-groups create georgian-budget-frontend-neg \
+          --region=${_ARTIFACT_REGISTRY_LOCATION} \
+          --network-endpoint-type=serverless \
+          --cloud-run-service=georgian-budget-frontend \
+          --quiet || true
+        
+        # Create backend service for frontend
+        gcloud compute backend-services create georgian-budget-frontend-backend \
+          --global \
+          --protocol=HTTP \
+          --port-name=http \
+          --timeout=30 \
+          --enable-cdn \
+          --quiet || true
+        
+        # Add frontend NEG to backend service
+        gcloud compute backend-services add-backend georgian-budget-frontend-backend \
+          --global \
+          --network-endpoint-group=georgian-budget-frontend-neg \
+          --network-endpoint-group-region=${_ARTIFACT_REGISTRY_LOCATION} \
+          --quiet || true
+        
+        # Update URL map to route to frontend by default
+        gcloud compute url-maps edit georgian-budget-url-map \
+          --global \
+          --quiet || true
+
+# Store images in Artifact Registry
+images:
+  - '${_ARTIFACT_REGISTRY_REPO}/georgian-budget-frontend:$COMMIT_SHA'
+  - '${_ARTIFACT_REGISTRY_REPO}/georgian-budget-frontend:latest'
+
+# Build timeout
+timeout: '1200s'
+
+# These substitution variables are set by Terraform
+substitutions:
+  _ARTIFACT_REGISTRY_REPO: 'placeholder-repo'
+  _ARTIFACT_REGISTRY_LOCATION: 'placeholder-location'

@@ -12,7 +12,7 @@ API_BASE_URL = os.environ.get('API_BASE_URL', 'http://localhost:8000')
 def fetch_api_data(endpoint):
     """Fetch data from the API"""
     try:
-        response = requests.get(f"{API_BASE_URL}{endpoint}")
+        response = requests.get(f"{API_BASE_URL}{endpoint}", timeout=30)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
@@ -23,6 +23,16 @@ def fetch_api_data(endpoint):
 def dashboard():
     """Main dashboard page"""
     return render_template('dashboard.html')
+
+@app.route('/health')
+def health_check():
+    """Health check endpoint for Cloud Run"""
+    return jsonify({
+        "status": "healthy",
+        "service": "georgian-budget-frontend",
+        "environment": os.environ.get('ENVIRONMENT', 'local'),
+        "api_base_url": API_BASE_URL
+    })
 
 @app.route('/api/health')
 def api_health():
