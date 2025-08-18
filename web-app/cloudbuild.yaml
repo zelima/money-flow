@@ -25,27 +25,12 @@ steps:
       '${_ARTIFACT_REGISTRY_REPO}/georgian-budget-frontend:latest'
     ]
 
-  # Get Backend URL for Frontend configuration
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        # Use the backend API URL from CloudBuild substitutions
-        BACKEND_URL="${_BACKEND_URL}"
-        echo "Backend URL: $BACKEND_URL"
-        # Store for next step
-        echo "$BACKEND_URL" > /workspace/backend_url.txt
-
   # Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'bash'
     args:
       - '-c'
-      - |
-        # Read backend URL
-        BACKEND_URL=$(cat /workspace/backend_url.txt || echo "http://placeholder-backend-url")
-        
+      - |        
         gcloud run deploy georgian-budget-frontend \
           --image=${_ARTIFACT_REGISTRY_REPO}/georgian-budget-frontend:$COMMIT_SHA \
           --region=${_ARTIFACT_REGISTRY_LOCATION} \
@@ -61,7 +46,7 @@ steps:
           --ingress=all \
           --allow-unauthenticated \
           --set-env-vars=ENVIRONMENT=prod \
-          --set-env-vars=API_BASE_URL="$BACKEND_URL" \
+          --set-env-vars=API_BASE_URL=${_BACKEND_URL} \
           --quiet
 
   # Update Load Balancer to include Frontend
