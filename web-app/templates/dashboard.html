@@ -139,6 +139,19 @@
             height: 400px;
         }
         
+        .chart-info {
+            margin-bottom: 15px;
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #45b089;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
         .data-table {
             background: white;
             border-radius: 10px;
@@ -230,6 +243,11 @@
         <div id="charts" class="charts-grid" style="display: none;">
             <div class="chart-card">
                 <h3>📊 Budget by Year</h3>
+                <div id="year-chart-info" class="chart-info" style="display: none;">
+                    <div class="info-box">
+                        <span id="year-comparison-summary"></span>
+                    </div>
+                </div>
                 <div class="chart-container">
                     <canvas id="yearChart"></canvas>
                 </div>
@@ -456,7 +474,14 @@
                         title: { display: true, text: 'Budget Trends Over Time' }
                     },
                     scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Budget (Million ₾)' } }
+                        y: { beginAtZero: true, title: { display: true, text: 'Budget (Million ₾)' } },
+                        x: { 
+                            beginAtZero: false,
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 0
+                            }
+                        }
                     }
                 }
             });
@@ -476,6 +501,37 @@
         }
         
         function updateYearChart() {
+            const year = document.getElementById('year-filter').value;
+            const department = document.getElementById('department-filter').value;
+            
+            console.log('🔍 updateYearChart called with:', { year, department });
+            
+            if (year) {
+                // Year selected - show year comparison
+                if (department && department.trim() !== '') {
+                    // Year + Department selected - show sub-departments year comparison
+                    console.log('📊 Showing sub-departments year comparison for:', department, year);
+                    updateSubDepartmentYearComparison(department, year);
+                } else {
+                    // Year only selected - show main departments year comparison
+                    console.log('📈 Showing main departments year comparison for year:', year);
+                    updateYearComparisonChart(year);
+                }
+            } else {
+                // No year selected - show time series
+                if (department && department.trim() !== '') {
+                    // Department only selected - show sub-departments breakdown
+                    console.log('📊 Showing sub-departments breakdown for department:', department);
+                    updateSubDepartmentBreakdown(department);
+                } else {
+                    // No filters - show time series
+                    console.log('📊 Showing time series for all years');
+                    updateTimeSeriesChart();
+                }
+            }
+        }
+        
+        function updateTimeSeriesChart() {
             const yearData = {};
             currentData.forEach(record => {
                 yearData[record.year] = (yearData[record.year] || 0) + record.budget;
@@ -483,6 +539,11 @@
             
             const years = Object.keys(yearData).sort();
             const budgets = years.map(year => yearData[year]);
+            
+            // Update chart type and options for time series
+            yearChart.config.type = 'line';
+            yearChart.options.plugins.title.text = 'Budget Trends Over Time';
+            yearChart.options.scales.y.title.text = 'Budget (Million ₾)';
             
             yearChart.data.labels = years;
             yearChart.data.datasets = [{
@@ -493,7 +554,343 @@
                 fill: true,
                 tension: 0.1
             }];
+            
+            // Hide summary info for time series
+            document.getElementById('year-chart-info').style.display = 'none';
+            
             yearChart.update();
+        }
+        
+        async function updateYearComparisonChart(selectedYear) {
+            try {
+                // Fetch data for the selected year and previous year
+                const previousYear = parseInt(selectedYear) - 1;
+                
+                // Get data for both years
+                let currentYearUrl = `/api/budget?year=${selectedYear}&limit=1000`;
+                let previousYearUrl = `/api/budget?year=${previousYear}&limit=1000`;
+                
+                const [currentResponse, previousResponse] = await Promise.all([
+                    fetch(currentYearUrl),
+                    fetch(previousYearUrl)
+                ]);
+                
+                const currentYearData = await currentResponse.json();
+                const previousYearData = await previousResponse.json();
+                
+                // Create department comparison data
+                const comparisonData = {};
+                
+                // Process current year data
+                currentYearData.forEach(record => {
+                    comparisonData[record.name] = {
+                        current: record.budget,
+                        previous: 0
+                    };
+                });
+                
+                // Process previous year data
+                previousYearData.forEach(record => {
+                    if (comparisonData[record.name]) {
+                        comparisonData[record.name].previous = record.budget;
+                    } else {
+                        comparisonData[record.name] = {
+                            current: 0,
+                            previous: record.budget
+                        };
+                    }
+                });
+                
+                // Convert to chart format and sort by current year budget
+                const departments = Object.keys(comparisonData);
+                const sortedDepartments = departments.sort((a, b) => comparisonData[b].current - comparisonData[a].current);
+                
+                const currentBudgets = sortedDepartments.map(dept => comparisonData[dept].current);
+                const previousBudgets = sortedDepartments.map(dept => comparisonData[dept].previous);
+                
+                // Calculate percentage changes for tooltip
+                const percentageChanges = sortedDepartments.map(dept => {
+                    const current = comparisonData[dept].current;
+                    const previous = comparisonData[dept].previous;
+                    if (previous === 0) return current > 0 ? '+∞%' : '0%';
+                    const change = ((current - previous) / previous) * 100;
+                    return change >= 0 ? `+${change.toFixed(1)}%` : `${change.toFixed(1)}%`;
+                });
+                
+                // Update chart type and options for comparison
+                yearChart.config.type = 'bar';
+                yearChart.options.plugins.title.text = `Budget Comparison: ${selectedYear} vs ${previousYear}`;
+                yearChart.options.scales.y.title.text = 'Budget (Million ₾)';
+                yearChart.options.scales.x.ticks.maxRotation = 45;
+                
+                yearChart.data.labels = sortedDepartments;
+                yearChart.data.datasets = [
+                    {
+                        label: selectedYear,
+                        data: currentBudgets,
+                        backgroundColor: '#45b089',
+                        borderColor: '#45b089',
+                        borderWidth: 1
+                    },
+                    {
+                        label: previousYear,
+                        data: previousBudgets,
+                        backgroundColor: '#FF6B6B',
+                        borderColor: '#FF6B6B',
+                        borderWidth: 1
+                    }
+                ];
+                
+                // Add tooltip with percentage change
+                yearChart.options.plugins.tooltip = {
+                    callbacks: {
+                        afterBody: function(context) {
+                            const dataIndex = context[0].dataIndex;
+                            return `Change: ${percentageChanges[dataIndex]}`;
+                        }
+                    }
+                };
+                
+                // Ensure legend is visible
+                yearChart.options.plugins.legend = {
+                    display: true,
+                    position: 'top'
+                };
+                
+                // Show summary info
+                const totalCurrent = currentBudgets.reduce((sum, budget) => sum + budget, 0);
+                const totalPrevious = previousBudgets.reduce((sum, budget) => sum + budget, 0);
+                const totalChange = totalPrevious > 0 ? ((totalCurrent - totalPrevious) / totalPrevious) * 100 : 0;
+                const changeText = totalChange >= 0 ? `+${totalChange.toFixed(1)}%` : `${totalChange.toFixed(1)}%`;
+                const changeColor = totalChange >= 0 ? '#45b089' : '#FF6B6B';
+                
+                document.getElementById('year-comparison-summary').innerHTML = 
+                    `<strong>Total Budget:</strong> ${selectedYear}: ${totalCurrent.toLocaleString()}M ₾ | ${previousYear}: ${totalPrevious.toLocaleString()}M ₾ | <span style="color: ${changeColor};">Change: ${changeText}</span>`;
+                document.getElementById('year-chart-info').style.display = 'block';
+                
+                yearChart.update();
+                
+            } catch (error) {
+                console.error('Error updating year comparison chart:', error);
+                // Fall back to time series if comparison fails
+                updateTimeSeriesChart();
+            }
+        }
+        
+        async function updateSubDepartmentBreakdown(department) {
+            try {
+                // Use latest year as default for breakdown
+                const effectiveYear = latestYear;
+                
+                console.log('🔍 updateSubDepartmentBreakdown called with:', { department, effectiveYear });
+                
+                // Fetch drill-down data for the selected department
+                let drillDownUrl = `/api/drill-down/${encodeURIComponent(department)}`;
+                if (effectiveYear) drillDownUrl += `?year=${effectiveYear}`;
+                
+                console.log('🌐 Fetching drill-down data from:', drillDownUrl);
+                
+                const response = await fetch(drillDownUrl);
+                const drillDownData = await response.json();
+                
+                console.log('📊 Drill-down data received:', drillDownData);
+                
+                if (drillDownData.error || !drillDownData.sub_departments) {
+                    // Fall back to time series if drill-down fails
+                    console.log('⚠️ Drill-down failed, falling back to time series');
+                    updateTimeSeriesChart();
+                    return;
+                }
+                
+                const subDepts = drillDownData.sub_departments;
+                
+                // Sort sub-departments by budget amount
+                const sortedSubDepts = subDepts.sort((a, b) => (b.budget_amount || 0) - (a.budget_amount || 0));
+                
+                const labels = sortedSubDepts.map(sub => {
+                    const name = sub.name_english.length > 25 ? sub.name_english.substring(0, 25) + '...' : sub.name_english;
+                    return name;
+                });
+                
+                const data = sortedSubDepts.map(sub => sub.budget_amount || 0);
+                const percentages = sortedSubDepts.map(sub => sub.allocation_percentage);
+                
+                // Update chart type and options for sub-departments
+                yearChart.config.type = 'bar';
+                yearChart.options.plugins.title.text = `🔍 ${department} Sub-Departments${effectiveYear ? ` (${effectiveYear})` : ''}`;
+                yearChart.options.scales.y.title.text = 'Budget (Million ₾)';
+                yearChart.options.scales.x.ticks.maxRotation = 45;
+                
+                yearChart.data.labels = labels;
+                yearChart.data.datasets = [{
+                    label: 'Budget Amount',
+                    data: data,
+                    backgroundColor: '#45b089',
+                    borderColor: '#45b089',
+                    borderWidth: 1
+                }];
+                
+                // Add tooltip with allocation percentage
+                yearChart.options.plugins.tooltip = {
+                    callbacks: {
+                        afterBody: function(context) {
+                            const dataIndex = context[0].dataIndex;
+                            return `Allocation: ${percentages[dataIndex]}%`;
+                        }
+                    }
+                };
+                
+                // Ensure legend is visible
+                yearChart.options.plugins.legend = {
+                    display: true,
+                    position: 'top'
+                };
+                
+                // Show summary info
+                const totalBudget = drillDownData.total_budget || data.reduce((sum, budget) => sum + budget, 0);
+                const subDeptCount = subDepts.length;
+                
+                document.getElementById('year-comparison-summary').innerHTML = 
+                    `<strong>${department}</strong> | Total Budget: ${totalBudget.toLocaleString()}M ₾ | Sub-Departments: ${subDeptCount}${effectiveYear ? ` | Year: ${effectiveYear}` : ''}`;
+                document.getElementById('year-chart-info').style.display = 'block';
+                
+                yearChart.update();
+                
+            } catch (error) {
+                console.error('Error updating sub-department year chart:', error);
+                // Fall back to time series if drill-down fails
+                updateTimeSeriesChart();
+            }
+        }
+        
+        async function updateSubDepartmentYearComparison(department, selectedYear) {
+            try {
+                const previousYear = parseInt(selectedYear) - 1;
+                
+                console.log('🔍 updateSubDepartmentYearComparison called with:', { department, selectedYear, previousYear });
+                
+                // Fetch drill-down data for both years
+                const [currentResponse, previousResponse] = await Promise.all([
+                    fetch(`/api/drill-down/${encodeURIComponent(department)}?year=${selectedYear}`),
+                    fetch(`/api/drill-down/${encodeURIComponent(department)}?year=${previousYear}`)
+                ]);
+                
+                const currentYearData = await currentResponse.json();
+                const previousYearData = await previousResponse.json();
+                
+                console.log('📊 Current year data:', currentYearData);
+                console.log('📊 Previous year data:', previousYearData);
+                
+                if (currentYearData.error || !currentYearData.sub_departments) {
+                    console.log('⚠️ Current year drill-down failed, falling back to main department comparison');
+                    updateYearComparisonChart(selectedYear);
+                    return;
+                }
+                
+                const currentSubDepts = currentYearData.sub_departments || [];
+                const previousSubDepts = previousYearData.sub_departments || [];
+                
+                // Create comparison data for sub-departments
+                const comparisonData = {};
+                
+                // Process current year sub-departments
+                currentSubDepts.forEach(sub => {
+                    comparisonData[sub.name_english] = {
+                        current: sub.budget_amount || 0,
+                        previous: 0,
+                        allocation: sub.allocation_percentage
+                    };
+                });
+                
+                // Process previous year sub-departments
+                previousSubDepts.forEach(sub => {
+                    if (comparisonData[sub.name_english]) {
+                        comparisonData[sub.name_english].previous = sub.budget_amount || 0;
+                    } else {
+                        comparisonData[sub.name_english] = {
+                            current: 0,
+                            previous: sub.budget_amount || 0,
+                            allocation: sub.allocation_percentage
+                        };
+                    }
+                });
+                
+                // Sort by current year budget
+                const subDeptNames = Object.keys(comparisonData);
+                const sortedSubDepts = subDeptNames.sort((a, b) => comparisonData[b].current - comparisonData[a].current);
+                
+                const currentBudgets = sortedSubDepts.map(name => comparisonData[name].current);
+                const previousBudgets = sortedSubDepts.map(name => comparisonData[name].previous);
+                
+                // Calculate percentage changes
+                const percentageChanges = sortedSubDepts.map(name => {
+                    const current = comparisonData[name].current;
+                    const previous = comparisonData[name].previous;
+                    if (previous === 0) return current > 0 ? '+∞%' : '0%';
+                    const change = ((current - previous) / previous) * 100;
+                    return change >= 0 ? `+${change.toFixed(1)}%` : `${change.toFixed(1)}%`;
+                });
+                
+                // Update chart for sub-department comparison
+                yearChart.config.type = 'bar';
+                yearChart.options.plugins.title.text = `🔍 ${department} Sub-Departments: ${selectedYear} vs ${previousYear}`;
+                yearChart.options.scales.y.title.text = 'Budget (Million ₾)';
+                yearChart.options.scales.x.ticks.maxRotation = 45;
+                
+                yearChart.data.labels = sortedSubDepts;
+                yearChart.data.datasets = [
+                    {
+                        label: selectedYear,
+                        data: currentBudgets,
+                        backgroundColor: '#45b089',
+                        borderColor: '#45b089',
+                        borderWidth: 1
+                    },
+                    {
+                        label: previousYear,
+                        data: previousBudgets,
+                        backgroundColor: '#FF6B6B',
+                        borderColor: '#FF6B6B',
+                        borderWidth: 1
+                    }
+                ];
+                
+                // Add tooltip with percentage change and allocation
+                yearChart.options.plugins.tooltip = {
+                    callbacks: {
+                        afterBody: function(context) {
+                            const dataIndex = context[0].dataIndex;
+                            const subDeptName = sortedSubDepts[dataIndex];
+                            const allocation = comparisonData[subDeptName].allocation;
+                            return `Change: ${percentageChanges[dataIndex]} | Allocation: ${allocation}%`;
+                        }
+                    }
+                };
+                
+                // Ensure legend is visible
+                yearChart.options.plugins.legend = {
+                    display: true,
+                    position: 'top'
+                };
+                
+                // Show summary info
+                const totalCurrent = currentYearData.total_budget || currentBudgets.reduce((sum, budget) => sum + budget, 0);
+                const totalPrevious = previousYearData.total_budget || previousBudgets.reduce((sum, budget) => sum + budget, 0);
+                const totalChange = totalPrevious > 0 ? ((totalCurrent - totalPrevious) / totalPrevious) * 100 : 0;
+                const changeText = totalChange >= 0 ? `+${totalChange.toFixed(1)}%` : `${totalChange.toFixed(1)}%`;
+                const changeColor = totalChange >= 0 ? '#45b089' : '#FF6B6B';
+                
+                document.getElementById('year-comparison-summary').innerHTML = 
+                    `<strong>${department}</strong> | ${selectedYear}: ${totalCurrent.toLocaleString()}M ₾ | ${previousYear}: ${totalPrevious.toLocaleString()}M ₾ | <span style="color: ${changeColor};">Change: ${changeText}</span>`;
+                document.getElementById('year-chart-info').style.display = 'block';
+                
+                yearChart.update();
+                
+            } catch (error) {
+                console.error('Error updating sub-department year comparison:', error);
+                // Fall back to main department comparison if sub-department comparison fails
+                updateYearComparisonChart(selectedYear);
+            }
         }
         
         async function updateDepartmentChart() {
