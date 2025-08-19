@@ -32,13 +32,16 @@ services:
       - "8000:8000"
     environment:
       DATABASE_URL: postgresql://budget_user:budget_pass@postgres:5432/georgian_budget
-      GITHUB_DATA_URL: https://raw.githubusercontent.com/zelima/money-flow/main/data/processed/georgian_budget.csv
+      CLOUD_STORAGE_BUCKET: money-flow-469011-georgian-budget-data-b2bbbfd3
+      GOOGLE_CLOUD_PROJECT: ${GOOGLE_CLOUD_PROJECT:-money-flow-469011}
+      GOOGLE_APPLICATION_CREDENTIALS: /app/credentials/service-account-key.json
     depends_on:
       postgres:
         condition: service_healthy
     restart: unless-stopped
     volumes:
       - ./api:/app
+      - ~/.config/gcloud/application_default_credentials.json:/app/credentials/service-account-key.json:ro
     command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
   # Flask Frontend  
