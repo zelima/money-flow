@@ -78,7 +78,7 @@ def load_budget_data_from_cloud_storage():
         # Get data statistics
         years = [record.get('year') for record in budget_data if record.get('year')]
         departments = [record.get('name') for record in budget_data if record.get('name')]
-        budgets = [record.get('budget') for record in budget_data if record.get('budget')]
+        budgets = [record.get('budget') or 0.0 for record in budget_data]
         
         if years and departments and budgets:
             years_range = f"{min(years)}-{max(years)}"
@@ -136,7 +136,7 @@ async def root():
     if budget_data is not None:
         years = [record.get('year') for record in budget_data if record.get('year')]
         departments = [record.get('name') for record in budget_data if record.get('name')]
-        budgets = [record.get('budget') for record in budget_data if record.get('budget')]
+        budgets = [record.get('budget') or 0.0 for record in budget_data]
         
         if years and departments and budgets:
             data_stats = {
@@ -209,7 +209,7 @@ async def get_budget_data(
     filtered_data = budget_data.copy()
     
     if year:
-        filtered_data = [record for record in filtered_data if record.get('year') == year]
+        filtered_data = [record for record in filtered_data if record.get('year') == float(year)]
     
     if department:
         filtered_data = [
@@ -218,10 +218,10 @@ async def get_budget_data(
         ]
     
     if min_budget is not None:
-        filtered_data = [record for record in filtered_data if record.get('budget', 0) >= min_budget]
+        filtered_data = [record for record in filtered_data if (record.get('budget') or 0.0) >= min_budget]
     
     if max_budget is not None:
-        filtered_data = [record for record in filtered_data if record.get('budget', 0) <= max_budget]
+        filtered_data = [record for record in filtered_data if (record.get('budget') or 0.0) <= max_budget]
     
     # Apply pagination
     total_records = len(filtered_data)
@@ -230,9 +230,16 @@ async def get_budget_data(
     # Convert to list of BudgetRecord objects
     records = []
     for record in filtered_data:
+        # Handle null budget values by converting them to 0
+        budget_value = record.get('budget')
+        if budget_value is None:
+            budget_value = 0.0
+        else:
+            budget_value = float(budget_value)
+        
         records.append(BudgetRecord(
-            year=int(record.get('year', 0)),
-            budget=float(record.get('budget', 0)),
+            year=int(float(record.get('year', 0))),
+            budget=budget_value,
             name=str(record.get('name', ''))
         ))
     
@@ -248,7 +255,7 @@ async def get_summary():
         raise HTTPException(status_code=500, detail="Budget data not loaded")
     
     years = [record.get('year') for record in budget_data if record.get('year')]
-    budgets = [record.get('budget') for record in budget_data if record.get('budget')]
+    budgets = [record.get('budget') or 0.0 for record in budget_data]
     departments = [record.get('name') for record in budget_data if record.get('name')]
     
     if not years or not budgets or not departments:
@@ -297,18 +304,18 @@ async def get_department_trend(department: str):
     # Calculate growth rate (if we have more than one year)
     growth_rate = None
     if len(dept_data) > 1:
-        first_budget = dept_data[0].get('budget', 0)
-        last_budget = dept_data[-1].get('budget', 0)
+        first_budget = dept_data[0].get('budget') or 0.0
+        last_budget = dept_data[-1].get('budget') or 0.0
         years_span = dept_data[-1].get('year', 0) - dept_data[0].get('year', 0)
         if first_budget > 0 and years_span > 0:
             growth_rate = ((last_budget / first_budget) ** (1/years_span) - 1) * 100
     
     return DepartmentTrend(
         department=dept_data[0].get('name', ''),
-        years=[record.get('year', 0) for record in dept_data],
-        budgets=[record.get('budget', 0) for record in dept_data],
-        total_budget=sum(record.get('budget', 0) for record in dept_data),
-        avg_budget=sum(record.get('budget', 0) for record in dept_data) / len(dept_data),
+        years=[int(float(record.get('year', 0))) for record in dept_data],
+        budgets=[record.get('budget') or 0.0 for record in dept_data],
+        total_budget=sum(record.get('budget') or 0.0 for record in dept_data),
+        avg_budget=sum(record.get('budget') or 0.0 for record in dept_data) / len(dept_data),
         growth_rate=growth_rate
     )
 
@@ -321,24 +328,24 @@ async def get_year_summary(year: int):
     if budget_data is None:
         raise HTTPException(status_code=500, detail="Budget data not loaded")
     
-    year_data = [record for record in budget_data if record.get('year') == year]
+    year_data = [record for record in budget_data if record.get('year') == float(year)]
     
     if not year_data:
         raise HTTPException(status_code=404, detail=f"No data found for year {year}")
     
     # Sort by budget descending
-    year_data = sorted(year_data, key=lambda x: x.get('budget', 0), reverse=True)
+    year_data = sorted(year_data, key=lambda x: x.get('budget') or 0.0, reverse=True)
     
     departments = []
     for record in year_data:
         departments.append({
             "name": record.get('name', ''),
-            "budget": record.get('budget', 0)
+            "budget": record.get('budget') or 0.0
         })
     
     return YearSummary(
         year=year,
-        total_budget=sum(record.get('budget', 0) for record in year_data),
+        total_budget=sum(record.get('budget') or 0.0 for record in year_data),
         departments=departments,
         top_departments=departments[:10]  # Top 10 departments
     )
@@ -399,9 +406,10 @@ async def get_department_drill_down(
     # Get main department budget from Cloud Storage data (if available)
     main_budget = None
     if budget_data is not None and year:
-        dept_records = [record for record in budget_data if record.get('name') == department and record.get('year') == year]
+        dept_records = [record for record in budget_data if record.get('name') == department and record.get('year') == float(year)]
         if dept_records:
-            main_budget = float(dept_records[0].get('budget', 0))
+            budget_value = dept_records[0].get('budget')
+            main_budget = float(budget_value) if budget_value is not None else 0.0
     
     # Convert to response models
     sub_dept_models = []
@@ -462,11 +470,12 @@ async def get_drill_down_analysis(
     if budget_data is None:
         raise HTTPException(status_code=503, detail="Cloud Storage budget data not available")
     
-    dept_records = [record for record in budget_data if record.get('name') == department and record.get('year') == year]
+    dept_records = [record for record in budget_data if record.get('name') == department and record.get('year') == float(year)]
     if not dept_records:
         raise HTTPException(status_code=404, detail=f"No budget data found for {department} in {year}")
     
-    main_budget = float(dept_records[0].get('budget', 0))
+    budget_value = dept_records[0].get('budget')
+    main_budget = float(budget_value) if budget_value is not None else 0.0
     
     # Get drill-down data from PostgreSQL
     drill_down_data = get_budget_drill_down(db, department, year, limit=50)
