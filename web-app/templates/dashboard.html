@@ -330,6 +330,8 @@
         
         async function loadInitialData() {
             await updateCharts();
+            // Initialize metrics cards with default values (all years, all departments)
+            await updateMetricsCards('', '');
         }
         
         async function updateCharts() {
@@ -344,6 +346,9 @@
                 const response = await fetch(url);
                 currentData = await response.json();
                 
+                // Update metrics cards based on current filters
+                await updateMetricsCards(year, department);
+                
                 updateYearChart();
                 await updateDepartmentChart(); // Make this async to fetch drill-down data
                 await updateDataTable(); // Make this async for sub-department data
@@ -352,6 +357,88 @@
                 document.getElementById('data-section').style.display = 'block';
             } catch (error) {
                 console.error('Error updating charts:', error);
+            }
+        }
+        
+        async function updateMetricsCards(year, department) {
+            try {
+                // Update Years Covered
+                if (year) {
+                    // Single year selected
+                    document.getElementById('year-range').textContent = year;
+                } else {
+                    // All years selected - get from summary
+                    const response = await fetch('/api/summary');
+                    const summary = await response.json();
+                    if (summary.year_range) {
+                        document.getElementById('year-range').textContent = `${summary.year_range[0]}-${summary.year_range[1]}`;
+                    }
+                }
+                
+                // Update Total Budget
+                if (year && department) {
+                    // Specific year and department selected
+                    const yearData = currentData.filter(record => record.year == year && record.name === department);
+                    if (yearData.length > 0) {
+                        const totalBudget = yearData.reduce((sum, record) => sum + record.budget, 0);
+                        document.getElementById('total-budget').textContent = totalBudget.toLocaleString(undefined, {maximumFractionDigits: 1}) + 'M ₾';
+                    }
+                } else if (year) {
+                    // Specific year, all departments
+                    const yearData = currentData.filter(record => record.year == year);
+                    if (yearData.length > 0) {
+                        const totalBudget = yearData.reduce((sum, record) => sum + record.budget, 0);
+                        document.getElementById('total-budget').textContent = totalBudget.toLocaleString(undefined, {maximumFractionDigits: 1}) + 'M ₾';
+                    }
+                } else if (department) {
+                    // Specific department, all years
+                    const deptData = currentData.filter(record => record.name === department);
+                    if (deptData.length > 0) {
+                        const totalBudget = deptData.reduce((sum, record) => sum + record.budget, 0);
+                        document.getElementById('total-budget').textContent = totalBudget.toLocaleString(undefined, {maximumFractionDigits: 1}) + 'M ₾';
+                    }
+                } else {
+                    // All years and all departments - get from summary
+                    const response = await fetch('/api/summary');
+                    const summary = await response.json();
+                    if (summary.total_budget) {
+                        document.getElementById('total-budget').textContent = summary.total_budget.toLocaleString(undefined, {maximumFractionDigits: 1}) + 'M ₾';
+                    }
+                }
+                
+                // Update Departments Count
+                if (department) {
+                    // Specific department selected - get sub-departments count
+                    try {
+                        const year = document.getElementById('year-filter').value;
+                        const effectiveYear = year || latestYear;
+                        
+                        let drillDownUrl = `/api/drill-down/${encodeURIComponent(department)}`;
+                        if (effectiveYear) drillDownUrl += `?year=${effectiveYear}`;
+                        
+                        const response = await fetch(drillDownUrl);
+                        const drillDownData = await response.json();
+                        
+                        if (drillDownData.sub_departments && drillDownData.sub_departments.length > 0) {
+                            document.getElementById('departments-count').textContent = drillDownData.sub_departments.length;
+                        } else {
+                            document.getElementById('departments-count').textContent = '1';
+                        }
+                    } catch (error) {
+                        // If drill-down fails, show 1 for the main department
+                        document.getElementById('departments-count').textContent = '1';
+                    }
+                } else {
+                    // All departments selected - get total departments count from summary
+                    const response = await fetch('/api/summary');
+                    const summary = await response.json();
+                    if (summary.departments_count) {
+                        document.getElementById('departments-count').textContent = summary.departments_count;
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Error updating metrics cards:', error);
             }
         }
         
