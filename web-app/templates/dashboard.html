@@ -281,8 +281,8 @@
             await checkApiHealth();
             await loadSummary();
             await loadDepartments();
-            await loadInitialData();
-            setupCharts();
+            setupCharts(); // Setup charts first
+            await loadInitialData(); // Then load data
         }
         
         async function checkApiHealth() {
@@ -347,22 +347,36 @@
         }
         
         async function loadInitialData() {
+            // Load data with no filters (all years, all departments)
             await updateCharts();
             // Initialize metrics cards with default values (all years, all departments)
             await updateMetricsCards('', '');
+            
+            // Show the charts and data sections by default
+            document.getElementById('charts').style.display = 'grid';
+            document.getElementById('data-section').style.display = 'block';
         }
         
         async function updateCharts() {
             const year = document.getElementById('year-filter').value;
             const department = document.getElementById('department-filter').value;
             
+            console.log('🔍 updateCharts called with:', { year, department });
+            
             try {
                 let url = '/api/budget?limit=1000';
                 if (year) url += `&year=${year}`;
                 if (department) url += `&department=${encodeURIComponent(department)}`;
                 
+                console.log('🌐 Fetching data from:', url);
+                
                 const response = await fetch(url);
                 currentData = await response.json();
+                
+                console.log('📊 Data received:', {
+                    count: currentData.length,
+                    sample: currentData.slice(0, 3)
+                });
                 
                 // Update metrics cards based on current filters
                 await updateMetricsCards(year, department);
@@ -505,6 +519,7 @@
             const department = document.getElementById('department-filter').value;
             
             console.log('🔍 updateYearChart called with:', { year, department });
+            console.log('📊 currentData available:', currentData ? currentData.length : 'undefined');
             
             if (year) {
                 // Year selected - show year comparison
@@ -532,13 +547,22 @@
         }
         
         function updateTimeSeriesChart() {
+            console.log('🔍 updateTimeSeriesChart called with currentData:', {
+                length: currentData ? currentData.length : 'undefined',
+                sample: currentData ? currentData.slice(0, 3) : 'undefined'
+            });
+            
             const yearData = {};
             currentData.forEach(record => {
                 yearData[record.year] = (yearData[record.year] || 0) + record.budget;
             });
             
+            console.log('📊 Processed yearData:', yearData);
+            
             const years = Object.keys(yearData).sort();
             const budgets = years.map(year => yearData[year]);
+            
+            console.log('📊 Final chart data:', { years, budgets });
             
             // Update chart type and options for time series
             yearChart.config.type = 'line';
@@ -559,6 +583,8 @@
             document.getElementById('year-chart-info').style.display = 'none';
             
             yearChart.update();
+            
+            console.log('🔍 Time series chart updated');
         }
         
         async function updateYearComparisonChart(selectedYear) {
@@ -1003,21 +1029,32 @@
             const year = document.getElementById('year-filter').value;
             const department = document.getElementById('department-filter').value;
             
+            console.log('🔍 updateDepartmentChart called with:', { year, department });
+            console.log('📊 currentData available for department chart:', currentData ? currentData.length : 'undefined');
+            
             // If a single department is selected, show sub-departments
             if (department && department.trim() !== '') {
                 await updateSubDepartmentChart(department, year);
             } else {
                 // Show regular department breakdown
+                console.log('🏛️ Showing main department breakdown');
                 updateMainDepartmentChart();
             }
         }
         
         function updateMainDepartmentChart() {
+            console.log('🔍 updateMainDepartmentChart called with currentData:', {
+                length: currentData ? currentData.length : 'undefined',
+                sample: currentData ? currentData.slice(0, 3) : 'undefined'
+            });
+            
             const deptData = {};
             currentData.forEach(record => {
                 const shortName = record.name.length > 30 ? record.name.substring(0, 30) + '...' : record.name;
                 deptData[shortName] = (deptData[shortName] || 0) + record.budget;
             });
+            
+            console.log('📊 Processed deptData:', deptData);
             
             const sortedDepts = Object.entries(deptData)
                 .sort((a, b) => b[1] - a[1])
@@ -1025,6 +1062,8 @@
             
             const labels = sortedDepts.map(d => d[0]);
             const data = sortedDepts.map(d => d[1]);
+            
+            console.log('📊 Final department chart data:', { labels, data });
             
             // Update chart title
             departmentChart.options.plugins.title.text = '🏛️ Budget Distribution by Department';
@@ -1038,6 +1077,8 @@
                 ]
             }];
             departmentChart.update();
+            
+            console.log('🔍 Department chart updated');
         }
         
         async function updateSubDepartmentChart(department, year) {
