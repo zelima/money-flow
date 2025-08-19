@@ -1,33 +1,8 @@
-# 🇬🇪 Georgian Budget Data Pipeline
+# Budget Data Pipeline
 
-A comprehensive data-driven web application for analyzing Georgian government budget data from 2002-2020, now fully deployed on Google Cloud Platform (GCP).
+A comprehensive data-driven web application for analyzing government budget data from 2002-2020, now fully deployed on Google Cloud Platform (GCP).
 
-## 🚀 **Current Status: Phase 2 Complete!**
 
-### ✅ **Phase 1: Data Pipeline Migration (COMPLETED)**
-- **Cloud Storage Buckets**: Data storage for raw and processed files
-- **Cloud Function**: Data processing pipeline (replaces GitHub Actions)
-- **Cloud Scheduler**: Quarterly automation (15th of Mar, Jun, Sep, Dec)
-- **Pub/Sub Topic**: Event-driven pipeline triggers
-- **Service Accounts**: Proper IAM permissions for security
-
-### ✅ **Phase 2: Backend & Frontend Deployment (COMPLETED)**
-- **Backend API**: FastAPI deployed to Cloud Run
-- **Frontend Web App**: Flask dashboard deployed to Cloud Run
-- **Cloud SQL**: PostgreSQL database for drill-down analytics
-- **Global Load Balancer**: HTTP(S) load balancer with SSL/TLS
-- **Cloud Build**: Automated CI/CD pipeline
-- **VPC Network**: Private networking for security
-
-## 🏗️ **Architecture**
-
-```
-Internet → Global Load Balancer → Cloud Run Services
-                                    ├── Frontend (Flask) → User Dashboard
-                                    └── Backend (FastAPI) → Data API
-                                                          ├── Cloud Storage (Budget Data)
-                                                          └── Cloud SQL (Analytics)
-```
 
 ## 📊 **Features**
 
@@ -101,20 +76,41 @@ curl -X POST https://FUNCTION_URL \
 
 ## 🔧 **Development**
 
-### **Local Development**
+### **Local Development with Docker Compose & Makefile**
 ```bash
-# Backend API
-cd money-flow/api
-pip install -r requirements.txt
-uvicorn main:app --reload
+# Setup development environment
+make setup
 
-# Frontend Web App
-cd money-flow/web-app
-pip install -r requirements.txt
-flask run
+# Start all services (database, API, frontend)
+make start
 
-# Database
-docker-compose up -d
+# Start only specific services
+make api-only          # Start database + API only
+make frontend-only     # Start frontend only
+make db-start          # Start database only
+
+# Development mode with hot reload
+make dev
+
+# View logs
+make logs              # All services
+make logs-api          # API only
+make logs-frontend     # Frontend only
+
+# Stop services
+make stop
+make restart
+```
+
+### **Available Make Commands**
+```bash
+make help              # Show all available commands
+make install           # Install all dependencies
+make test              # Run tests
+make lint              # Code linting
+make format            # Code formatting
+make clean             # Clean up containers
+make health            # Check service health
 ```
 
 ### **Cloud Deployment**
@@ -189,43 +185,19 @@ money-flow/
 - **Error Tracking**: Real-time error detection and alerting
 - **Cost Monitoring**: Budget alerts and optimization
 
-## 🚨 **Support & Troubleshooting**
 
-### **Common Issues**
-1. **Service Unavailable**: Check Cloud Run service status
-2. **Database Errors**: Verify Cloud SQL connection
-3. **Build Failures**: Review Cloud Build logs
-4. **Load Balancer Issues**: Check health check status
 
-### **Useful Commands**
-```bash
-# Check service status
-gcloud run services list --region=europe-west1
+## 🎯 **TODO**
 
-# View logs
-gcloud logs read "resource.type=cloud_run_revision"
-
-# Test endpoints
-curl -I https://BACKEND_URL/health
-```
-
-## 🎯 **Next Steps (Phase 3)**
-
-After successful Phase 2 deployment:
 1. **Performance Optimization**: Auto-scaling, caching, database optimization
 2. **Advanced Monitoring**: Custom dashboards, alerting, log analysis
 3. **Security Hardening**: VPC controls, secret management, security scanning
 
-## 📚 **Documentation**
 
-- [Phase 1: Data Pipeline Migration](terraform/README.md)
-- [Phase 2: Backend & Frontend Deployment](terraform/PHASE2_README.md)
-- [Getting Started Guide](docs/getting-started.md)
-- [Automation Documentation](docs/automation.md)
 
 ## 🤝 **Contributing**
 
-This project is designed for Georgian government budget transparency and analysis. Contributions are welcome for:
+This project is designed for government budget transparency and analysis. Contributions are welcome for:
 - Data quality improvements
 - Additional analytics features
 - Performance optimizations
@@ -235,11 +207,3 @@ This project is designed for Georgian government budget transparency and analysi
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
-
-**🎉 Your Georgian Budget application is now fully deployed and running in production on Google Cloud Platform!**
-
-**🌐 Access your application**: Use the load balancer URL from Terraform outputs
-**📊 Monitor performance**: Check Cloud Console for metrics and logs
-**🔄 Automatic updates**: Data pipeline runs quarterly, apps deploy automatically
-**💰 Cost optimized**: Well within your $300 GCP budget
