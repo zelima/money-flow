@@ -81,7 +81,7 @@ resource "google_monitoring_alert_policy" "frontend_downtime" {
     condition_threshold {
       filter = "metric.type=\"monitoring.googleapis.com/uptime_check/check_passed\" AND resource.labels.monitored_resource.type=\"uptime_url\" AND resource.labels.host=\"${google_compute_global_address.load_balancer_ip.address}\" AND resource.labels.uptime_check_id=\"${google_monitoring_uptime_check_config.frontend_uptime.uptime_check_id}\""
       
-      comparison      = "COMPARISON_LESS_THAN"
+      comparison      = "COMPARISON_LT"
       threshold_value = 1.0
       duration        = "60s"
       
@@ -108,7 +108,7 @@ resource "google_monitoring_alert_policy" "backend_downtime" {
     condition_threshold {
       filter = "metric.type=\"monitoring.googleapis.com/uptime_check/check_passed\" AND resource.labels.monitored_resource.type=\"uptime_url\" AND resource.labels.host=\"${google_compute_global_address.load_balancer_ip.address}\" AND resource.labels.uptime_check_id=\"${google_monitoring_uptime_check_config.backend_uptime.uptime_check_id}\""
       
-      comparison      = "COMPARISON_LESS_THAN"
+      comparison      = "COMPARISON_LT"
       threshold_value = 1.0
       duration        = "60s"
       
