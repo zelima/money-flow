@@ -58,7 +58,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install -r requirements-dev.txt
+        pip install -r web-app/requirements-dev.txt
 
     - name: Run Web App tests
       run: |
