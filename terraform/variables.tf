@@ -44,9 +44,37 @@ variable "domain_name" {
   type        = string
   default     = ""
   validation {
-    condition = var.domain_name == "" || can(regex("^[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.[a-zA-Z]{2,}$", var.domain_name))
-    error_message = "Domain name must be a valid domain format or empty."
+    condition = var.domain_name == "" || can(regex("^([a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.)*[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?\\.[a-zA-Z]{2,}$", var.domain_name))
+    error_message = "Domain name must be a valid domain format (including subdomains) or empty."
   }
+}
+
+variable "enable_https" {
+  description = "Whether to enable HTTPS with SSL certificates"
+  type        = bool
+  default     = true
+}
+
+variable "force_https_redirect" {
+  description = "Whether to redirect all HTTP traffic to HTTPS"
+  type        = bool
+  default     = true
+}
+
+variable "dns_provider" {
+  description = "DNS provider to use for domain management"
+  type        = string
+  default     = "cloudflare"
+  validation {
+    condition     = contains(["cloudflare", "google_cloud", "manual"], var.dns_provider)
+    error_message = "DNS provider must be one of: cloudflare, google_cloud, manual."
+  }
+}
+
+variable "cloudflare_proxied" {
+  description = "Whether to enable Cloudflare proxy (DDoS protection)"
+  type        = bool
+  default     = false
 }
 
 variable "pipeline_schedule" {
@@ -110,6 +138,22 @@ variable "notification_email" {
   validation {
     condition = var.notification_email == "" || can(regex("^[\\w\\.-]+@[\\w\\.-]+\\.[\\w]+$", var.notification_email))
     error_message = "Notification email must be a valid email address or empty."
+  }
+}
+
+variable "enable_monitoring" {
+  description = "Whether to enable Cloud Monitoring and uptime checks"
+  type        = bool
+  default     = true
+}
+
+variable "uptime_check_interval" {
+  description = "Interval between uptime checks in seconds"
+  type        = number
+  default     = 60
+  validation {
+    condition     = var.uptime_check_interval >= 30 && var.uptime_check_interval <= 300
+    error_message = "Uptime check interval must be between 30 and 300 seconds."
   }
 }
 
