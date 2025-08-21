@@ -41,7 +41,34 @@ output "load_balancer_ip" {
 
 output "load_balancer_url" {
   description = "URL of the global load balancer"
-  value       = "http://${google_compute_global_address.load_balancer_ip.address}"
+  value       = var.domain_name != "" ? "https://${var.domain_name}" : "http://${google_compute_global_address.load_balancer_ip.address}"
+}
+
+output "domain_setup_instructions" {
+  description = "Instructions for setting up your domain"
+  value = var.domain_name != "" ? jsonencode({
+    domain = var.domain_name
+    ip_address = google_compute_global_address.load_balancer_ip.address
+    dns_records = [
+      {
+        type = "CNAME"
+        name = "moneyflow"
+        value = google_compute_global_address.load_balancer_ip.address
+      }
+    ]
+    ssl_status = "Google-managed SSL certificate will be automatically provisioned"
+    note = "Add CNAME record for 'moneyflow' pointing to your load balancer IP"
+  }) : "No domain configured - using IP address"
+}
+
+output "frontend_backend_service" {
+  description = "Name of the frontend backend service"
+  value       = google_compute_backend_service.frontend_backend.name
+}
+
+output "backend_api_service" {
+  description = "Name of the backend API service"
+  value       = google_compute_backend_service.backend_api.name
 }
 
 # Phase 2: Database Outputs
@@ -127,4 +154,38 @@ output "vpc_subnet" {
 output "vpc_connector" {
   description = "Name of the VPC connector"
   value       = google_vpc_access_connector.connector.name
+}
+
+# Monitoring Outputs
+output "monitoring_dashboard_url" {
+  description = "URL of the Cloud Monitoring dashboard"
+  value       = "https://console.cloud.google.com/monitoring/dashboards?project=${var.project_id}"
+}
+
+output "frontend_uptime_check" {
+  description = "Name of the frontend uptime check"
+  value       = google_monitoring_uptime_check_config.frontend_uptime.display_name
+}
+
+output "backend_uptime_check" {
+  description = "Name of the backend API uptime check"
+  value       = google_monitoring_uptime_check_config.backend_uptime.display_name
+}
+
+output "pipeline_uptime_check" {
+  description = "Name of the pipeline function uptime check"
+  value       = google_monitoring_uptime_check_config.pipeline_uptime.display_name
+}
+
+# DNS Outputs
+output "dns_configuration" {
+  description = "DNS configuration status and details"
+  value = var.dns_provider == "manual" ? {
+    status = "Manual DNS configuration required"
+    instructions = "Add A record: moneyflow -> ${google_compute_global_address.load_balancer_ip.address}"
+  } : {
+    status = "DNS managed by Terraform"
+    provider = var.dns_provider
+    record_created = var.dns_provider == "cloudflare" ? "moneyflow.thelim.dev -> ${google_compute_global_address.load_balancer_ip.address}" : "managed by Google Cloud DNS"
+  }
 }

@@ -50,7 +50,8 @@ resource "google_project_service" "required_apis" {
     "compute.googleapis.com",
     "vpcaccess.googleapis.com",
     "servicenetworking.googleapis.com",
-    "secretmanager.googleapis.com"
+    "secretmanager.googleapis.com",
+    "dns.googleapis.com"
   ])
 
   service = each.key
