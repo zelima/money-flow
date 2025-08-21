@@ -50,7 +50,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-dev-${{ hashFiles('requirements-dev.txt') }}
+        key: ${{ runner.os }}-pip-dev-${{ hashFiles('api/requirements-test.txt', 'web-app/requirements-test.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-dev-
 
