@@ -182,11 +182,11 @@ test: ## Run all tests
 
 test-api: ## Run API tests
 	@echo "Running API tests..."
-	cd api && python -m pytest tests/ -v --cov=. --cov-report=term-missing
+	PYTHONPATH=. python -m pytest api/tests/ -v --cov=api --cov-report=term-missing
 
 test-web-app: ## Run web-app tests
 	@echo "Running web-app tests..."
-	cd web-app && python -m pytest web_app_tests/ -v --cov=. --cov-report=term-missing
+	PYTHONPATH=. python -m pytest web-app/web_app_tests/ -v --cov=web-app --cov-report=term-missing
 
 test-integration: ## Run integration tests
 	@echo "Running integration tests..."
