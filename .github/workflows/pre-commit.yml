@@ -47,6 +47,7 @@ jobs:
       run: |
         pip install -r api/requirements-test.txt
         pip install -r web-app/requirements-test.txt
+        pip install pre-commit==3.6.0
 
     - name: Install pre-commit hooks
       run: |
