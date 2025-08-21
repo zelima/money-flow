@@ -10,12 +10,16 @@ on:
       - 'web-app/**'
       - 'pytest.ini'
       - 'requirements*.txt'
+      - 'requirements-dev.txt'
+      - 'Makefile'
   pull_request:
     branches: [ main, develop ]
     paths:
       - 'web-app/**'
       - 'pytest.ini'
       - 'requirements*.txt'
+      - 'requirements-dev.txt'
+      - 'Makefile'
   workflow_dispatch:
     inputs:
       service:
@@ -48,20 +52,17 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-webapp-${{ hashFiles('web-app/requirements*.txt') }}
+        key: ${{ runner.os }}-pip-dev-${{ hashFiles('requirements-dev.txt') }}
         restore-keys: |
-          ${{ runner.os }}-pip-webapp-
+          ${{ runner.os }}-pip-dev-
 
-    - name: Install Web App dependencies
+    - name: Install dependencies
       run: |
-        cd web-app
-        pip install -r requirements.txt
-        pip install -r requirements-test.txt
+        pip install -r requirements-dev.txt
 
     - name: Run Web App tests
       run: |
-        cd web-app
-        python -m pytest tests/ -v --cov=. --cov-report=xml --cov-report=term-missing
+        make test-web-app
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3

@@ -11,6 +11,8 @@ on:
       - 'web-app/**'
       - 'pytest.ini'
       - 'requirements*.txt'
+      - 'requirements-dev.txt'
+      - 'Makefile'
   pull_request:
     branches: [ main, develop ]
     paths:
@@ -18,6 +20,8 @@ on:
       - 'web-app/**'
       - 'pytest.ini'
       - 'requirements*.txt'
+      - 'requirements-dev.txt'
+      - 'Makefile'
   workflow_dispatch:
     inputs:
       service:
@@ -50,30 +54,24 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-integration-${{ hashFiles('api/requirements*.txt', 'web-app/requirements*.txt') }}
+        key: ${{ runner.os }}-pip-dev-${{ hashFiles('requirements-dev.txt') }}
         restore-keys: |
-          ${{ runner.os }}-pip-integration-
+          ${{ runner.os }}-pip-dev-
 
-    - name: Install all dependencies
+    - name: Install dependencies
       run: |
-        pip install -r api/requirements.txt
-        pip install -r api/requirements-test.txt
-        pip install -r web-app/requirements.txt
-        pip install -r web-app/requirements-test.txt
+        pip install -r requirements-dev.txt
 
     - name: Run integration tests
       run: |
-        python -m pytest tests/ -v
+        make test-integration
 
-    - name: Generate coverage report
-      run: |
-        coverage report
-        coverage xml -o integration-coverage.xml
+
 
     - name: Upload coverage
       uses: codecov/codecov-action@v3
       with:
-        file: ./integration-coverage.xml
+        file: ./coverage.xml
         flags: integration
         name: integration-coverage
         fail_ci_if_error: false

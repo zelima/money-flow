@@ -10,12 +10,16 @@ on:
       - 'api/**'
       - 'pytest.ini'
       - 'requirements*.txt'
+      - 'requirements-dev.txt'
+      - 'Makefile'
   pull_request:
     branches: [ main, develop ]
     paths:
       - 'api/**'
       - 'pytest.ini'
       - 'requirements*.txt'
+      - 'requirements-dev.txt'
+      - 'Makefile'
   workflow_dispatch:
     inputs:
       service:
@@ -48,20 +52,17 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-api-${{ hashFiles('api/requirements*.txt') }}
+        key: ${{ runner.os }}-pip-dev-${{ hashFiles('requirements-dev.txt') }}
         restore-keys: |
-          ${{ runner.os }}-pip-api-
+          ${{ runner.os }}-pip-dev-
 
-    - name: Install API dependencies
+    - name: Install dependencies
       run: |
-        cd api
-        pip install -r requirements.txt
-        pip install -r requirements-test.txt
+        pip install -r requirements-dev.txt
 
     - name: Run API tests
       run: |
-        cd api
-        python -m pytest tests/ -v --cov=. --cov-report=xml --cov-report=term-missing
+        make test-api
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3

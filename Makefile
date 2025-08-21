@@ -178,6 +178,7 @@ test: ## Run all tests
 	@echo "Running all tests..."
 	make test-api
 	make test-web-app
+	make test-integration
 
 test-api: ## Run API tests
 	@echo "Running API tests..."
@@ -187,7 +188,9 @@ test-web-app: ## Run web-app tests
 	@echo "Running web-app tests..."
 	cd web-app && python -m pytest web_app_tests/ -v --cov=. --cov-report=term-missing
 
-
+test-integration: ## Run integration tests
+	@echo "Running integration tests..."
+	python -m pytest tests/ -v --cov=. --cov-report=term-missing
 
 test-coverage: ## Run tests with coverage reports
 	@echo "Running tests with coverage reports..."
