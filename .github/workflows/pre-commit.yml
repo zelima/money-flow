@@ -39,14 +39,14 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-dev-${{ hashFiles('requirements-dev.txt') }}
+        key: ${{ runner.os }}-pip-dev-${{ hashFiles('requirements-test.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-dev-
 
     - name: Install development dependencies
       run: |
         pip install -r api/requirements-test.txt
-        pip install -r web-app/requirements-dev.txt
+        pip install -r web-app/requirements-test.txt
 
     - name: Install pre-commit hooks
       run: |
