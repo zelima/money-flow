@@ -19,7 +19,7 @@ resource "google_sql_database_instance" "instance" {
         retention_unit   = "COUNT"
       }
     }
-    
+
     ip_configuration {
       ipv4_enabled    = false  # Private IP only for security
       private_network = google_compute_network.vpc.id
@@ -29,7 +29,7 @@ resource "google_sql_database_instance" "instance" {
   }
 
   deletion_protection = false  # Allow deletion for development
-  
+
   depends_on = [
     google_project_service.required_apis,
     google_compute_network.vpc,
@@ -42,7 +42,7 @@ resource "google_sql_database_instance" "instance" {
 resource "google_sql_database" "database" {
   name     = "georgian_budget"
   instance = google_sql_database_instance.instance.name
-  
+
   depends_on = [google_sql_database_instance.instance]
 }
 
@@ -51,7 +51,7 @@ resource "google_sql_user" "database_user" {
   name     = "budget_user"
   instance = google_sql_database_instance.instance.name
   password = random_password.database_password.result
-  
+
   depends_on = [google_sql_database_instance.instance]
 }
 
@@ -65,7 +65,7 @@ resource "random_password" "database_password" {
 resource "google_compute_network" "vpc" {
   name                    = "georgian-budget-vpc"
   auto_create_subnetworks = false
-  
+
   depends_on = [google_project_service.required_apis]
 }
 
@@ -75,7 +75,7 @@ resource "google_compute_subnetwork" "subnet" {
   ip_cidr_range = "10.0.0.0/24"
   region        = var.region
   network       = google_compute_network.vpc.id
-  
+
   # Enable flow logs for monitoring
   log_config {
     aggregation_interval = "INTERVAL_5_SEC"
@@ -91,7 +91,7 @@ resource "google_vpc_access_connector" "connector" {
   network       = google_compute_network.vpc.name
   region        = var.region
   machine_type  = "e2-micro"
-  
+
   depends_on = [
     google_project_service.required_apis,
     google_compute_network.vpc
@@ -105,7 +105,7 @@ resource "google_compute_global_address" "private_ip_address" {
   address_type  = "INTERNAL"
   prefix_length = 16
   network       = google_compute_network.vpc.id
-  
+
   depends_on = [google_compute_network.vpc]
 }
 
@@ -113,7 +113,7 @@ resource "google_service_networking_connection" "private_vpc_connection" {
   network                 = google_compute_network.vpc.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
-  
+
   depends_on = [
     google_project_service.required_apis,
     google_compute_global_address.private_ip_address
@@ -124,16 +124,14 @@ resource "google_service_networking_connection" "private_vpc_connection" {
 resource "google_compute_firewall" "cloud_run_to_sql" {
   name    = "allow-cloud-run-to-sql"
   network = google_compute_network.vpc.name
-  
+
   allow {
     protocol = "tcp"
     ports    = ["5432"]
   }
-  
+
   source_ranges = [google_compute_subnetwork.subnet.ip_cidr_range]
   target_tags   = ["postgresql"]
-  
+
   depends_on = [google_compute_network.vpc]
 }
-
-

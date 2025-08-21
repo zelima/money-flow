@@ -179,11 +179,11 @@ body {
     .header h1 {
         font-size: 2rem;
     }
-    
+
     .charts-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .chart-card {
         min-width: auto;
     }

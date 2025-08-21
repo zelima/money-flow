@@ -19,7 +19,7 @@ resource "google_cloud_scheduler_job" "quarterly_pipeline" {
 
   pubsub_target {
     topic_name = google_pubsub_topic.pipeline_trigger.id
-    
+
     data = base64encode(jsonencode({
       trigger_type = "scheduled"
       year         = "current"
@@ -43,7 +43,7 @@ resource "google_cloud_scheduler_job" "manual_pipeline_trigger" {
   time_zone        = "UTC"
   region           = var.region
   attempt_deadline = "600s"
-  
+
   # This job is paused by default and only used for manual triggers
   paused = true
 
@@ -56,7 +56,7 @@ resource "google_cloud_scheduler_job" "manual_pipeline_trigger" {
 
   pubsub_target {
     topic_name = google_pubsub_topic.pipeline_trigger.id
-    
+
     data = base64encode(jsonencode({
       trigger_type   = "manual"
       year          = "current"
@@ -71,5 +71,3 @@ resource "google_cloud_scheduler_job" "manual_pipeline_trigger" {
     google_pubsub_topic.pipeline_trigger
   ]
 }
-
-

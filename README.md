@@ -206,4 +206,3 @@ This project is designed for government budget transparency and analysis. Contri
 ## 📄 **License**
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-

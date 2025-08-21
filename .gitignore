@@ -388,4 +388,4 @@ terraform/.terraform.tfstate.backup
 # =============================================================================
 
 # Note: Some processed data files (CSV, JSON) are intentionally kept in git
-# for the API to serve. Only large raw files and temporary files are ignored. 
+# for the API to serve. Only large raw files and temporary files are ignored.

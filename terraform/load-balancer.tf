@@ -16,7 +16,7 @@ resource "google_project_iam_member" "load_balancer_roles" {
     "roles/compute.securityAdmin",
     "roles/run.invoker"
   ])
-  
+
   project = var.project_id
   role    = each.value
   member  = "serviceAccount:${google_service_account.load_balancer_sa.email}"
@@ -43,7 +43,7 @@ resource "google_compute_global_address" "load_balancer_ip" {
   name         = "georgian-budget-lb-ip"
   address_type = "EXTERNAL"
   ip_version   = "IPV4"
-  
+
   depends_on = [google_project_service.required_apis]
 }
 
@@ -53,21 +53,21 @@ resource "google_compute_backend_service" "frontend_backend" {
   protocol    = "HTTP"
   port_name   = "http"
   timeout_sec = 30
-  
+
   backend {
     group = google_compute_region_network_endpoint_group.frontend_neg.id
   }
-  
+
   # Enable Cloud CDN for frontend assets
   enable_cdn = true
-  
+
   # CDN cache key policy
   cdn_policy {
     cache_mode        = "CACHE_ALL_STATIC"
     client_ttl        = 3600  # 1 hour
     default_ttl       = 86400 # 24 hours
     max_ttl           = 604800 # 7 days
-    
+
     # Cache static assets longer
     cache_key_policy {
       include_host         = true
@@ -75,7 +75,7 @@ resource "google_compute_backend_service" "frontend_backend" {
       include_query_string = false
     }
   }
-  
+
   depends_on = [google_project_service.required_apis]
 }
 
@@ -85,14 +85,14 @@ resource "google_compute_backend_service" "backend_api" {
   protocol    = "HTTP"
   port_name   = "http"
   timeout_sec = 30
-  
+
   backend {
     group = google_compute_region_network_endpoint_group.backend_neg.id
   }
-  
+
   # No CDN for API endpoints
   enable_cdn = false
-  
+
   depends_on = [google_project_service.required_apis]
 }
 
@@ -103,7 +103,7 @@ resource "google_compute_region_network_endpoint_group" "frontend_neg" {
   name                  = "georgian-budget-frontend-neg"
   region               = var.region
   network_endpoint_type = "SERVERLESS"
-  
+
   cloud_run {
     service = "georgian-budget-frontend"
   }
@@ -114,11 +114,11 @@ resource "google_compute_region_network_endpoint_group" "backend_neg" {
   name                  = "georgian-budget-backend-neg"
   region               = var.region
   network_endpoint_type = "SERVERLESS"
-  
+
   cloud_run {
     service = "georgian-budget-backend-api"
   }
-  
+
   depends_on = [
     google_project_service.required_apis,
     # Ensure Cloud Run service exists before creating NEG
@@ -130,17 +130,17 @@ resource "google_compute_region_network_endpoint_group" "backend_neg" {
 resource "google_compute_url_map" "url_map" {
   name            = "georgian-budget-url-map"
   default_service = google_compute_backend_service.frontend_backend.id
-  
+
   # Route API requests to backend
   host_rule {
     hosts        = ["*"]
     path_matcher = "api-routes"
   }
-  
+
   path_matcher {
     name            = "api-routes"
     default_service = google_compute_backend_service.frontend_backend.id
-    
+
     # Route /api/* to backend API (strip /api prefix)
     path_rule {
       paths   = ["/api/*"]
@@ -151,7 +151,7 @@ resource "google_compute_url_map" "url_map" {
         }
       }
     }
-    
+
     # Route /api to backend API (strip /api prefix)
     path_rule {
       paths   = ["/api"]
@@ -183,11 +183,11 @@ resource "google_compute_target_https_proxy" "https_proxy" {
 resource "google_compute_managed_ssl_certificate" "ssl_cert" {
   count = var.domain_name != "" ? 1 : 0
   name  = "georgian-budget-ssl-cert"
-  
+
   managed {
     domains = [var.domain_name]
   }
-  
+
   lifecycle {
     create_before_destroy = true
   }
@@ -214,7 +214,7 @@ resource "google_compute_global_forwarding_rule" "https" {
 resource "google_compute_url_map" "redirect" {
   count = var.domain_name != "" && var.force_https_redirect ? 1 : 0
   name  = "georgian-budget-http-to-https"
-  
+
   default_url_redirect {
     https_redirect = true
     strip_query    = false

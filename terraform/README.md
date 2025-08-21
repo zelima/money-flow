@@ -166,7 +166,7 @@ gcloud logging read 'resource.type="gce_instance" AND "georgian-budget"' --limit
 
 ### Metrics
 - **Function Executions**: Cloud Functions → Metrics
-- **Storage Usage**: Cloud Storage → Metrics  
+- **Storage Usage**: Cloud Storage → Metrics
 - **Scheduler Status**: Cloud Scheduler → Jobs
 
 ### Alerts

@@ -24,7 +24,7 @@ services:
 
   # FastAPI Backend
   api:
-    build: 
+    build:
       context: ./api
       dockerfile: Dockerfile
     container_name: georgian_budget_api
@@ -44,7 +44,7 @@ services:
       - ~/.config/gcloud/application_default_credentials.json:/app/credentials/service-account-key.json:ro
     command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
-  # Flask Frontend  
+  # Flask Frontend
   frontend:
     build:
       context: ./web-app
@@ -66,4 +66,4 @@ volumes:
 
 networks:
   default:
-    name: georgian_budget_network 
+    name: georgian_budget_network

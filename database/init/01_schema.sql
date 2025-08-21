@@ -9,7 +9,7 @@ CREATE TABLE departments (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create sub-departments table  
+-- Create sub-departments table
 CREATE TABLE sub_departments (
     id SERIAL PRIMARY KEY,
     department_id INTEGER REFERENCES departments(id) ON DELETE CASCADE,
@@ -41,7 +41,7 @@ CREATE INDEX idx_sub_department_budgets_sub_dept_id ON sub_department_budgets(su
 
 -- Create a view for easy drill-down queries
 CREATE VIEW budget_drill_down AS
-SELECT 
+SELECT
     d.name_english as department_name,
     d.name_georgian as department_name_georgian,
     sd.name_english as sub_department_name,
@@ -55,4 +55,4 @@ SELECT
 FROM departments d
 JOIN sub_departments sd ON d.id = sd.department_id
 LEFT JOIN sub_department_budgets sdb ON sd.id = sdb.sub_department_id
-ORDER BY d.name_english, sd.name_english, sdb.year; 
+ORDER BY d.name_english, sd.name_english, sdb.year;

@@ -50,7 +50,7 @@ resource "google_project_iam_member" "cloud_build_sa_user" {
     google_service_account.backend_service_account.email,
     google_service_account.frontend_service_account.email
   ])
-  
+
   project = var.project_id
   role    = "roles/iam.serviceAccountUser"
   member  = "serviceAccount:${google_service_account.cloud_build_sa.email}"

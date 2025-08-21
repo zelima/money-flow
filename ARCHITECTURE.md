@@ -36,27 +36,27 @@ graph TB
 
     %% Data Pipeline
     CloudFunction["⚡ Cloud Function<br/>Data Processor<br/>Python Pipeline"]
-    
+
     %% Storage
     CloudStorage["🗄️ Cloud Storage<br/>Raw Data Excel<br/>Processed CSV JSON"]
-    
+
     %% Database
     CloudSQL["🐘 Cloud SQL<br/>PostgreSQL<br/>Analytics Data"]
-    
+
     %% Applications
     Backend["🔧 Backend API<br/>FastAPI<br/>Cloud Run"]
     Frontend["🌐 Frontend App<br/>Flask Dashboard<br/>Cloud Run"]
-    
+
     %% Infrastructure
     LoadBalancer["⚖️ Global Load Balancer<br/>HTTPS SSL<br/>CDN Enabled"]
-    
+
     %% CI/CD
     CloudBuild["🔨 Cloud Build<br/>Docker Build<br/>Auto Deploy"]
     ArtifactRegistry["📦 Artifact Registry<br/>Container Images"]
-    
+
     %% Secrets
     SecretManager["🔐 Secret Manager<br/>Database Credentials<br/>API Keys"]
-    
+
     %% VPC and Networking
     VPC["🔒 Private VPC<br/>Secure Networking<br/>VPC Connector"]
 
@@ -68,20 +68,20 @@ graph TB
     CloudStorage --> Backend
     Backend --> CloudSQL
     Backend --> SecretManager
-    
+
     %% Application Flow
     Users --> LoadBalancer
     LoadBalancer --> Frontend
     LoadBalancer --> Backend
     Frontend --> Backend
-    
+
     %% CI/CD Flow
     GitHub --> CloudBuild
     CloudBuild --> ArtifactRegistry
     CloudBuild --> Frontend
     CloudBuild --> Backend
     CloudBuild --> LoadBalancer
-    
+
     %% Networking
     Backend --> VPC
     CloudSQL --> VPC
@@ -193,13 +193,13 @@ graph LR
             LB[⚖️ Load Balancer<br/>HTTPS Only]
             Frontend[🌐 Frontend<br/>Public Access]
         end
-        
+
         subgraph "Private VPC"
             Backend[🔧 Backend API<br/>Internal Only]
             CloudSQL[🐘 Cloud SQL<br/>Private IP]
             VPCConnector[🔗 VPC Connector]
         end
-        
+
         subgraph "Secrets & IAM"
             SecretManager[🔐 Secret Manager]
             ServiceAccounts[👤 Service Accounts]

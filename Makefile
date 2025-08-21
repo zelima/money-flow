@@ -99,20 +99,8 @@ start-frontend: ## Start only the frontend service
 
 
 # Testing
-test: ## Run all tests
-	@echo "Running tests..."
-	@echo "API tests..."
-	cd api && python -m pytest tests/ -v
-	@echo "Web-app tests..."
-	cd web-app && python -m pytest tests/ -v
 
-test-api: ## Run API tests only
-	@echo "Running API tests..."
-	cd api && python -m pytest tests/ -v
 
-test-frontend: ## Run frontend tests only
-	@echo "Running frontend tests..."
-	cd web-app && python -m pytest tests/ -v
 
 # Code Quality
 lint: ## Run linting checks
@@ -169,6 +157,49 @@ tf-destroy: ## Destroy Terraform infrastructure
 	@echo "Destroying Terraform infrastructure..."
 	cd terraform && terraform destroy
 
+# Pre-commit and Code Quality
+pre-commit-install: ## Install pre-commit hooks
+	@echo "Installing pre-commit hooks..."
+	pip install -r requirements-dev.txt
+	pre-commit install
+
+pre-commit-run: ## Run pre-commit on all files
+	@echo "Running pre-commit on all files..."
+	pre-commit run --all-files
+
+pre-commit-update: ## Update pre-commit hooks
+	@echo "Updating pre-commit hooks..."
+	pre-commit autoupdate
+
+
+
+# Testing
+test: ## Run all tests
+	@echo "Running all tests..."
+	make test-api
+	make test-web-app
+
+test-api: ## Run API tests
+	@echo "Running API tests..."
+	cd api && python -m pytest tests/ -v --cov=. --cov-report=term-missing
+
+test-web-app: ## Run web-app tests
+	@echo "Running web-app tests..."
+	cd web-app && python -m pytest web_app_tests/ -v --cov=. --cov-report=term-missing
+
+
+
+test-coverage: ## Run tests with coverage reports
+	@echo "Running tests with coverage reports..."
+	make test-api
+	make test-web-app
+	@echo "Coverage reports generated in each service directory"
+
+test-install: ## Install test dependencies
+	@echo "Installing test dependencies..."
+	cd api && pip install -r requirements-test.txt
+	cd web-app && pip install -r requirements-test.txt
+
 # Utility Commands
 status: ## Show status of all services
 	@echo "Service Status:"
@@ -187,6 +218,8 @@ clean-deps: ## Clean up Python dependencies
 	find . -name "*.pyd" -delete
 	find . -name ".pytest_cache" -type d -exec rm -rf {} +
 	find . -name ".coverage" -delete
+	find . -name "htmlcov" -type d -exec rm -rf {} +
+	find . -name "coverage.xml" -delete
 
 # Development shortcuts
 dev: ## Start development environment with hot reload
