@@ -1,10 +1,10 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, send_from_directory
 import requests
 import json
 import os
 from datetime import datetime
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static')
 
 # API Configuration
 API_BASE_URL = os.environ.get('API_BASE_URL', 'http://localhost:8000')
@@ -23,6 +23,11 @@ def fetch_api_data(endpoint):
 def dashboard():
     """Main dashboard page"""
     return render_template('dashboard.html')
+
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    """Serve static files"""
+    return send_from_directory(app.static_folder, filename)
 
 @app.route('/health')
 def health_check():
