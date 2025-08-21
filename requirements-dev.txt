@@ -14,3 +14,6 @@ pytest-flask==1.3.0
 # Type stubs
 types-requests
 types-PyYAML
+
+# HTTP client for integration tests
+requests==2.31.0
