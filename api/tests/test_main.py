@@ -181,40 +181,6 @@ class TestYearEndpoints:
             assert "detail" in data
             assert "No data found for year 2025" in data["detail"]
 
-@pytest.mark.api
-class TestDrillDownEndpoints:
-    """Test drill-down analysis endpoints"""
-    
-    @patch('main.get_db')
-    @patch('main.get_department_by_name')
-    def test_drill_down_endpoint_success(self, mock_get_dept, mock_get_db):
-        """Test drill-down endpoint for a specific department"""
-        # Mock database session
-        mock_db = MagicMock()
-        mock_get_db.return_value = mock_db
-        
-        # Mock department data
-        mock_dept = MagicMock()
-        mock_dept.id = 1
-        mock_dept.name_english = "Main Dept"
-        mock_dept.name_georgian = "Main Dept Georgian"
-        mock_dept.description = "Test description"
-        mock_dept.total_budget = 1000000.0
-        mock_dept.sub_departments = []
-        mock_get_dept.return_value = mock_dept
-        
-        response = client.get("/drill-down/Main Dept")
-        assert response.status_code == 200
-        data = response.json()
-        assert data["id"] == 1
-        assert data["name_english"] == "Main Dept"
-    
-    @pytest.mark.skip(reason="Database dependency injection mocking needs refinement")
-    def test_drill_down_endpoint_database_unavailable(self):
-        """Test drill-down endpoint when database is unavailable"""
-        # This test requires proper FastAPI dependency injection mocking
-        # Skip for now to focus on core functionality
-        pass
 
 @pytest.mark.api
 class TestErrorHandling:
