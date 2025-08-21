@@ -174,6 +174,30 @@ tf-destroy: ## Destroy Terraform infrastructure
 	@echo "Destroying Terraform infrastructure..."
 	cd terraform && terraform destroy
 
+# Pre-commit and Code Quality
+pre-commit-install: ## Install pre-commit hooks
+	@echo "Installing pre-commit hooks..."
+	pip install -r requirements-dev.txt
+	pre-commit install
+
+pre-commit-run: ## Run pre-commit on all files
+	@echo "Running pre-commit on all files..."
+	pre-commit run --all-files
+
+pre-commit-update: ## Update pre-commit hooks
+	@echo "Updating pre-commit hooks..."
+	pre-commit autoupdate
+
+format: ## Format code with black and isort
+	@echo "Formatting code..."
+	black api/ web-app/ tests/
+	isort api/ web-app/ tests/
+
+lint: ## Run linting checks
+	@echo "Running linting checks..."
+	flake8 api/ web-app/ tests/
+	mypy api/ web-app/
+
 # Testing
 test: ## Run all tests
 	@echo "Running all tests..."

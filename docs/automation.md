@@ -4,7 +4,7 @@
 
 The pipeline runs automatically **4 times per year**:
 - **March 15** - Q1 update (post-budget approval)
-- **June 15** - Q2 update (mid-year adjustments)  
+- **June 15** - Q2 update (mid-year adjustments)
 - **September 15** - Q3 update (budget revisions)
 - **December 15** - Q4 update (final year data)
 
@@ -147,7 +147,7 @@ git push
 # Check: data/processed/ directory
 # Files should include:
 # - georgian_budget.csv
-# - georgian_budget.json  
+# - georgian_budget.json
 # - datapackage.json
 ```
 
@@ -170,4 +170,4 @@ git push
 
 ---
 
-**🤖 This automation ensures Georgian budget data stays current without manual intervention, while being resource-efficient and providing high-quality, validated datasets for transparency and analysis.** 
+**🤖 This automation ensures Georgian budget data stays current without manual intervention, while being resource-efficient and providing high-quality, validated datasets for transparency and analysis.**

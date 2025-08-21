@@ -30,7 +30,7 @@ steps:
     entrypoint: 'bash'
     args:
       - '-c'
-      - |        
+      - |
         gcloud run deploy georgian-budget-frontend \
           --image=${_ARTIFACT_REGISTRY_REPO}/georgian-budget-frontend:$COMMIT_SHA \
           --region=${_ARTIFACT_REGISTRY_LOCATION} \
@@ -57,14 +57,14 @@ steps:
       - |
         # Get the Frontend service URL
         FRONTEND_URL=$(gcloud run services describe georgian-budget-frontend --region=${_ARTIFACT_REGISTRY_LOCATION} --format='value(status.url)')
-        
+
         # Create Network Endpoint Group for the Frontend service
         gcloud compute network-endpoint-groups create georgian-budget-frontend-neg \
           --region=${_ARTIFACT_REGISTRY_LOCATION} \
           --network-endpoint-type=serverless \
           --cloud-run-service=georgian-budget-frontend \
           --quiet || true
-        
+
         # Create backend service for frontend
         gcloud compute backend-services create georgian-budget-frontend-backend \
           --global \
@@ -73,14 +73,14 @@ steps:
           --timeout=30 \
           --enable-cdn \
           --quiet || true
-        
+
         # Add frontend NEG to backend service
         gcloud compute backend-services add-backend georgian-budget-frontend-backend \
           --global \
           --network-endpoint-group=georgian-budget-frontend-neg \
           --network-endpoint-group-region=${_ARTIFACT_REGISTRY_LOCATION} \
           --quiet || true
-        
+
         # Update URL map to route to frontend by default
         gcloud compute url-maps edit georgian-budget-url-map \
           --global \

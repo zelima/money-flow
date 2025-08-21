@@ -11,12 +11,12 @@ data "archive_file" "function_source" {
     content  = file("../cloud-function/main.py")
     filename = "main.py"
   }
-  
+
   source {
     content  = file("../cloud-function/requirements.txt")
     filename = "requirements.txt"
   }
-  
+
   # Include the entire data-pipeline directory
   dynamic "source" {
     for_each = fileset("../data-pipeline", "**/*")
@@ -42,7 +42,7 @@ resource "google_cloudfunctions2_function" "pipeline_processor" {
   build_config {
     runtime     = "python311"
     entry_point = "http_handler"
-    
+
     source {
       storage_source {
         bucket = google_storage_bucket.function_source_bucket.name
@@ -57,7 +57,7 @@ resource "google_cloudfunctions2_function" "pipeline_processor" {
     available_memory      = "2Gi"  # More memory for datapackage-pipelines
     timeout_seconds       = 540  # 9 minutes for data processing
     service_account_email = google_service_account.pipeline_function_sa.email
-    
+
     environment_variables = {
       DATA_BUCKET_NAME     = google_storage_bucket.data_bucket.name
       PROJECT_ID           = var.project_id
@@ -71,7 +71,7 @@ resource "google_cloudfunctions2_function" "pipeline_processor" {
     trigger_region = var.region
     event_type     = "google.cloud.pubsub.topic.v1.messagePublished"
     pubsub_topic   = google_pubsub_topic.pipeline_trigger.id
-    
+
     retry_policy = "RETRY_POLICY_RETRY"
   }
 
@@ -108,5 +108,3 @@ resource "google_cloudfunctions2_function_iam_member" "pipeline_processor_invoke
   role           = "roles/cloudfunctions.invoker"
   member         = "allUsers"
 }
-
-

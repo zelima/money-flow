@@ -14,14 +14,14 @@ resource "google_cloudbuild_trigger" "backend_trigger" {
   name        = "georgian-budget-backend-trigger"
   description = "Trigger for building and deploying Backend API"
   location    = var.region
-  
+
   # Use source repository trigger
   source_to_build {
     uri       = "https://github.com/zelima/money-flow"
     ref       = "refs/heads/main"
     repo_type = "GITHUB"
   }
-  
+
   git_file_source {
     path      = "api/cloudbuild.yaml"
     uri       = "https://github.com/zelima/money-flow"
@@ -33,7 +33,7 @@ resource "google_cloudbuild_trigger" "backend_trigger" {
   included_files = [
     "api/**"
   ]
-  
+
   # Substitution variables for Cloud Build
   substitutions = {
     _CLOUD_STORAGE_BUCKET = google_storage_bucket.data_bucket.name
@@ -41,9 +41,9 @@ resource "google_cloudbuild_trigger" "backend_trigger" {
     _ARTIFACT_REGISTRY_REPO = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker_repo.repository_id}"
     _ARTIFACT_REGISTRY_LOCATION = var.region
   }
-  
+
   service_account = google_service_account.cloud_build_sa.id
-  
+
   depends_on = [
     google_project_service.required_apis,
     google_artifact_registry_repository.docker_repo,
@@ -56,14 +56,14 @@ resource "google_cloudbuild_trigger" "frontend_trigger" {
   name        = "georgian-budget-frontend-trigger"
   description = "Trigger for building and deploying Frontend Web App"
   location    = var.region
-  
+
   # Use source repository trigger
   source_to_build {
     uri       = "https://github.com/zelima/money-flow"
     ref       = "refs/heads/main"
     repo_type = "GITHUB"
   }
-  
+
   git_file_source {
     path      = "web-app/cloudbuild.yaml"
     uri       = "https://github.com/zelima/money-flow"
@@ -75,16 +75,16 @@ resource "google_cloudbuild_trigger" "frontend_trigger" {
   included_files = [
     "web-app/**"
   ]
-  
+
      # Substitution variables for Cloud Build
    substitutions = {
      _ARTIFACT_REGISTRY_REPO = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker_repo.repository_id}"
      _ARTIFACT_REGISTRY_LOCATION = var.region
      _BACKEND_URL = var.domain_name != "" ? "https://${var.domain_name}/api" : "http://${google_compute_global_address.load_balancer_ip.address}/api"
    }
-   
+
    service_account = google_service_account.cloud_build_sa.id
-   
+
    depends_on = [
      google_project_service.required_apis,
      google_artifact_registry_repository.docker_repo
@@ -106,7 +106,7 @@ resource "google_project_iam_member" "cloud_build_roles" {
     "roles/storage.admin",
     "roles/logging.logWriter"
   ])
-  
+
   project = var.project_id
   role    = each.value
   member  = "serviceAccount:${google_service_account.cloud_build_sa.email}"
@@ -125,7 +125,7 @@ resource "google_artifact_registry_repository" "docker_repo" {
   repository_id = "docker-repo"
   description   = "Docker repository for Georgian Budget application images"
   format        = "DOCKER"
-  
+
   depends_on = [google_project_service.required_apis]
 }
 
@@ -135,5 +135,3 @@ resource "google_project_iam_member" "cloud_build_artifact_registry" {
   role    = "roles/artifactregistry.writer"
   member  = "serviceAccount:${google_service_account.cloud_build_sa.email}"
 }
-
-

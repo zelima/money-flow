@@ -227,4 +227,4 @@ The repository includes automated workflows:
 3. Make changes and add tests
 4. Submit a pull request
 
-See `CONTRIBUTING.md` for detailed guidelines. 
+See `CONTRIBUTING.md` for detailed guidelines.

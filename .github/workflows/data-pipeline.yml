@@ -27,17 +27,17 @@ env:
 jobs:
   process-budget-data:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
         check-latest: false
-        
+
     - name: Cache Python dependencies
       uses: actions/cache@v3
       with:
@@ -45,13 +45,13 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('data-pipeline/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
-          
+
     - name: Install dependencies
       run: |
         cd data-pipeline
         pip install  pip==24.0
         pip install -r requirements.txt
-        
+
     - name: Create data directories
       run: |
         mkdir -p data/raw
@@ -63,26 +63,26 @@ jobs:
       run: |
         export YEAR=${{ github.event.inputs.year || '2024' }}
         export FORCE_DOWNLOAD=${{ github.event.inputs.force_download || 'false' }}
-        
+
         echo "🇬🇪 Running Georgian budget data pipeline for year: $YEAR"
         dpp run all --verbose
- 
+
     - name: Commit and push processed data
       if: github.event.inputs.check_only != 'true'
       run: |
         git config --local user.email "ir.mchedlishvili@gmail.com"
         git config --local user.name "zelima"
-        
+
         # Add processed data files
         git add data/processed/ || true
-        
+
         # Check if there are changes to commit
         if git diff --staged --quiet; then
           echo "📝 No changes to commit"
         else
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
           YEAR=${{ github.event.inputs.year || '2024' }}
-          
+
           # Count records for commit message
           RECORD_COUNT=$(python -c "
           import os, json
@@ -93,7 +93,7 @@ jobs:
           except:
               print('0')
           ")
-          
+
           git commit -m "🇬🇪 Update Georgian budget data ($RECORD_COUNT records) - $TIMESTAMP
 
           - Data year: $YEAR
@@ -103,7 +103,7 @@ jobs:
           git push
           echo "✅ Data successfully updated and pushed"
         fi
-        
+
     - name: Create quarterly data release
       if: github.event.inputs.check_only != 'true' && success()
       run: |
@@ -111,18 +111,18 @@ jobs:
         YEAR=${{ github.event.inputs.year || '2024' }}
         QUARTER="Q$(( ($(date +%-m) - 1) / 3 + 1 ))"
         TAG="data-$YEAR-$QUARTER-$(date +%Y%m%d)"
-        
+
         # Get data statistics for release notes
         STATS=$(cd data-pipeline && python -c "
         import os, json
         try:
             with open('../data/processed/datapackage.json') as f:
                 dp = json.load(f)
-            
+
             with open('../data/processed/georgian_budget.csv') as f:
                 import pandas as pd
                 df = pd.read_csv(f)
-                
+
             print(f'📊 **Data Statistics:**')
             print(f'- Records: {len(df):,}')
             print(f'- Year range: {df[\"year\"].min()}-{df[\"year\"].max()}')
@@ -132,7 +132,7 @@ jobs:
         except Exception as e:
             print(f'Error generating stats: {e}')
         ")
-        
+
         # Only create release if tag doesn't exist
         if ! git tag -l | grep -q "$TAG"; then
           gh release create "$TAG" \
@@ -158,7 +158,7 @@ jobs:
         fi
       env:
         GITHUB_TOKEN: ${{ secrets.GEORGIAN_BUDGET_TOKEN }}
-        
+
     - name: Upload artifacts
       if: always()
       uses: actions/upload-artifact@v4
@@ -181,9 +181,9 @@ jobs:
         echo "- **Force Download**: ${{ github.event.inputs.force_download || 'false' }}" >> $GITHUB_STEP_SUMMARY
         echo "- **Should Run**: ${{ steps.check_data.outputs.should_run || 'unknown' }}" >> $GITHUB_STEP_SUMMARY
         echo "- **Timestamp**: $(date -u)" >> $GITHUB_STEP_SUMMARY
-        
+
         if [ "${{ steps.check_data.outputs.should_run }}" = "true" ]; then
           echo "- **Action**: Data pipeline executed" >> $GITHUB_STEP_SUMMARY
         else
           echo "- **Action**: Pipeline skipped (recent data available)" >> $GITHUB_STEP_SUMMARY
-        fi 
+        fi

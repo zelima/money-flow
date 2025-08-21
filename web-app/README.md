@@ -5,7 +5,7 @@ A simple and elegant Streamlit frontend for visualizing Georgian government budg
 ## Features
 
 - 🇬🇪 **Georgian Budget Overview** - Key statistics and metrics
-- 📊 **Interactive Charts** - Budget trends and department comparisons  
+- 📊 **Interactive Charts** - Budget trends and department comparisons
 - 🔍 **Data Filtering** - Filter by year and department
 - 📈 **Trend Analysis** - Department growth rates and patterns
 - 📋 **Raw Data Access** - Search and download budget data
@@ -58,7 +58,7 @@ The dashboard will open in your browser at http://localhost:8501
 - **Single Department**: Line chart showing budget trends over time
 - **All Departments**: Stacked bar chart by year
 
-#### 2. Departments  
+#### 2. Departments
 - **Single Year**: Horizontal bar chart comparing departments
 - **All Years**: Pie chart showing total budget share
 
@@ -75,7 +75,7 @@ The dashboard will open in your browser at http://localhost:8501
 The dashboard connects to your FastAPI backend and uses these endpoints:
 
 - `/health` - API status check
-- `/summary` - Overall budget statistics  
+- `/summary` - Overall budget statistics
 - `/budget` - Filtered budget data
 - `/departments` - List of all departments
 - `/trends/{department}` - Department trend analysis
@@ -110,7 +110,7 @@ max_budget = st.slider("Maximum Budget", 0, 5000, 5000)
 - Ensure FastAPI server is running on port 8000
 - Check API health at http://localhost:8000/health
 
-### Charts not displaying  
+### Charts not displaying
 - Verify data is loaded (check the overview metrics)
 - Try refreshing the page or clearing cache
 
@@ -121,7 +121,7 @@ max_budget = st.slider("Maximum Budget", 0, 5000, 5000)
 ## Technology Stack
 
 - **Frontend**: Streamlit
-- **Charts**: Plotly Express  
+- **Charts**: Plotly Express
 - **Data**: Pandas
 - **API Client**: Requests
-- **Backend**: FastAPI (separate service) 
+- **Backend**: FastAPI (separate service)

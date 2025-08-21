@@ -10,8 +10,8 @@
 -- the actual GitHub CSV data and calculates the splits
 
 -- Generate budget allocations for General Public Services (typical amounts in millions)
-INSERT INTO sub_department_budgets (sub_department_id, year, budget_amount, notes) 
-SELECT 
+INSERT INTO sub_department_budgets (sub_department_id, year, budget_amount, notes)
+SELECT
     sd.id,
     year_series.year,
     ROUND((
@@ -64,7 +64,7 @@ WHERE sd.department_id = (SELECT id FROM departments WHERE name_english = 'Gener
 
 -- Sample data for Education department (2020-2024)
 INSERT INTO sub_department_budgets (sub_department_id, year, budget_amount, notes)
-SELECT 
+SELECT
     sd.id,
     2023,
     ROUND((15234.5 * sd.allocation_percentage / 100.0), 2),
@@ -74,7 +74,7 @@ WHERE sd.department_id = (SELECT id FROM departments WHERE name_english = 'Educa
 
 -- Sample data for Health department (2023)
 INSERT INTO sub_department_budgets (sub_department_id, year, budget_amount, notes)
-SELECT 
+SELECT
     sd.id,
     2023,
     ROUND((12456.8 * sd.allocation_percentage / 100.0), 2),
@@ -84,7 +84,7 @@ WHERE sd.department_id = (SELECT id FROM departments WHERE name_english = 'Healt
 
 -- Sample data for Defense department (2023)
 INSERT INTO sub_department_budgets (sub_department_id, year, budget_amount, notes)
-SELECT 
+SELECT
     sd.id,
     2023,
     ROUND((8967.3 * sd.allocation_percentage / 100.0), 2),
@@ -95,7 +95,7 @@ WHERE sd.department_id = (SELECT id FROM departments WHERE name_english = 'Defen
 -- Validation query to check that sub-department budgets add up correctly
 -- This should be run after data insertion to verify accuracy
 /*
-SELECT 
+SELECT
     d.name_english as department,
     sdb.year,
     SUM(sdb.budget_amount) as total_sub_dept_budget,
@@ -106,4 +106,4 @@ JOIN sub_departments sd ON d.id = sd.department_id
 JOIN sub_department_budgets sdb ON sd.id = sdb.sub_department_id
 GROUP BY d.name_english, sdb.year
 ORDER BY d.name_english, sdb.year;
-*/ 
+*/

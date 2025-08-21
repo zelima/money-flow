@@ -59,6 +59,39 @@ python -m coverage --version
 
 ## 🧪 Running Tests
 
+## 🔍 Code Quality and Pre-commit
+
+### Pre-commit Setup
+```bash
+# Install pre-commit hooks
+make pre-commit-install
+
+# Run pre-commit on all files
+make pre-commit-run
+
+# Update pre-commit hooks
+make pre-commit-update
+```
+
+### Code Formatting and Linting
+```bash
+# Format code with black and isort
+make format
+
+# Run linting checks
+make lint
+
+# Run all quality checks
+make pre-commit-run
+```
+
+### What Pre-commit Checks
+- **Code Formatting**: Black formatting standards (88 character line length)
+- **Import Sorting**: isort import organization
+- **Linting**: flake8 code quality rules
+- **Type Checking**: mypy static type analysis
+- **General Checks**: File endings, YAML validity, merge conflicts, etc.
+
 ### Command Line Options
 
 #### Basic Test Execution
@@ -223,6 +256,7 @@ Tests are automatically run in GitHub Actions when:
 - **`.github/workflows/api-tests.yml`**: Backend tests (triggers on API changes only)
 - **`.github/workflows/web-app-tests.yml`**: Frontend tests (triggers on web-app changes only)
 - **`.github/workflows/integration-tests.yml`**: Cross-service tests (triggers on both services)
+- **`.github/workflows/pre-commit.yml`**: Code quality checks (triggers on pull requests)
 
 ### CI Test Matrix
 - **API Tests**: Ubuntu, Python 3.11 (Backend only)
@@ -255,18 +289,18 @@ from unittest.mock import patch, MagicMock
 
 class TestExample:
     """Test class description"""
-    
+
     def test_success_case(self):
         """Test successful scenario"""
         # Arrange
         expected = "success"
-        
+
         # Act
         result = function_under_test()
-        
+
         # Assert
         assert result == expected
-    
+
     @patch('module.function_to_mock')
     def test_with_mocking(self, mock_function):
         """Test with mocked dependencies"""

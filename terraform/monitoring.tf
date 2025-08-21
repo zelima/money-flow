@@ -4,13 +4,13 @@
 # Uptime Check for Frontend
 resource "google_monitoring_uptime_check_config" "frontend_uptime" {
   display_name = "Georgian Budget Frontend Uptime Check"
-  
+
   http_check {
     port         = 80
     path         = "/"
     use_ssl      = false
   }
-  
+
   monitored_resource {
     type = "uptime_url"
     labels = {
@@ -18,22 +18,22 @@ resource "google_monitoring_uptime_check_config" "frontend_uptime" {
       host       = google_compute_global_address.load_balancer_ip.address
     }
   }
-  
+
   timeout = "10s"
-  
+
   depends_on = [google_project_service.required_apis]
 }
 
 # Uptime Check for Backend API
 resource "google_monitoring_uptime_check_config" "backend_uptime" {
   display_name = "Georgian Budget Backend API Uptime Check"
-  
+
   http_check {
     port         = 80
     path         = "/api/"
     use_ssl      = false
   }
-  
+
   monitored_resource {
     type = "uptime_url"
     labels = {
@@ -41,22 +41,22 @@ resource "google_monitoring_uptime_check_config" "backend_uptime" {
       host       = google_compute_global_address.load_balancer_ip.address
     }
   }
-  
+
   timeout = "10s"
-  
+
   depends_on = [google_project_service.required_apis]
 }
 
 # Uptime Check for Data Pipeline Function
 resource "google_monitoring_uptime_check_config" "pipeline_uptime" {
   display_name = "Georgian Budget Pipeline Function Uptime Check"
-  
+
   http_check {
     port         = 443
     path         = "/"
     use_ssl      = true
   }
-  
+
   monitored_resource {
     type = "uptime_url"
     labels = {
@@ -64,9 +64,9 @@ resource "google_monitoring_uptime_check_config" "pipeline_uptime" {
       host       = replace(google_cloudfunctions2_function.pipeline_processor.service_config[0].uri, "https://", "")
     }
   }
-  
+
   timeout = "30s"
-  
+
   depends_on = [google_project_service.required_apis]
 }
 
@@ -74,26 +74,26 @@ resource "google_monitoring_uptime_check_config" "pipeline_uptime" {
 resource "google_monitoring_alert_policy" "frontend_downtime" {
   display_name = "Frontend Service Down"
   combiner     = "OR"
-  
+
   conditions {
     display_name = "Frontend uptime check failed"
-    
+
     condition_threshold {
       filter = "metric.type=\"monitoring.googleapis.com/uptime_check/check_passed\" AND resource.labels.monitored_resource.type=\"uptime_url\" AND resource.labels.host=\"${google_compute_global_address.load_balancer_ip.address}\" AND resource.labels.uptime_check_id=\"${google_monitoring_uptime_check_config.frontend_uptime.uptime_check_id}\""
-      
+
       comparison      = "COMPARISON_LT"
       threshold_value = 1.0
       duration        = "60s"
-      
+
       aggregations {
         alignment_period   = "60s"
         per_series_aligner = "ALIGN_RATE"
       }
     }
   }
-  
+
   notification_channels = var.notification_email != "" ? [google_monitoring_notification_channel.email[0].name] : []
-  
+
   depends_on = [google_project_service.required_apis]
 }
 
@@ -101,26 +101,26 @@ resource "google_monitoring_alert_policy" "frontend_downtime" {
 resource "google_monitoring_alert_policy" "backend_downtime" {
   display_name = "Backend API Service Down"
   combiner     = "OR"
-  
+
   conditions {
     display_name = "Backend API uptime check failed"
-    
+
     condition_threshold {
       filter = "metric.type=\"monitoring.googleapis.com/uptime_check/check_passed\" AND resource.labels.monitored_resource.type=\"uptime_url\" AND resource.labels.host=\"${google_compute_global_address.load_balancer_ip.address}\" AND resource.labels.uptime_check_id=\"${google_monitoring_uptime_check_config.backend_uptime.uptime_check_id}\""
-      
+
       comparison      = "COMPARISON_LT"
       threshold_value = 1.0
       duration        = "60s"
-      
+
       aggregations {
         alignment_period   = "60s"
         per_series_aligner = "ALIGN_RATE"
       }
     }
   }
-  
+
   notification_channels = var.notification_email != "" ? [google_monitoring_notification_channel.email[0].name] : []
-  
+
   depends_on = [google_project_service.required_apis]
 }
 
@@ -128,29 +128,29 @@ resource "google_monitoring_alert_policy" "backend_downtime" {
 resource "google_monitoring_alert_policy" "high_error_rate" {
   display_name = "High Error Rate on Load Balancer"
   combiner     = "OR"
-  
+
   conditions {
     display_name = "Error rate > 5%"
-    
+
     condition_threshold {
       filter = "metric.type=\"loadbalancing.googleapis.com/https/request_count\" AND resource.labels.forwarding_rule_name=\"georgian-budget-http\""
-      
+
       comparison      = "COMPARISON_GT"
       threshold_value = 0.05
       duration        = "300s"
-      
+
       aggregations {
         alignment_period   = "300s"
         per_series_aligner = "ALIGN_RATE"
         cross_series_reducer = "REDUCE_MEAN"
       }
-      
+
       denominator_filter = "metric.type=\"loadbalancing.googleapis.com/https/request_count\" AND resource.labels.forwarding_rule_name=\"georgian-budget-http\""
     }
   }
-  
+
   notification_channels = var.notification_email != "" ? [google_monitoring_notification_channel.email[0].name] : []
-  
+
   depends_on = [google_project_service.required_apis]
 }
 
@@ -159,11 +159,11 @@ resource "google_monitoring_notification_channel" "email" {
   count        = var.notification_email != "" ? 1 : 0
   display_name = "Email Notifications"
   type         = "email"
-  
+
   labels = {
     email_address = var.notification_email
   }
-  
+
   depends_on = [google_project_service.required_apis]
 }
 
@@ -200,6 +200,6 @@ resource "google_monitoring_dashboard" "georgian_budget_dashboard" {
       ]
     }
   })
-  
+
   depends_on = [google_project_service.required_apis]
 }

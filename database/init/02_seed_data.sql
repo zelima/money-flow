@@ -19,7 +19,7 @@ INSERT INTO sub_departments (department_id, name_english, name_georgian, allocat
 ((SELECT id FROM departments WHERE name_english = 'General Public Services'), 'Public Service Management', 'საჯარო სერვისების მართვა', 20.0, 900, 6),
 ((SELECT id FROM departments WHERE name_english = 'General Public Services'), 'Digital Government Initiatives', 'ციფრული ხელისუფლების ინიციატივები', 5.0, 150, 3);
 
--- Insert sub-departments for Economic Affairs  
+-- Insert sub-departments for Economic Affairs
 INSERT INTO sub_departments (department_id, name_english, name_georgian, allocation_percentage, employee_count, projects_count) VALUES
 ((SELECT id FROM departments WHERE name_english = 'Economic Affairs'), 'Business Development', 'ბიზნეს განვითარება', 30.0, 400, 15),
 ((SELECT id FROM departments WHERE name_english = 'Economic Affairs'), 'Infrastructure Investment', 'ინფრასტრუქტურული ინვესტიციები', 40.0, 600, 20),
@@ -89,4 +89,4 @@ INSERT INTO sub_departments (department_id, name_english, name_georgian, allocat
 ((SELECT id FROM departments WHERE name_english = 'Defense'), 'Defense Equipment', 'თავდაცვის აღჭურვილობა', 25.0, 1000, 10),
 ((SELECT id FROM departments WHERE name_english = 'Defense'), 'Military Training', 'სამხედრო მომზადება', 15.0, 1500, 8),
 ((SELECT id FROM departments WHERE name_english = 'Defense'), 'Intelligence Services', 'დაზვერვის სერვისები', 7.0, 500, 5),
-((SELECT id FROM departments WHERE name_english = 'Defense'), 'Veteran Affairs', 'ვეტერანთა საქმეები', 3.0, 200, 4); 
+((SELECT id FROM departments WHERE name_english = 'Defense'), 'Veteran Affairs', 'ვეტერანთა საქმეები', 3.0, 200, 4);

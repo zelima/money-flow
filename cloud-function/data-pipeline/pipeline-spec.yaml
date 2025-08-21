@@ -9,10 +9,10 @@ georgian-budget-pipeline:
         name: "georgian_budget"
         format: "xlsx"
         skip_rows: [1, 2] # Skip first 2 rows (title information)
-        headers: 1 
+        headers: 1
         limit_rows: 10    # Only take rows 4-13 (actual data)
         encoding: "utf-8"
-    
+
     # Step 2: Unpivot years from columns to rows
     - run: unpivot
       parameters:
@@ -22,7 +22,7 @@ georgian-budget-pipeline:
           -
             name: year
             type: any
-            
+
         extraValueField:
             name: budget
             type: any
@@ -31,7 +31,7 @@ georgian-budget-pipeline:
             name: ([0-9]{4})
             keys:
               year: \1
-    
+
     - run: find_replace
       parameters:
         resources: georgian_budget
@@ -42,7 +42,7 @@ georgian-budget-pipeline:
               -
                 find: X
                 replace: ""
-    
+
     - run: add_computed_field
       parameters:
         resources: georgian_budget
@@ -56,13 +56,13 @@ georgian-budget-pipeline:
       parameters:
         resources: georgian_budget
 
-    
+
     - run: delete_fields
       parameters:
         resources: georgian_budget
         fields:
           - "დ  ა ს ა ხ ე ლ ე ბ ა"
-    
+
     - run: set_types
       parameters:
          resources: georgian_budget
@@ -73,8 +73,8 @@ georgian-budget-pipeline:
               type: number
            "name":
               type: any
-    
-    
+
+
     # Step 4: Save as files
     - run: dump_to_path
       parameters:
@@ -89,4 +89,3 @@ georgian-budget-pipeline:
         format: "csv"
         pretty-descriptor: true
         encoding: "utf-8"
-        

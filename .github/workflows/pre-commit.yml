@@ -1,0 +1,107 @@
+name: Pre-commit Checks
+
+# This workflow runs pre-commit checks on pull requests
+# Ensures code quality, formatting, and basic checks before code review
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      run_checks:
+        description: 'Run pre-commit checks'
+        required: false
+        default: 'true'
+        type: boolean
+
+env:
+  PYTHON_VERSION: '3.11.9'
+
+jobs:
+  pre-commit:
+    name: Pre-commit Checks
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        # Fetch full history for pre-commit to work properly
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        check-latest: false
+
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-dev-${{ hashFiles('requirements-dev.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-dev-
+
+    - name: Install development dependencies
+      run: |
+        pip install -r requirements-dev.txt
+
+    - name: Install pre-commit hooks
+      run: |
+        pre-commit install
+
+    - name: Run pre-commit on all files
+      run: |
+        pre-commit run --all-files
+
+    - name: Run additional quality checks
+      run: |
+        echo "Running additional quality checks..."
+        echo "Checking code formatting..."
+        black --check --diff api/ web-app/ tests/
+        echo "Checking import sorting..."
+        isort --check-only --diff api/ web-app/ tests/
+        echo "Running linting..."
+        flake8 api/ web-app/ tests/
+        echo "Running type checking..."
+        mypy api/ web-app/
+
+  quality-summary:
+    name: Quality Check Summary
+    runs-on: ubuntu-latest
+    needs: [pre-commit]
+    if: always()
+
+    steps:
+    - name: Quality Check Results Summary
+      run: |
+        echo "## 🔍 Pre-commit Quality Check Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📊 Check Status" >> $GITHUB_STEP_SUMMARY
+        echo "- **Pre-commit Checks**: ${{ needs.pre-commit.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🧹 What Was Checked" >> $GITHUB_STEP_SUMMARY
+        echo "- **Code Formatting**: Black formatting standards" >> $GITHUB_STEP_SUMMARY
+        echo "- **Import Sorting**: isort import organization" >> $GITHUB_STEP_SUMMARY
+        echo "- **Linting**: flake8 code quality rules" >> $GITHUB_STEP_SUMMARY
+        echo "- **Type Checking**: mypy static type analysis" >> $GITHUB_STEP_SUMMARY
+        echo "- **General Checks**: File endings, YAML validity, etc." >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📝 Next Steps" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ needs.pre-commit.result }}" = "failure" ]; then
+          echo "❌ Quality checks failed. Please fix the issues and push again." >> $GITHUB_STEP_SUMMARY
+          echo "- Run `make format` to auto-format code" >> $GITHUB_STEP_SUMMARY
+          echo "- Run `make lint` to check for linting issues" >> $GITHUB_STEP_SUMMARY
+          echo "- Run `make pre-commit-run` to run all checks locally" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "✅ All quality checks passed successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "- Code meets quality standards" >> $GITHUB_STEP_SUMMARY
+          echo "- Ready for code review" >> $GITHUB_STEP_SUMMARY
+        fi
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🚀 Local Development" >> $GITHUB_STEP_SUMMARY
+        echo "- Install hooks: `make pre-commit-install`" >> $GITHUB_STEP_SUMMARY
+        echo "- Run checks: `make pre-commit-run`" >> $GITHUB_STEP_SUMMARY
+        echo "- Format code: `make format`" >> $GITHUB_STEP_SUMMARY
+        echo "- Lint code: `make lint`" >> $GITHUB_STEP_SUMMARY

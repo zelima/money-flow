@@ -62,14 +62,14 @@ steps:
       - |
         # Get the Cloud Run service URL
         BACKEND_URL=$(gcloud run services describe georgian-budget-backend-api --region=${_ARTIFACT_REGISTRY_LOCATION} --format='value(status.url)')
-        
+
         # Create Network Endpoint Group for the Cloud Run service
         gcloud compute network-endpoint-groups create georgian-budget-backend-neg \
           --region=${_ARTIFACT_REGISTRY_LOCATION} \
           --network-endpoint-type=serverless \
           --cloud-run-service=georgian-budget-backend-api \
           --quiet || true
-        
+
         # Update the backend service to use the NEG
         gcloud compute backend-services add-backend georgian-budget-default-backend \
           --global \

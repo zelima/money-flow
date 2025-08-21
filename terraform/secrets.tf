@@ -4,11 +4,11 @@
 # Database URL Secret
 resource "google_secret_manager_secret" "database_url" {
   secret_id = "georgian-budget-database-url"
-  
+
   replication {
     auto {}
   }
-  
+
   depends_on = [google_project_service.required_apis]
 }
 
@@ -16,7 +16,7 @@ resource "google_secret_manager_secret" "database_url" {
 resource "google_secret_manager_secret_version" "database_url" {
   secret      = google_secret_manager_secret.database_url.name
   secret_data = "postgresql://${google_sql_user.database_user.name}:${google_sql_user.database_user.password}@${google_sql_database_instance.instance.private_ip_address}:5432/${google_sql_database.database.name}"
-  
+
   depends_on = [
     google_sql_database_instance.instance,
     google_sql_database.database,
