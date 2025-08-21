@@ -3,9 +3,18 @@ from unittest.mock import patch, MagicMock
 import json
 import os
 import sys
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from app import app
+
+# Add the web-app directory to the Python path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+web_app_dir = os.path.dirname(current_dir)
+sys.path.insert(0, web_app_dir)
+
+try:
+    from app import app
+except ImportError:
+    # Fallback for CI environment
+    sys.path.insert(0, os.path.join(web_app_dir, '..'))
+    from web_app.app import app
 
 @pytest.fixture
 def client():

@@ -63,18 +63,17 @@ jobs:
         
     - name: Run integration tests
       run: |
-        python -m pytest -m integration -v
+        python -m pytest tests/ -v
         
-    - name: Generate combined coverage report
+    - name: Generate coverage report
       run: |
-        coverage combine api/.coverage web-app/.coverage
         coverage report
-        coverage xml -o combined-coverage.xml
+        coverage xml -o integration-coverage.xml
         
-    - name: Upload combined coverage
+    - name: Upload coverage
       uses: codecov/codecov-action@v3
       with:
-        file: ./combined-coverage.xml
+        file: ./integration-coverage.xml
         flags: integration
         name: integration-coverage
         fail_ci_if_error: false
@@ -94,7 +93,7 @@ jobs:
         echo "- **Integration Tests**: ${{ needs.test-integration.result }}" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 🔍 Coverage Report" >> $GITHUB_STEP_SUMMARY
-        echo "- Combined coverage available in Codecov" >> $GITHUB_STEP_SUMMARY
+        echo "- Integration test coverage available in Codecov" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 📝 Next Steps" >> $GITHUB_STEP_SUMMARY
         if [ "${{ needs.test-integration.result }}" = "failure" ]; then
