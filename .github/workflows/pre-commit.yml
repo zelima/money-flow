@@ -39,13 +39,15 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-dev-${{ hashFiles('requirements-dev.txt') }}
+        key: ${{ runner.os }}-pip-dev-${{ hashFiles('api/requirements-test.txt', 'web-app/requirements-test.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-dev-
 
     - name: Install development dependencies
       run: |
-        pip install -r requirements-dev.txt
+        pip install -r api/requirements-test.txt
+        pip install -r web-app/requirements-test.txt
+        pip install pre-commit==3.6.0
 
     - name: Install pre-commit hooks
       run: |
@@ -54,18 +56,6 @@ jobs:
     - name: Run pre-commit on all files
       run: |
         pre-commit run --all-files
-
-    - name: Run additional quality checks
-      run: |
-        echo "Running additional quality checks..."
-        echo "Checking code formatting..."
-        black --check --diff api/ web-app/ tests/
-        echo "Checking import sorting..."
-        isort --check-only --diff api/ web-app/ tests/
-        echo "Running linting..."
-        flake8 api/ web-app/ tests/
-        echo "Running type checking..."
-        mypy api/ web-app/
 
   quality-summary:
     name: Quality Check Summary
