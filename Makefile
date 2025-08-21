@@ -99,25 +99,8 @@ start-frontend: ## Start only the frontend service
 
 
 # Testing
-test: ## Run all tests
-	@echo "Running tests..."
-	@echo "API tests..."
-	cd api && python -m pytest tests/ -v
-	@echo "Web-app tests..."
-	cd web-app && python -m pytest tests/ -v
-	@echo ""
-	@echo "Note: CI/CD workflows run separately:"
-	@echo "- API tests: when api/ directory is modified"
-	@echo "- Web App tests: when web-app/ directory is modified"
-	@echo "- Integration tests: when both directories are modified"
 
-test-api: ## Run API tests only
-	@echo "Running API tests (Backend)..."
-	cd api && python -m pytest tests/ -v
 
-test-web-app: ## Run web-app tests only
-	@echo "Running Web App tests (Frontend)..."
-	cd web-app && python -m pytest tests/ -v
 
 # Code Quality
 lint: ## Run linting checks
@@ -188,15 +171,7 @@ pre-commit-update: ## Update pre-commit hooks
 	@echo "Updating pre-commit hooks..."
 	pre-commit autoupdate
 
-format: ## Format code with black and isort
-	@echo "Formatting code..."
-	black api/ web-app/ tests/
-	isort api/ web-app/ tests/
 
-lint: ## Run linting checks
-	@echo "Running linting checks..."
-	flake8 api/ web-app/ tests/
-	mypy api/ web-app/
 
 # Testing
 test: ## Run all tests
@@ -210,7 +185,7 @@ test-api: ## Run API tests
 
 test-web-app: ## Run web-app tests
 	@echo "Running web-app tests..."
-	cd web-app && python -m pytest tests/ -v --cov=. --cov-report=term-missing
+	cd web-app && python -m pytest web_app_tests/ -v --cov=. --cov-report=term-missing
 
 
 
