@@ -10,8 +10,6 @@ on:
       - 'api/**'
       - 'web-app/**'
       - 'pytest.ini'
-      - 'requirements*.txt'
-      - 'requirements-dev.txt'
       - 'Makefile'
   pull_request:
     branches: [ main, develop ]
@@ -19,8 +17,6 @@ on:
       - 'api/**'
       - 'web-app/**'
       - 'pytest.ini'
-      - 'requirements*.txt'
-      - 'requirements-dev.txt'
       - 'Makefile'
   workflow_dispatch:
     inputs:
@@ -60,8 +56,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install -r api/requirements-dev.txt
-        pip install -r web-app/requirements-dev.txt
+        pip install -r api/requirements-test.txt
+        pip install -r web-app/requirements-test.txt
 
     - name: Run integration tests
       run: |
