@@ -22,6 +22,22 @@ resource "google_project_iam_member" "load_balancer_roles" {
   member  = "serviceAccount:${google_service_account.load_balancer_sa.email}"
 }
 
+# IAM binding for Load Balancer to invoke Frontend Cloud Run service
+resource "google_cloud_run_service_iam_member" "load_balancer_frontend_invoker" {
+  location = google_cloudfunctions2_function.pipeline_processor.location
+  service  = "georgian-budget-frontend"
+  role     = "roles/run.invoker"
+  member   = "serviceAccount:${google_service_account.load_balancer_sa.email}"
+}
+
+# IAM binding for Load Balancer to invoke Backend API Cloud Run service
+resource "google_cloud_run_service_iam_member" "load_balancer_backend_invoker" {
+  location = google_cloudfunctions2_function.pipeline_processor.location
+  service  = "georgian-budget-backend-api"
+  role     = "roles/run.invoker"
+  member   = "serviceAccount:${google_service_account.load_balancer_sa.email}"
+}
+
 # Global IP Address for Load Balancer
 resource "google_compute_global_address" "load_balancer_ip" {
   name         = "georgian-budget-lb-ip"
@@ -102,6 +118,12 @@ resource "google_compute_region_network_endpoint_group" "backend_neg" {
   cloud_run {
     service = "georgian-budget-backend-api"
   }
+  
+  depends_on = [
+    google_project_service.required_apis,
+    # Ensure Cloud Run service exists before creating NEG
+    google_cloudfunctions2_function.pipeline_processor
+  ]
 }
 
 # URL Map for Load Balancer with proper routing
@@ -119,16 +141,26 @@ resource "google_compute_url_map" "url_map" {
     name            = "api-routes"
     default_service = google_compute_backend_service.frontend_backend.id
     
-    # Route /api/* to backend API
+    # Route /api/* to backend API (strip /api prefix)
     path_rule {
       paths   = ["/api/*"]
       service = google_compute_backend_service.backend_api.id
+      route_action {
+        url_rewrite {
+          path_prefix_rewrite = "/"
+        }
+      }
     }
     
-    # Route /api to backend API
+    # Route /api to backend API (strip /api prefix)
     path_rule {
       paths   = ["/api"]
       service = google_compute_backend_service.backend_api.id
+      route_action {
+        url_rewrite {
+          path_prefix_rewrite = "/"
+        }
+      }
     }
   }
 }
