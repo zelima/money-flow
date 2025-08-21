@@ -1,0 +1,109 @@
+name: Integration Tests
+
+# This workflow runs integration tests when both api/ and web-app/ directories are modified
+# Tests the interaction between frontend and backend services
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'api/**'
+      - 'web-app/**'
+      - 'pytest.ini'
+      - 'requirements*.txt'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'api/**'
+      - 'web-app/**'
+      - 'pytest.ini'
+      - 'requirements*.txt'
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'Run integration tests (both services)'
+        required: false
+        default: 'integration'
+        type: choice
+        options:
+          - integration
+
+env:
+  PYTHON_VERSION: '3.11.9'
+
+jobs:
+  test-integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        check-latest: false
+        
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-integration-${{ hashFiles('api/requirements*.txt', 'web-app/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-integration-
+          
+    - name: Install all dependencies
+      run: |
+        pip install -r api/requirements.txt
+        pip install -r api/requirements-test.txt
+        pip install -r web-app/requirements.txt
+        pip install -r web-app/requirements-test.txt
+        
+    - name: Run integration tests
+      run: |
+        python -m pytest -m integration -v
+        
+    - name: Generate combined coverage report
+      run: |
+        coverage combine api/.coverage web-app/.coverage
+        coverage report
+        coverage xml -o combined-coverage.xml
+        
+    - name: Upload combined coverage
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./combined-coverage.xml
+        flags: integration
+        name: integration-coverage
+        fail_ci_if_error: false
+
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [test-integration]
+    if: always()
+    
+    steps:
+    - name: Test Results Summary
+      run: |
+        echo "## 🧪 Integration Test Results Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📊 Test Status" >> $GITHUB_STEP_SUMMARY
+        echo "- **Integration Tests**: ${{ needs.test-integration.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔍 Coverage Report" >> $GITHUB_STEP_SUMMARY
+        echo "- Combined coverage available in Codecov" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📝 Next Steps" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ needs.test-integration.result }}" = "failure" ]; then
+          echo "❌ Integration tests failed. Please review the logs and fix the issues." >> $GITHUB_STEP_SUMMARY
+        else
+          echo "✅ Integration tests passed successfully!" >> $GITHUB_STEP_SUMMARY
+        fi
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🚀 CI/CD Logic" >> $GITHUB_STEP_SUMMARY
+        echo "- **Integration tests run**: When both `api/` and `web-app/` directories are modified" >> $GITHUB_STEP_SUMMARY
+        echo "- **Purpose**: Test interaction between frontend and backend services" >> $GITHUB_STEP_SUMMARY
+        echo "- **Triggered by**: Cross-service changes, pytest config, or requirements updates" >> $GITHUB_STEP_SUMMARY

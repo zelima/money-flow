@@ -105,13 +105,18 @@ test: ## Run all tests
 	cd api && python -m pytest tests/ -v
 	@echo "Web-app tests..."
 	cd web-app && python -m pytest tests/ -v
+	@echo ""
+	@echo "Note: CI/CD workflows run separately:"
+	@echo "- API tests: when api/ directory is modified"
+	@echo "- Web App tests: when web-app/ directory is modified"
+	@echo "- Integration tests: when both directories are modified"
 
 test-api: ## Run API tests only
-	@echo "Running API tests..."
+	@echo "Running API tests (Backend)..."
 	cd api && python -m pytest tests/ -v
 
-test-frontend: ## Run frontend tests only
-	@echo "Running frontend tests..."
+test-web-app: ## Run web-app tests only
+	@echo "Running Web App tests (Frontend)..."
 	cd web-app && python -m pytest tests/ -v
 
 # Code Quality
@@ -169,6 +174,33 @@ tf-destroy: ## Destroy Terraform infrastructure
 	@echo "Destroying Terraform infrastructure..."
 	cd terraform && terraform destroy
 
+# Testing
+test: ## Run all tests
+	@echo "Running all tests..."
+	make test-api
+	make test-web-app
+
+test-api: ## Run API tests
+	@echo "Running API tests..."
+	cd api && python -m pytest tests/ -v --cov=. --cov-report=term-missing
+
+test-web-app: ## Run web-app tests
+	@echo "Running web-app tests..."
+	cd web-app && python -m pytest tests/ -v --cov=. --cov-report=term-missing
+
+
+
+test-coverage: ## Run tests with coverage reports
+	@echo "Running tests with coverage reports..."
+	make test-api
+	make test-web-app
+	@echo "Coverage reports generated in each service directory"
+
+test-install: ## Install test dependencies
+	@echo "Installing test dependencies..."
+	cd api && pip install -r requirements-test.txt
+	cd web-app && pip install -r requirements-test.txt
+
 # Utility Commands
 status: ## Show status of all services
 	@echo "Service Status:"
@@ -187,6 +219,8 @@ clean-deps: ## Clean up Python dependencies
 	find . -name "*.pyd" -delete
 	find . -name ".pytest_cache" -type d -exec rm -rf {} +
 	find . -name ".coverage" -delete
+	find . -name "htmlcov" -type d -exec rm -rf {} +
+	find . -name "coverage.xml" -delete
 
 # Development shortcuts
 dev: ## Start development environment with hot reload
