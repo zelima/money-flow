@@ -55,18 +55,6 @@ jobs:
       run: |
         pre-commit run --all-files
 
-    - name: Run additional quality checks
-      run: |
-        echo "Running additional quality checks..."
-        echo "Checking code formatting..."
-        black --check --diff api/ web-app/ tests/
-        echo "Checking import sorting..."
-        isort --check-only --diff api/ web-app/ tests/
-        echo "Running linting..."
-        flake8 api/ web-app/ tests/
-        echo "Running type checking..."
-        mypy api/ web-app/
-
   quality-summary:
     name: Quality Check Summary
     runs-on: ubuntu-latest
