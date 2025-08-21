@@ -45,7 +45,8 @@ jobs:
 
     - name: Install development dependencies
       run: |
-        pip install -r requirements-dev.txt
+        pip install -r api/requirements-dev.txt
+        pip install -r web-app/requirements-dev.txt
 
     - name: Install pre-commit hooks
       run: |
