@@ -8,7 +8,7 @@ data "archive_file" "function_source" {
 
   # Include cloud-function directory
   source {
-    content  = file("../cloud-function/main.py")
+    content  = file("../cloud-function/cloud_function_main.py")
     filename = "main.py"
   }
 
@@ -17,11 +17,11 @@ data "archive_file" "function_source" {
     filename = "requirements.txt"
   }
 
-  # Include the entire data-pipeline directory
+  # Include the entire data-pipeline directory from cloud-function
   dynamic "source" {
-    for_each = fileset("../data-pipeline", "**/*")
+    for_each = fileset("../cloud-function/data-pipeline", "**/*")
     content {
-      content  = fileexists("../data-pipeline/${source.value}") ? file("../data-pipeline/${source.value}") : ""
+      content  = fileexists("../cloud-function/data-pipeline/${source.value}") ? file("../cloud-function/data-pipeline/${source.value}") : ""
       filename = "data-pipeline/${source.value}"
     }
   }
