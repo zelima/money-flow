@@ -1,8 +1,9 @@
-# Cloud Storage buckets for Georgian Budget Data Pipeline
+# Storage Module for Georgian Budget Application
+# Includes Cloud Storage buckets and related resources
 
 # Main data bucket for raw and processed files
 resource "google_storage_bucket" "data_bucket" {
-  name     = local.bucket_name
+  name     = var.data_bucket_name
   location = var.region
 
   # Prevent accidental deletion
@@ -41,11 +42,7 @@ resource "google_storage_bucket" "data_bucket" {
   # Uniform bucket-level access
   uniform_bucket_level_access = true
 
-  labels = {
-    environment = var.environment
-    project     = "georgian-budget"
-    component   = "data-pipeline"
-  }
+  labels = var.labels
 }
 
 # Raw data folder structure (organized via object naming)
@@ -73,7 +70,7 @@ resource "google_storage_bucket_object" "processed_folder" {
 
 # Bucket for Cloud Function source code
 resource "google_storage_bucket" "function_source_bucket" {
-  name     = "${var.project_id}-function-source-${random_id.bucket_suffix.hex}"
+  name     = var.function_source_bucket_name
   location = var.region
 
   # Uniform bucket-level access
@@ -82,9 +79,5 @@ resource "google_storage_bucket" "function_source_bucket" {
   # Public access prevention
   public_access_prevention = "enforced"
 
-  labels = {
-    environment = var.environment
-    project     = "georgian-budget"
-    component   = "cloud-function"
-  }
+  labels = var.labels
 }

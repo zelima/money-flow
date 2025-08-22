@@ -1,5 +1,5 @@
-# Cloud Monitoring and Uptime Checks for Georgian Budget Application
-# Simple monitoring setup with uptime checks and basic alerting
+# Monitoring Module for Georgian Budget Application
+# Includes uptime checks, alert policies, notification channels, and dashboards
 
 # Uptime Check for Frontend
 resource "google_monitoring_uptime_check_config" "frontend_uptime" {
@@ -15,13 +15,13 @@ resource "google_monitoring_uptime_check_config" "frontend_uptime" {
     type = "uptime_url"
     labels = {
       project_id = var.project_id
-      host       = google_compute_global_address.load_balancer_ip.address
+      host       = var.load_balancer_ip
     }
   }
 
   timeout = "10s"
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [var.required_apis]
 }
 
 # Uptime Check for Backend API
@@ -38,13 +38,13 @@ resource "google_monitoring_uptime_check_config" "backend_uptime" {
     type = "uptime_url"
     labels = {
       project_id = var.project_id
-      host       = google_compute_global_address.load_balancer_ip.address
+      host       = var.load_balancer_ip
     }
   }
 
   timeout = "10s"
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [var.required_apis]
 }
 
 # Uptime Check for Data Pipeline Function
@@ -61,13 +61,13 @@ resource "google_monitoring_uptime_check_config" "pipeline_uptime" {
     type = "uptime_url"
     labels = {
       project_id = var.project_id
-      host       = replace(google_cloudfunctions2_function.pipeline_processor.service_config[0].uri, "https://", "")
+      host       = replace(var.pipeline_function_uri, "https://", "")
     }
   }
 
   timeout = "30s"
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [var.required_apis]
 }
 
 # Alerting Policy for Frontend Downtime
@@ -79,7 +79,7 @@ resource "google_monitoring_alert_policy" "frontend_downtime" {
     display_name = "Frontend uptime check failed"
 
     condition_threshold {
-      filter = "metric.type=\"monitoring.googleapis.com/uptime_check/check_passed\" AND resource.labels.monitored_resource.type=\"uptime_url\" AND resource.labels.host=\"${google_compute_global_address.load_balancer_ip.address}\" AND resource.labels.uptime_check_id=\"${google_monitoring_uptime_check_config.frontend_uptime.uptime_check_id}\""
+      filter = "metric.type=\"monitoring.googleapis.com/uptime_check/check_passed\" AND resource.type=\"uptime_url\""
 
       comparison      = "COMPARISON_LT"
       threshold_value = 1.0
@@ -87,14 +87,13 @@ resource "google_monitoring_alert_policy" "frontend_downtime" {
 
       aggregations {
         alignment_period   = "60s"
-        per_series_aligner = "ALIGN_RATE"
       }
     }
   }
 
   notification_channels = var.notification_email != "" ? [google_monitoring_notification_channel.email[0].name] : []
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [var.required_apis]
 }
 
 # Alerting Policy for Backend API Downtime
@@ -106,7 +105,7 @@ resource "google_monitoring_alert_policy" "backend_downtime" {
     display_name = "Backend API uptime check failed"
 
     condition_threshold {
-      filter = "metric.type=\"monitoring.googleapis.com/uptime_check/check_passed\" AND resource.labels.monitored_resource.type=\"uptime_url\" AND resource.labels.host=\"${google_compute_global_address.load_balancer_ip.address}\" AND resource.labels.uptime_check_id=\"${google_monitoring_uptime_check_config.backend_uptime.uptime_check_id}\""
+      filter = "metric.type=\"monitoring.googleapis.com/uptime_check/check_passed\" AND resource.type=\"uptime_url\""
 
       comparison      = "COMPARISON_LT"
       threshold_value = 1.0
@@ -114,14 +113,13 @@ resource "google_monitoring_alert_policy" "backend_downtime" {
 
       aggregations {
         alignment_period   = "60s"
-        per_series_aligner = "ALIGN_RATE"
       }
     }
   }
 
   notification_channels = var.notification_email != "" ? [google_monitoring_notification_channel.email[0].name] : []
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [var.required_apis]
 }
 
 # Alerting Policy for High Error Rate
@@ -133,7 +131,7 @@ resource "google_monitoring_alert_policy" "high_error_rate" {
     display_name = "Error rate > 5%"
 
     condition_threshold {
-      filter = "metric.type=\"loadbalancing.googleapis.com/https/request_count\" AND resource.labels.forwarding_rule_name=\"georgian-budget-http\""
+      filter = "metric.type=\"loadbalancing.googleapis.com/https/request_count\" AND resource.type=\"https_lb_rule\""
 
       comparison      = "COMPARISON_GT"
       threshold_value = 0.05
@@ -144,14 +142,12 @@ resource "google_monitoring_alert_policy" "high_error_rate" {
         per_series_aligner = "ALIGN_RATE"
         cross_series_reducer = "REDUCE_MEAN"
       }
-
-      denominator_filter = "metric.type=\"loadbalancing.googleapis.com/https/request_count\" AND resource.labels.forwarding_rule_name=\"georgian-budget-http\""
     }
   }
 
   notification_channels = var.notification_email != "" ? [google_monitoring_notification_channel.email[0].name] : []
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [var.required_apis]
 }
 
 # Email Notification Channel (only if email is provided)
@@ -164,7 +160,7 @@ resource "google_monitoring_notification_channel" "email" {
     email_address = var.notification_email
   }
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [var.required_apis]
 }
 
 # Dashboard for Georgian Budget Application
@@ -201,5 +197,5 @@ resource "google_monitoring_dashboard" "georgian_budget_dashboard" {
     }
   })
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [var.required_apis]
 }

@@ -1,13 +1,5 @@
-# Cloud Build Configuration for Georgian Budget Application
-# Phase 2: Automated CI/CD Pipeline
-#
-# IMPORTANT: Before applying this configuration, you must manually connect
-# the GitHub repository in GCP Console:
-# 1. Go to Cloud Build > Repositories
-# 2. Click "Connect Repository"
-# 3. Select GitHub and authorize the connection
-# 4. Choose the "zelima/money-flow" repository
-# 5. Then run `terraform apply` to create the triggers
+# CI/CD Module for Georgian Budget Application
+# Includes Cloud Build triggers, Artifact Registry, and related IAM
 
 # Cloud Build Trigger for Backend API
 resource "google_cloudbuild_trigger" "backend_trigger" {
@@ -29,26 +21,17 @@ resource "google_cloudbuild_trigger" "backend_trigger" {
     repo_type = "GITHUB"
   }
 
-  # Only trigger on changes to API files
-  included_files = [
-    "api/**"
-  ]
-
   # Substitution variables for Cloud Build
   substitutions = {
-    _CLOUD_STORAGE_BUCKET = google_storage_bucket.data_bucket.name
-    _DATABASE_URL = "postgresql://${google_sql_user.database_user.name}:${google_sql_user.database_user.password}@${google_sql_database_instance.instance.private_ip_address}:5432/${google_sql_database.database.name}"
+    _CLOUD_STORAGE_BUCKET = var.data_bucket_name
+    _DATABASE_URL = "postgresql://${var.database_user_name}:${var.database_user_password}@${var.database_private_ip}:5432/${var.database_name}"
     _ARTIFACT_REGISTRY_REPO = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker_repo.repository_id}"
     _ARTIFACT_REGISTRY_LOCATION = var.region
   }
 
   service_account = google_service_account.cloud_build_sa.id
 
-  depends_on = [
-    google_project_service.required_apis,
-    google_artifact_registry_repository.docker_repo,
-    google_storage_bucket.data_bucket
-  ]
+  depends_on = [var.required_apis]
 }
 
 # Cloud Build Trigger for Frontend Web App
@@ -71,24 +54,16 @@ resource "google_cloudbuild_trigger" "frontend_trigger" {
     repo_type = "GITHUB"
   }
 
-  # Only trigger on changes to web-app files
-  included_files = [
-    "web-app/**"
-  ]
+  # Substitution variables for Cloud Build
+  substitutions = {
+    _ARTIFACT_REGISTRY_REPO = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker_repo.repository_id}"
+    _ARTIFACT_REGISTRY_LOCATION = var.region
+    _BACKEND_URL = var.domain_name != "" ? "https://${var.domain_name}/api" : "http://${var.load_balancer_ip}/api"
+  }
 
-     # Substitution variables for Cloud Build
-   substitutions = {
-     _ARTIFACT_REGISTRY_REPO = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.docker_repo.repository_id}"
-     _ARTIFACT_REGISTRY_LOCATION = var.region
-     _BACKEND_URL = var.domain_name != "" ? "https://${var.domain_name}/api" : "http://${google_compute_global_address.load_balancer_ip.address}/api"
-   }
+  service_account = google_service_account.cloud_build_sa.id
 
-   service_account = google_service_account.cloud_build_sa.id
-
-   depends_on = [
-     google_project_service.required_apis,
-     google_artifact_registry_repository.docker_repo
-   ]
+  depends_on = [var.required_apis]
 }
 
 # Service Account for Cloud Build
@@ -126,12 +101,31 @@ resource "google_artifact_registry_repository" "docker_repo" {
   description   = "Docker repository for Georgian Budget application images"
   format        = "DOCKER"
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [var.required_apis]
 }
 
 # IAM binding for Cloud Build to access Artifact Registry
 resource "google_project_iam_member" "cloud_build_artifact_registry" {
   project = var.project_id
   role    = "roles/artifactregistry.writer"
+  member  = "serviceAccount:${google_service_account.cloud_build_sa.email}"
+}
+
+# IAM binding for Cloud Build to deploy to Cloud Run (for compute module)
+resource "google_project_iam_member" "cloud_build_run_admin" {
+  project = var.project_id
+  role    = "roles/run.admin"
+  member  = "serviceAccount:${google_service_account.cloud_build_sa.email}"
+}
+
+# IAM binding for Cloud Build to act as service accounts (for compute module)
+resource "google_project_iam_member" "cloud_build_sa_user" {
+  for_each = toset([
+    var.backend_service_account_email,
+    var.frontend_service_account_email
+  ])
+
+  project = var.project_id
+  role    = "roles/iam.serviceAccountUser"
   member  = "serviceAccount:${google_service_account.cloud_build_sa.email}"
 }
