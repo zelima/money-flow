@@ -8,12 +8,12 @@ data "archive_file" "function_source" {
 
   # Include cloud-function directory
   source {
-    content  = file("../cloud-function/cloud_function_main.py")
+    content  = file("../../../cloud-function/cloud_function_main.py")
     filename = "main.py"
   }
 
   source {
-    content  = file("../cloud-function/requirements.txt")
+    content  = file("../../../cloud-function/requirements.txt")
     filename = "requirements.txt"
   }
 
