@@ -31,7 +31,6 @@ resource "google_cloudbuild_trigger" "backend_trigger" {
 
   # Only trigger on changes to API files
   included_files = [
-    "api/**"
   ]
 
   # Substitution variables for Cloud Build
@@ -73,7 +72,6 @@ resource "google_cloudbuild_trigger" "frontend_trigger" {
 
   # Only trigger on changes to web-app files
   included_files = [
-    "web-app/**"
   ]
 
      # Substitution variables for Cloud Build

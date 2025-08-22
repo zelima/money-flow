@@ -196,7 +196,7 @@ resource "google_compute_managed_ssl_certificate" "ssl_cert" {
 # Global Forwarding Rule for HTTP
 resource "google_compute_global_forwarding_rule" "http" {
   name       = "georgian-budget-http"
-  target     = google_compute_target_http_proxy.http_proxy.id
+  target     = var.force_https_redirect && var.domain_name != "" ? google_compute_target_http_proxy.http_proxy_updated[0].id : google_compute_target_http_proxy.http_proxy.id
   port_range = "80"
   ip_address = google_compute_global_address.load_balancer_ip.address
 }
@@ -226,13 +226,4 @@ resource "google_compute_target_http_proxy" "http_proxy_updated" {
   count   = var.domain_name != "" && var.force_https_redirect ? 1 : 0
   name    = "georgian-budget-http-redirect-proxy"
   url_map = google_compute_url_map.redirect[0].id
-}
-
-# Global Forwarding Rule for HTTP Redirect (if domain is provided)
-resource "google_compute_global_forwarding_rule" "http_redirect" {
-  count      = var.domain_name != "" && var.force_https_redirect ? 1 : 0
-  name       = "georgian-budget-http-redirect"
-  target     = var.force_https_redirect ? google_compute_target_http_proxy.http_proxy_updated[0].id : google_compute_target_http_proxy.http_proxy.id
-  port_range = "80"
-  ip_address = google_compute_global_address.load_balancer_ip.address
 }

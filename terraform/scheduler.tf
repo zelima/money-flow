@@ -8,7 +8,6 @@ resource "google_cloud_scheduler_job" "quarterly_pipeline" {
   schedule         = "0 6 15 3,6,9,12 *"  # Same cron as GitHub Actions
   time_zone        = "UTC"
   region           = var.region
-  attempt_deadline = "600s"  # 10 minutes timeout
 
   retry_config {
     retry_count          = 2
@@ -42,7 +41,6 @@ resource "google_cloud_scheduler_job" "manual_pipeline_trigger" {
   schedule         = "0 0 1 1 *"  # January 1st (effectively disabled)
   time_zone        = "UTC"
   region           = var.region
-  attempt_deadline = "600s"
 
   # This job is paused by default and only used for manual triggers
   paused = true

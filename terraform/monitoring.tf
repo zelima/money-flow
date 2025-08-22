@@ -79,7 +79,7 @@ resource "google_monitoring_alert_policy" "frontend_downtime" {
     display_name = "Frontend uptime check failed"
 
     condition_threshold {
-      filter = "metric.type=\"monitoring.googleapis.com/uptime_check/check_passed\" AND resource.labels.monitored_resource.type=\"uptime_url\" AND resource.labels.host=\"${google_compute_global_address.load_balancer_ip.address}\" AND resource.labels.uptime_check_id=\"${google_monitoring_uptime_check_config.frontend_uptime.uptime_check_id}\""
+      filter = "metric.type=\"monitoring.googleapis.com/uptime_check/check_passed\" AND resource.type=\"uptime_url\""
 
       comparison      = "COMPARISON_LT"
       threshold_value = 1.0
@@ -87,7 +87,6 @@ resource "google_monitoring_alert_policy" "frontend_downtime" {
 
       aggregations {
         alignment_period   = "60s"
-        per_series_aligner = "ALIGN_RATE"
       }
     }
   }
@@ -106,7 +105,7 @@ resource "google_monitoring_alert_policy" "backend_downtime" {
     display_name = "Backend API uptime check failed"
 
     condition_threshold {
-      filter = "metric.type=\"monitoring.googleapis.com/uptime_check/check_passed\" AND resource.labels.monitored_resource.type=\"uptime_url\" AND resource.labels.host=\"${google_compute_global_address.load_balancer_ip.address}\" AND resource.labels.uptime_check_id=\"${google_monitoring_uptime_check_config.backend_uptime.uptime_check_id}\""
+      filter = "metric.type=\"monitoring.googleapis.com/uptime_check/check_passed\" AND resource.type=\"uptime_url\""
 
       comparison      = "COMPARISON_LT"
       threshold_value = 1.0
@@ -114,7 +113,6 @@ resource "google_monitoring_alert_policy" "backend_downtime" {
 
       aggregations {
         alignment_period   = "60s"
-        per_series_aligner = "ALIGN_RATE"
       }
     }
   }
@@ -133,7 +131,7 @@ resource "google_monitoring_alert_policy" "high_error_rate" {
     display_name = "Error rate > 5%"
 
     condition_threshold {
-      filter = "metric.type=\"loadbalancing.googleapis.com/https/request_count\" AND resource.labels.forwarding_rule_name=\"georgian-budget-http\""
+      filter = "metric.type=\"loadbalancing.googleapis.com/https/request_count\" AND resource.type=\"https_lb_rule\""
 
       comparison      = "COMPARISON_GT"
       threshold_value = 0.05
@@ -144,8 +142,6 @@ resource "google_monitoring_alert_policy" "high_error_rate" {
         per_series_aligner = "ALIGN_RATE"
         cross_series_reducer = "REDUCE_MEAN"
       }
-
-      denominator_filter = "metric.type=\"loadbalancing.googleapis.com/https/request_count\" AND resource.labels.forwarding_rule_name=\"georgian-budget-http\""
     }
   }
 
