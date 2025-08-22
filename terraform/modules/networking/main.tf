@@ -1,6 +1,80 @@
-# Global HTTP(S) Load Balancer for Georgian Budget Application
-# Phase 2: Production Load Balancing Infrastructure
-# Note: Cloud Run services will be deployed by Cloud Build
+# Networking Module for Georgian Budget Application
+# Includes VPC, Load Balancer, DNS, and related networking resources
+
+# VPC Network for Cloud SQL and Cloud Run
+resource "google_compute_network" "vpc" {
+  name                    = "georgian-budget-vpc"
+  auto_create_subnetworks = false
+
+  depends_on = [var.required_apis]
+}
+
+# Subnet for Cloud SQL and Cloud Run
+resource "google_compute_subnetwork" "subnet" {
+  name          = "georgian-budget-subnet"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = var.region
+  network       = google_compute_network.vpc.id
+
+  # Enable flow logs for monitoring
+  log_config {
+    aggregation_interval = "INTERVAL_5_SEC"
+    flow_sampling       = 0.5
+    metadata            = "INCLUDE_ALL_METADATA"
+  }
+}
+
+# VPC Connector for Cloud Run to access Cloud SQL
+resource "google_vpc_access_connector" "connector" {
+  name          = "gb-vpc-connector"
+  ip_cidr_range = "10.8.0.0/28"
+  network       = google_compute_network.vpc.name
+  region        = var.region
+  machine_type  = "e2-micro"
+
+  depends_on = [
+    var.required_apis,
+    google_compute_network.vpc
+  ]
+}
+
+# Private Services Connection for Cloud SQL
+resource "google_compute_global_address" "private_ip_address" {
+  name          = "georgian-budget-private-ip"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = google_compute_network.vpc.id
+
+  depends_on = [google_compute_network.vpc]
+}
+
+resource "google_service_networking_connection" "private_vpc_connection" {
+  network                 = google_compute_network.vpc.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
+
+  depends_on = [
+    var.required_apis,
+    google_compute_global_address.private_ip_address
+  ]
+}
+
+# Firewall rule to allow Cloud Run to access Cloud SQL
+resource "google_compute_firewall" "cloud_run_to_sql" {
+  name    = "allow-cloud-run-to-sql"
+  network = google_compute_network.vpc.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["5432"]
+  }
+
+  source_ranges = [google_compute_subnetwork.subnet.ip_cidr_range]
+  target_tags   = ["postgresql"]
+
+  depends_on = [google_compute_network.vpc]
+}
 
 # Service Account for Load Balancer
 resource "google_service_account" "load_balancer_sa" {
@@ -24,7 +98,7 @@ resource "google_project_iam_member" "load_balancer_roles" {
 
 # IAM binding for Load Balancer to invoke Frontend Cloud Run service
 resource "google_cloud_run_service_iam_member" "load_balancer_frontend_invoker" {
-  location = google_cloudfunctions2_function.pipeline_processor.location
+  location = var.region
   service  = "georgian-budget-frontend"
   role     = "roles/run.invoker"
   member   = "serviceAccount:${google_service_account.load_balancer_sa.email}"
@@ -32,7 +106,7 @@ resource "google_cloud_run_service_iam_member" "load_balancer_frontend_invoker" 
 
 # IAM binding for Load Balancer to invoke Backend API Cloud Run service
 resource "google_cloud_run_service_iam_member" "load_balancer_backend_invoker" {
-  location = google_cloudfunctions2_function.pipeline_processor.location
+  location = var.region
   service  = "georgian-budget-backend-api"
   role     = "roles/run.invoker"
   member   = "serviceAccount:${google_service_account.load_balancer_sa.email}"
@@ -44,7 +118,7 @@ resource "google_compute_global_address" "load_balancer_ip" {
   address_type = "EXTERNAL"
   ip_version   = "IPV4"
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [var.required_apis]
 }
 
 # Backend Service for Frontend (Cloud Run)
@@ -76,7 +150,7 @@ resource "google_compute_backend_service" "frontend_backend" {
     }
   }
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [var.required_apis]
 }
 
 # Backend Service for Backend API (Cloud Run)
@@ -93,10 +167,8 @@ resource "google_compute_backend_service" "backend_api" {
   # No CDN for API endpoints
   enable_cdn = false
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [var.required_apis]
 }
-
-
 
 # Network Endpoint Group for Frontend (Cloud Run)
 resource "google_compute_region_network_endpoint_group" "frontend_neg" {
@@ -120,9 +192,7 @@ resource "google_compute_region_network_endpoint_group" "backend_neg" {
   }
 
   depends_on = [
-    google_project_service.required_apis,
-    # Ensure Cloud Run service exists before creating NEG
-    google_cloudfunctions2_function.pipeline_processor
+    var.required_apis
   ]
 }
 
@@ -226,4 +296,22 @@ resource "google_compute_target_http_proxy" "http_proxy_updated" {
   count   = var.domain_name != "" && var.force_https_redirect ? 1 : 0
   name    = "georgian-budget-http-redirect-proxy"
   url_map = google_compute_url_map.redirect[0].id
+}
+
+# DNS Configuration for moneyflow.thelim.dev
+# Option 1: Google Cloud DNS (if you use Cloud DNS)
+data "google_dns_managed_zone" "thelim_dev" {
+  count = var.dns_provider == "google_cloud" ? 1 : 0
+
+  name = "thelim-dev"
+}
+
+resource "google_dns_record_set" "moneyflow_cname" {
+  count = var.dns_provider == "google_cloud" ? 1 : 0
+
+  name         = "moneyflow.thelim.dev."
+  managed_zone = data.google_dns_managed_zone.thelim_dev[0].name
+  type         = "A"
+  ttl          = 300
+  rrdatas      = [google_compute_global_address.load_balancer_ip.address]
 }

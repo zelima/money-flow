@@ -1,5 +1,5 @@
-# Cloud Monitoring and Uptime Checks for Georgian Budget Application
-# Simple monitoring setup with uptime checks and basic alerting
+# Monitoring Module for Georgian Budget Application
+# Includes uptime checks, alert policies, notification channels, and dashboards
 
 # Uptime Check for Frontend
 resource "google_monitoring_uptime_check_config" "frontend_uptime" {
@@ -15,13 +15,13 @@ resource "google_monitoring_uptime_check_config" "frontend_uptime" {
     type = "uptime_url"
     labels = {
       project_id = var.project_id
-      host       = google_compute_global_address.load_balancer_ip.address
+      host       = var.load_balancer_ip
     }
   }
 
   timeout = "10s"
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [var.required_apis]
 }
 
 # Uptime Check for Backend API
@@ -38,13 +38,13 @@ resource "google_monitoring_uptime_check_config" "backend_uptime" {
     type = "uptime_url"
     labels = {
       project_id = var.project_id
-      host       = google_compute_global_address.load_balancer_ip.address
+      host       = var.load_balancer_ip
     }
   }
 
   timeout = "10s"
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [var.required_apis]
 }
 
 # Uptime Check for Data Pipeline Function
@@ -61,13 +61,13 @@ resource "google_monitoring_uptime_check_config" "pipeline_uptime" {
     type = "uptime_url"
     labels = {
       project_id = var.project_id
-      host       = replace(google_cloudfunctions2_function.pipeline_processor.service_config[0].uri, "https://", "")
+      host       = replace(var.pipeline_function_uri, "https://", "")
     }
   }
 
   timeout = "30s"
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [var.required_apis]
 }
 
 # Alerting Policy for Frontend Downtime
@@ -93,7 +93,7 @@ resource "google_monitoring_alert_policy" "frontend_downtime" {
 
   notification_channels = var.notification_email != "" ? [google_monitoring_notification_channel.email[0].name] : []
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [var.required_apis]
 }
 
 # Alerting Policy for Backend API Downtime
@@ -119,7 +119,7 @@ resource "google_monitoring_alert_policy" "backend_downtime" {
 
   notification_channels = var.notification_email != "" ? [google_monitoring_notification_channel.email[0].name] : []
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [var.required_apis]
 }
 
 # Alerting Policy for High Error Rate
@@ -147,7 +147,7 @@ resource "google_monitoring_alert_policy" "high_error_rate" {
 
   notification_channels = var.notification_email != "" ? [google_monitoring_notification_channel.email[0].name] : []
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [var.required_apis]
 }
 
 # Email Notification Channel (only if email is provided)
@@ -160,7 +160,7 @@ resource "google_monitoring_notification_channel" "email" {
     email_address = var.notification_email
   }
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [var.required_apis]
 }
 
 # Dashboard for Georgian Budget Application
@@ -197,5 +197,5 @@ resource "google_monitoring_dashboard" "georgian_budget_dashboard" {
     }
   })
 
-  depends_on = [google_project_service.required_apis]
+  depends_on = [var.required_apis]
 }
