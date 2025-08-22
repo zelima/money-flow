@@ -137,11 +137,13 @@ resource "google_cloudfunctions2_function_iam_member" "pipeline_processor_invoke
 }
 
 # Quarterly schedule job - matches the current GitHub Actions schedule
-# Runs on 15th of March, June, September, and December at 6 AM UTC (9 AM Georgia time)
-resource "google_cloud_scheduler_job" "quarterly_pipeline" {
-  name             = "georgian-budget-quarterly-pipeline"
-  description      = "Quarterly Georgian budget data pipeline execution"
-  schedule         = "0 6 15 3,6,9,12 *"  # Same cron as GitHub Actions
+
+
+# Runs daily at 6 AM UTC (9 AM Georgia time)
+resource "google_cloud_scheduler_job" "daily_pipeline" {
+  name             = "georgian-budget-daily-pipeline"
+  description      = "Daily Georgian budget data pipeline execution"
+  schedule         = "0 6 * * *"  # Daily at 6 AM UTC
   time_zone        = "UTC"
   region           = var.region
 
@@ -156,11 +158,11 @@ resource "google_cloud_scheduler_job" "quarterly_pipeline" {
     topic_name = google_pubsub_topic.pipeline_trigger.id
 
     data = base64encode(jsonencode({
-      trigger_type = "scheduled"
+      trigger_type = "daily_scheduled"
       year         = "current"
       force_download = false
       check_only     = false
-      source        = "cloud_scheduler"
+      source        = "cloud_scheduler_daily"
     }))
   }
 

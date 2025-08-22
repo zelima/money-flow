@@ -45,15 +45,7 @@ output "pipeline_trigger_topic_name" {
   value       = google_pubsub_topic.pipeline_trigger.name
 }
 
-output "quarterly_pipeline_job_id" {
-  description = "ID of the quarterly pipeline scheduler job"
-  value       = google_cloud_scheduler_job.quarterly_pipeline.id
-}
 
-output "quarterly_pipeline_job_name" {
-  description = "Name of the quarterly pipeline scheduler job"
-  value       = google_cloud_scheduler_job.quarterly_pipeline.name
-}
 
 output "manual_pipeline_trigger_job_id" {
   description = "ID of the manual pipeline trigger scheduler job"
@@ -63,6 +55,16 @@ output "manual_pipeline_trigger_job_id" {
 output "manual_pipeline_trigger_job_name" {
   description = "Name of the manual pipeline trigger scheduler job"
   value       = google_cloud_scheduler_job.manual_pipeline_trigger.name
+}
+
+output "daily_pipeline_job_id" {
+  description = "ID of the daily pipeline scheduler job"
+  value       = google_cloud_scheduler_job.daily_pipeline.id
+}
+
+output "daily_pipeline_job_name" {
+  description = "Name of the daily pipeline scheduler job"
+  value       = google_cloud_scheduler_job.daily_pipeline.name
 }
 
 output "function_source_object_name" {

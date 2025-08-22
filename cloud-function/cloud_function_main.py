@@ -266,6 +266,91 @@ def test_endpoint():
     )
 
 
+def manual_trigger_simple(request_data):
+    """Manual trigger endpoint for simple string requests"""
+    try:
+        # Parse request data if it's a string
+        if isinstance(request_data, str):
+            try:
+                import json
+
+                request_json = json.loads(request_data)
+            except json.JSONDecodeError:
+                request_json = {}
+        else:
+            request_json = request_data.get_json(silent=True) or {}
+
+        # Create trigger message
+        trigger_message = {
+            "trigger_type": "manual_http",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "year": request_json.get("year", "current"),
+            "force_download": request_json.get("force_download", True),
+            "check_only": request_json.get("check_only", False),
+        }
+
+        logger.info("🚀 Simple HTTP trigger: {}".format(trigger_message))
+
+        # Execute the pipeline directly
+        logger.info("🇬🇪 Starting Georgian Budget Data Pipeline via HTTP")
+
+        # Main processing
+        with tempfile.TemporaryDirectory() as work_dir:
+            try:
+                # Set up the data-pipeline environment (copy from function source)
+                pipeline_dir, data_dir = setup_pipeline_environment(work_dir)
+
+                # Run the datapackage-pipelines exactly as in GitHub Actions
+                csv_path, json_path, datapackage_path = run_datapackage_pipeline(
+                    pipeline_dir, work_dir
+                )
+
+                # Upload to Cloud Storage
+                files_to_upload = [
+                    f
+                    for f in [csv_path, json_path, datapackage_path]
+                    if os.path.exists(f)
+                ]
+                uploaded_files = upload_to_storage(files_to_upload, DATA_BUCKET_NAME)
+
+                # Create response
+                result = {
+                    "status": "success",
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "trigger_type": trigger_message.get("trigger_type", "unknown"),
+                    "uploaded_files": uploaded_files,
+                    "bucket": DATA_BUCKET_NAME,
+                    "urls": {
+                        "csv": f"gs://{DATA_BUCKET_NAME}/processed/georgian_budget.csv",
+                        "json": (
+                            f"gs://{DATA_BUCKET_NAME}/processed/georgian_budget.json"
+                        ),
+                        "datapackage": (
+                            f"gs://{DATA_BUCKET_NAME}/processed/datapackage.json"
+                        ),
+                    },
+                }
+
+                logger.info(
+                    "🎉 Pipeline completed successfully via HTTP: {}".format(result)
+                )
+                return jsonify(result)
+
+            except Exception as e:
+                logger.error(f"❌ Pipeline failed via HTTP: {e}")
+                error_result = {
+                    "status": "error",
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "trigger_type": trigger_message.get("trigger_type", "unknown"),
+                    "error": str(e),
+                }
+                return jsonify(error_result)
+
+    except Exception as e:
+        logger.error(f"❌ Failed to trigger pipeline: {e}")
+        return jsonify({"status": "error", "error": str(e)}), 500
+
+
 def manual_trigger(request_data):
     """Manual trigger endpoint"""
     try:
@@ -363,8 +448,14 @@ def manual_trigger(request_data):
 
 
 # Cloud Functions 2nd gen entry point
-def http_handler(request):
+def http_handler(request, context=None):
     """HTTP handler for Cloud Functions 2nd gen"""
+    # For Cloud Functions 2nd gen, request might be a string or dict
+    # We need to handle both cases
+    if isinstance(request, str):
+        # If request is a string, treat it as a simple trigger
+        return manual_trigger_simple(request)
+
     # Handle different HTTP methods
     if request.method == "GET":
         if request.path == "/":
@@ -387,6 +478,6 @@ def http_handler(request):
 
 
 # Event trigger entry point
-def process_budget_data_event(cloud_event):
+def process_budget_data_event(cloud_event, context=None):
     """Event trigger entry point for Cloud Functions 2nd gen"""
     return process_budget_data(cloud_event)

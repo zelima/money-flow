@@ -127,36 +127,6 @@ pipeline-test: ## Test data pipeline
 	cd data-pipeline && dpp test
 
 
-
-# Cloud Function
-deploy-function: ## Deploy cloud function to GCP
-	@echo "Deploying cloud function..."
-	cd cloud-function && gcloud functions deploy money-flow-pipeline \
-		--gen2 \
-		--runtime=python311 \
-		--region=us-central1 \
-		--source=. \
-		--entry-point=process_data \
-		--trigger-http \
-		--allow-unauthenticated
-
-# Terraform
-tf-init: ## Initialize Terraform
-	@echo "Initializing Terraform..."
-	cd terraform && terraform init
-
-tf-plan: ## Plan Terraform changes
-	@echo "Planning Terraform changes..."
-	cd terraform && terraform plan
-
-tf-apply: ## Apply Terraform changes
-	@echo "Applying Terraform changes..."
-	cd terraform && terraform apply
-
-tf-destroy: ## Destroy Terraform infrastructure
-	@echo "Destroying Terraform infrastructure..."
-	cd terraform && terraform destroy
-
 # Pre-commit and Code Quality
 pre-commit-install: ## Install pre-commit hooks
 	@echo "Installing pre-commit hooks..."
