@@ -23,7 +23,7 @@ output "data_storage_bucket_url" {
 
 output "pipeline_scheduler_job" {
   description = "Name of the Cloud Scheduler job"
-  value       = module.compute.quarterly_pipeline_job_name
+  value       = module.compute.daily_pipeline_job_name
 }
 
 output "pipeline_pubsub_topic" {

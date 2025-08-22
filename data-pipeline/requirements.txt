@@ -1,9 +1,0 @@
-git+https://github.com/zelima/datapackage-pipelines.git@master
-requests>=2.28.0
-openpyxl>=3.0.0
-xlrd>=2.0.0
-python-dateutil>=2.8.0
-tabulator>=1.53.0
-dataflows>=0.2.0
-pyyaml>=6.0
-chardet>=5.0.0
