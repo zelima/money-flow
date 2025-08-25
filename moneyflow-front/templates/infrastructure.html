@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infrastructure & Workflow - Georgian Budget App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/infrastructure.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-chart-line"></i>
+                <span>Money Flow</span>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="/infrastructure" class="nav-link active">
+                    <i class="fas fa-server"></i>
+                    Infrastructure
+                </a>
+                <a href="https://github.com/zelima/money-flow" class="nav-link" target="_blank">
+                    <i class="fab fa-github"></i>
+                    Source Code
+                </a>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <header class="hero">
+            <div class="hero-content">
+                <p class="hero-description">
+                    <i class="fas fa-rocket"></i> <strong>Production-ready, cloud-native application</strong> that automatically processes Georgian government budget data and provides interactive analytics through web interfaces. It demonstrates modern software engineering practices including infrastructure as code, CI/CD automation, and scalable cloud architecture.
+                </p>
+            </div>
+        </header>
+
+        <!-- Core Components -->
+        <section class="components-section">
+            <h2><i class="fas fa-puzzle-piece"></i> Core Application Components</h2>
+            <div class="components-grid">
+                <div class="component-card">
+                    <div class="component-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>Money Flow Frontend</h3>
+                    <p class="component-description">
+                        A responsive web dashboard built with Flask that provides interactive budget analysis tools for end users.
+                    </p>
+                    <div class="component-details">
+                        <div class="detail-item">
+                            <i class="fas fa-code"></i>
+                            <span><strong>Technology:</strong> Flask, HTML/CSS/JavaScript, Chart.js</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-server"></i>
+                            <span><strong>Deployment:</strong> Cloud Run (serverless)</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-robot"></i>
+                            <span><strong>Features:</strong> Interactive charts, filters, real-time data</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-link"></i>
+                            <span><strong>Connections:</strong> Communicates with Backend API for data</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component-card">
+                    <div class="component-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>Money Flow Backend</h3>
+                    <p class="component-description">
+                        A robust FastAPI service that provides RESTful endpoints for budget data and analytics.
+                    </p>
+                    <div class="component-details">
+                        <div class="detail-item">
+                            <i class="fas fa-code"></i>
+                            <span><strong>Technology:</strong> FastAPI, PostgreSQL, Cloud SQL</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-server"></i>
+                            <span><strong>Deployment:</strong> Cloud Run (serverless)</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-robot"></i>
+                            <span><strong>Features:</strong> RESTful API, data validation, health monitoring</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-link"></i>
+                            <span><strong>Connections:</strong> Serves Frontend, connects to Database & Cloud Storage</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component-card">
+                    <div class="component-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>Money Flow Functions</h3>
+                    <p class="component-description">
+                        Automated data processing pipeline that fetches, transforms, and stores budget data from government sources.
+                    </p>
+                    <div class="component-details">
+                        <div class="detail-item">
+                            <i class="fas fa-code"></i>
+                            <span><strong>Technology:</strong> Python, datapackage-pipelines, Cloud Functions</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-server"></i>
+                            <span><strong>Deployment:</strong> Cloud Functions (serverless)</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-robot"></i>
+                            <span><strong>Features:</strong> Automated data fetching, Georgian translation, CSV/JSON output</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-link"></i>
+                            <span><strong>Connections:</strong> Downloads from geostat.ge, uploads to Cloud Storage</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-github"></i>
+                            <span><strong>Framework:</strong> <a href="https://github.com/zelima/money-flow" target="_blank" class="github-link">datapackage-pipelines</a> - Modular data processing framework</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Development Journey -->
+        <section class="journey-section">
+            <h2><i class="fas fa-code"></i> Developer Experience</h2>
+            <div class="dataflow-container">
+                <!-- Row 1: Make start card -->
+                <div class="flow-row" style="grid-row: 1; display: contents;">
+                    <div style="grid-column: span 14;"></div>
+                    <div class="flow-step-compact" style="grid-column: span 4;">
+                        <div class="flow-content-inline">
+                            <i class="fas fa-laptop-code"></i>
+                            <span>make start</span>
+                        </div>
+                    </div>
+                    <div style="grid-column: span 14;"></div>
+                </div>
+
+                <!-- Row 2: Down arrow -->
+                <div class="flow-row" style="grid-row: 2; display: contents;">
+                    <div style="grid-column: span 15;"></div>
+                    <div class="flow-arrow" style="grid-column: span 2;">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div style="grid-column: span 15;"></div>
+                </div>
+
+                <!-- Row 3: Full development flow -->
+                <div class="flow-row" style="grid-row: 3; display: contents;">
+                    <div class="flow-step" style="grid-column: span 4;">
+                        <div class="flow-icon">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <div class="flow-content">
+                            <h4>Local Development</h4>
+                        </div>
+                    </div>
+                    <div style="grid-column: span 1;"></div>
+                    <div class="flow-arrow" style="grid-column: span 1;">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                    <div style="grid-column: span 1;"></div>
+                    <div class="flow-step" style="grid-column: span 4;">
+                        <div class="flow-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="flow-content">
+                            <h4>PostgreSQL</h4>
+                        </div>
+                    </div>
+                    <div style="grid-column: span 1;"></div>
+                    <div class="flow-arrow" style="grid-column: span 1;">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                    <div style="grid-column: span 1;"></div>
+                    <div class="flow-step" style="grid-column: span 4;">
+                        <div class="flow-icon">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <div class="flow-content">
+                            <h4>Makefile</h4>
+                        </div>
+                    </div>
+                    <div style="grid-column: span 1;"></div>
+                    <div class="flow-arrow" style="grid-column: span 1;">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                    <div style="grid-column: span 1;"></div>
+                    <div class="flow-step" style="grid-column: span 4;">
+                        <div class="flow-icon">
+                            <i class="fas fa-api"></i>
+                        </div>
+                        <div class="flow-content">
+                            <h4>API</h4>
+                        </div>
+                    </div>
+                    <div style="grid-column: span 1;"></div>
+                    <div class="flow-arrow" style="grid-column: span 1;">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                    <div style="grid-column: span 1;"></div>
+                    <div class="flow-step" style="grid-column: span 4;">
+                        <div class="flow-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <div class="flow-content">
+                            <h4>UI</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Infrastructure Architecture -->
+        <section class="architecture-section">
+            <h2><i class="fas fa-sitemap"></i> Infrastructure Architecture</h2>
+            <div class="architecture-grid">
+                <div class="arch-card">
+                    <div class="arch-icon">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <h3>Google Cloud Platform</h3>
+                    <p>Serverless-first architecture with Cloud Run, Cloud Functions, and Cloud SQL</p>
+                    <div class="arch-features">
+                        <div class="arch-feature">
+                            <i class="fas fa-server"></i>
+                            <span>Cloud Run (Backend & Frontend)</span>
+                        </div>
+                        <div class="arch-feature">
+                            <i class="fas fa-bolt"></i>
+                            <span>Cloud Functions (Data Pipeline)</span>
+                        </div>
+                        <div class="arch-feature">
+                            <i class="fas fa-database"></i>
+                            <span>Cloud SQL PostgreSQL</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arch-card">
+                    <div class="arch-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Security & Networking</h3>
+                    <p>Private VPC with IAM controls and encrypted communications</p>
+                    <div class="arch-features">
+                        <div class="arch-feature">
+                            <i class="fas fa-lock"></i>
+                            <span>Private VPC Network</span>
+                        </div>
+                        <div class="arch-feature">
+                            <i class="fas fa-key"></i>
+                            <span>IAM Service Accounts</span>
+                        </div>
+                        <div class="arch-feature">
+                            <i class="fas fa-encryption"></i>
+                            <span>Secret Manager</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arch-card">
+                    <div class="arch-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <h3>CI/CD Pipeline</h3>
+                    <p>Automated deployment with Cloud Build and Artifact Registry</p>
+                    <div class="arch-features">
+                        <div class="arch-feature">
+                            <i class="fas fa-code-branch"></i>
+                            <span>GitHub Integration</span>
+                        </div>
+                        <div class="arch-feature">
+                            <i class="fas fa-docker"></i>
+                            <span>Docker Builds</span>
+                        </div>
+                        <div class="arch-feature">
+                            <i class="fas fa-sync"></i>
+                            <span>Auto-deployment</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="arch-card">
+                    <div class="arch-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Monitoring & Observability</h3>
+                    <p>Comprehensive monitoring with Cloud Monitoring and Logging</p>
+                    <div class="arch-features">
+                        <div class="arch-feature">
+                            <i class="fas fa-eye"></i>
+                            <span>Health Checks</span>
+                        </div>
+                        <div class="arch-feature">
+                            <i class="fas fa-bell"></i>
+                            <span>Alerting</span>
+                        </div>
+                        <div class="arch-feature">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Performance Metrics</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Flow -->
+        <section class="dataflow-section">
+            <h2><i class="fas fa-route"></i> Data Flow & Processing</h2>
+            <div class="dataflow-container">
+                <div class="flow-step">
+                    <div class="flow-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <div class="flow-content">
+                        <h4>Data Source</h4>
+                        <p>Georgian government budget data from geostat.ge</p>
+                    </div>
+                </div>
+                <div class="flow-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="flow-content">
+                        <h4>Cloud Function</h4>
+                        <p>Automated processing with datapackage-pipelines</p>
+                    </div>
+                </div>
+                <div class="flow-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-icon">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <div class="flow-content">
+                        <h4>Cloud Storage</h4>
+                        <p>Processed CSV and JSON files</p>
+                    </div>
+                </div>
+                <div class="flow-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="flow-content">
+                        <h4>PostgreSQL</h4>
+                        <p>Analytics database for drill-down analysis</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Deployment Process -->
+        <section class="deployment-section">
+            <h2><i class="fas fa-rocket"></i> Deployment Process</h2>
+            <div class="deployment-steps">
+                <div class="deploy-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Infrastructure Provisioning</h4>
+                        <p>Terraform creates all GCP resources</p>
+                        <div class="code-block">
+                            <code>terraform init</code>
+                            <code>terraform apply</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="deploy-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Application Build</h4>
+                        <p>Cloud Build creates Docker images</p>
+                        <div class="code-block">
+                            <code>Cloud Build Trigger</code>
+                            <code>Docker Image Creation</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="deploy-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Service Deployment</h4>
+                        <p>Cloud Run deploys applications</p>
+                        <div class="code-block">
+                            <code>Backend API Deploy</code>
+                            <code>Frontend Web Deploy</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="deploy-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Load Balancer Update</h4>
+                        <p>Traffic routing to new versions</p>
+                        <div class="code-block">
+                            <code>SSL Certificate</code>
+                            <code>CDN Configuration</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cost & Performance -->
+        <section class="cost-section">
+            <h2><i class="fas fa-dollar-sign"></i> Cost Optimization & Performance</h2>
+            <div class="cost-grid">
+                <div class="cost-card">
+                    <div class="cost-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h3>Monthly Costs</h3>
+                    <div class="cost-breakdown">
+                        <div class="cost-item">
+                            <span>Data Pipeline:</span>
+                            <span class="cost-value">$6-20</span>
+                        </div>
+                        <div class="cost-item">
+                            <span>Applications:</span>
+                            <span class="cost-value">$63-128</span>
+                        </div>
+                        <div class="cost-item total">
+                            <span>Total:</span>
+                            <span class="cost-value">$69-148</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="cost-card">
+                    <div class="cost-icon">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <h3>Performance Features</h3>
+                    <div class="performance-features">
+                        <div class="perf-feature">
+                            <i class="fas fa-expand-arrows-alt"></i>
+                            <span>Scale-to-Zero</span>
+                        </div>
+                        <div class="perf-feature">
+                            <i class="fas fa-globe"></i>
+                            <span>Global CDN</span>
+                        </div>
+                        <div class="perf-feature">
+                            <i class="fas fa-database"></i>
+                            <span>Connection Pooling</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

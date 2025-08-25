@@ -120,5 +120,11 @@ def api_drill_down_analysis(department, year):
     return jsonify(analysis_data or {"error": "Analysis not available"})
 
 
+@app.route("/infrastructure")
+def infrastructure():
+    """Infrastructure and workflow page"""
+    return render_template("infrastructure.html")
+
+
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)

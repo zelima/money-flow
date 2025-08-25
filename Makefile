@@ -15,8 +15,8 @@ install: ## Install all dependencies
 	cd moneyflow-back && pip install -r requirements.txt
 	@echo "Installing moneyflow-front dependencies..."
 	cd moneyflow-front && pip install -r requirements.txt
-	@echo "Installing data-pipeline dependencies..."
-	cd data-pipeline && pip install -r requirements.txt
+	@echo "Installing moneyflow-functions dependencies..."
+	cd moneyflow-functions && pip install -r requirements.txt
 	@echo "Installing moneyflow-functions dependencies..."
 	cd moneyflow-functions && pip install -r requirements.txt
 
@@ -120,17 +120,13 @@ format: ## Format code with black
 # Data Pipeline
 pipeline-run: ## Run data pipeline locally
 	@echo "Running data pipeline..."
-	cd data-pipeline && dpp run all --verbose
-
-pipeline-test: ## Test data pipeline
-	@echo "Testing data pipeline..."
-	cd data-pipeline && dpp test
+	cd moneyflow-functions && dpp run all --verbose
 
 
 # Pre-commit and Code Quality
 pre-commit-install: ## Install pre-commit hooks
 	@echo "Installing pre-commit hooks..."
-	pip install -r requirements-dev.txt
+	pip install pre-commit
 	pre-commit install
 
 pre-commit-run: ## Run pre-commit on all files

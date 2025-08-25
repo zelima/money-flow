@@ -1,0 +1,771 @@
+/* Infrastructure Page Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    background: #e1f7ef;
+    background-image:
+        radial-gradient(circle at 25% 25%, rgba(69, 176, 137, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(45, 125, 90, 0.1) 0%, transparent 50%);
+    min-height: 100vh;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Navigation */
+.navbar {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    margin: -20px -20px 20px -20px;
+    border-radius: 0 0 20px 20px;
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #45b089;
+}
+
+.nav-brand i {
+    font-size: 1.8rem;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    color: #666;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.nav-link.active {
+    background: #45b089;
+    color: white;
+}
+
+/* Hero Section */
+.hero {
+    background: linear-gradient(135deg, #45b089 0%, #2d7d5a 100%);
+    color: white;
+    padding: 3rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin: 0 0 30px 0;
+    border-radius: 15px;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.hero h1 {
+    font-size: 2.8rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.hero h1 i {
+    margin-right: 1rem;
+    color: #ffd700;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Overview Section */
+.overview-section {
+    padding: 3rem 2rem;
+    background: white;
+    margin: 0 0 30px 0;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.overview-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.overview-description {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: #555;
+}
+
+.overview-description strong {
+    color: #45b089;
+}
+
+/* Components Section */
+.components-section {
+    padding: 3rem 2rem;
+    background: white;
+    margin: 0 0 30px 0;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.components-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.component-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+}
+
+.component-card:hover {
+    border-color: #45b089;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(69, 176, 137, 0.2);
+}
+
+.component-icon {
+    background: linear-gradient(135deg, #45b089, #2d7d5a);
+    color: white;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin: 0 auto 1.5rem;
+}
+
+.component-card h3 {
+    color: #333;
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+}
+
+.component-description {
+    color: #666;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.component-details {
+    text-align: left;
+}
+
+.detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.detail-item i {
+    color: #45b089;
+    width: 1rem;
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+}
+
+.detail-item span {
+    line-height: 1.4;
+}
+
+.github-link {
+    color: #45b089;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid transparent;
+}
+
+.github-link:hover {
+    color: #2d7d5a;
+    border-bottom-color: #2d7d5a;
+}
+
+/* Section Styles */
+section {
+    padding: 3rem 2rem;
+    background: white;
+    margin: 0 0 30px 0;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+section h2 {
+    text-align: center;
+    font-size: 2.2rem;
+    margin-bottom: 2.5rem;
+    color: #45b089;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+section h2 i {
+    color: #45b089;
+}
+
+/* Journey Timeline */
+.journey-timeline {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.timeline-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 2.5rem;
+    top: 5rem;
+    bottom: -2rem;
+    width: 2px;
+    background: linear-gradient(to bottom, #45b089, #2d7d5a);
+}
+
+.timeline-icon {
+    background: linear-gradient(135deg, #45b089, #2d7d5a);
+    color: white;
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    box-shadow: 0 5px 20px rgba(69, 176, 137, 0.4);
+}
+
+.timeline-content {
+    flex: 1;
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    border-left: 4px solid #45b089;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.timeline-content h3 {
+    color: #333;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.timeline-content p {
+    color: #666;
+    margin-bottom: 1.5rem;
+}
+
+.code-block {
+    background: #2d3748;
+    color: #e2e8f0;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.code-block code {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.code-block code:last-child {
+    margin-bottom: 0;
+}
+
+.features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.feature-tag {
+    background: #45b089;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Architecture Grid */
+.architecture-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.arch-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.arch-card:hover {
+    border-color: #45b089;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(69, 176, 137, 0.2);
+}
+
+.arch-icon {
+    background: linear-gradient(135deg, #45b089, #2d7d5a);
+    color: white;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin: 0 auto 1.5rem;
+}
+
+.arch-card h3 {
+    color: #333;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+.arch-card p {
+    color: #666;
+    margin-bottom: 1.5rem;
+}
+
+.arch-features {
+    text-align: left;
+}
+
+.arch-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    color: #555;
+}
+
+.arch-feature i {
+    color: #45b089;
+    width: 1rem;
+}
+
+/* Data Flow */
+.dataflow-container {
+    display: grid;
+    grid-template-columns: repeat(32, 1fr);
+    grid-template-rows: auto auto 1fr;
+    gap: 10px 0;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.flow-step {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+    min-width: 200px;
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.flow-icon {
+    background: #45b089;
+    color: white;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin: 0 auto 1rem;
+}
+
+.flow-content h4 {
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.flow-content p {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.flow-arrow {
+    color: #45b089;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+/* Compact Makefile Card */
+.flow-step-compact {
+    background: white;
+    padding: 0.75rem;
+    border-radius: 10px;
+    text-align: center;
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    height: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flow-content-inline {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #333;
+}
+
+.flow-content-inline i {
+    color: #45b089;
+    font-size: 1rem;
+}
+
+.flow-content-inline span {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Deployment Steps */
+.deployment-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.deploy-step {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.step-number {
+    background: linear-gradient(135deg, #45b089, #2d7d5a);
+    color: white;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 0 auto 1rem;
+}
+
+.step-content h4 {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.step-content p {
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+/* Cost Section */
+.cost-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.cost-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cost-icon {
+    background: linear-gradient(135deg, #45b089, #2d7d5a);
+    color: white;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin: 0 auto 1.5rem;
+}
+
+.cost-card h3 {
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+.cost-breakdown {
+    text-align: left;
+}
+
+.cost-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.cost-item:last-child {
+    border-bottom: none;
+}
+
+.cost-value {
+    font-weight: bold;
+    color: #45b089;
+}
+
+.cost-item.total .cost-value {
+    color: #2d7d5a;
+    font-size: 1.2rem;
+}
+
+.performance-features {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.perf-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #555;
+}
+
+.perf-feature i {
+    color: #45b089;
+    width: 1rem;
+}
+
+/* Footer */
+.footer {
+    background: #2d3748;
+    color: white;
+    padding: 2rem;
+    margin: 0;
+    border-radius: 15px 15px 0 0;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.footer-link {
+    color: #e2e8f0;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+    color: #45b089;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    section {
+        padding: 2rem 1rem;
+        margin: 0 0 20px 0;
+    }
+
+    section h2 {
+        font-size: 2rem;
+    }
+
+    .timeline-item {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .timeline-item::after {
+        display: none;
+    }
+
+    .timeline-icon {
+        margin: 0 auto 1rem;
+    }
+
+    .architecture-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .components-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .deployment-steps {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .cost-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .navbar {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+        margin: -10px -10px 20px -10px;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 5px;
+    }
+
+    .hero {
+        padding: 2rem 1rem;
+    }
+
+    .hero h1 {
+        font-size: 1.8rem;
+    }
+
+    .timeline-content {
+        padding: 1.5rem;
+    }
+
+    .arch-card {
+        padding: 1.5rem;
+    }
+
+    .flow-step {
+        min-width: 150px;
+        padding: 1rem;
+    }
+
+    .navbar {
+        margin: -5px -5px 20px -5px;
+    }
+}
