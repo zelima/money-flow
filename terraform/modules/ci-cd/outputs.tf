@@ -30,6 +30,16 @@ output "frontend_trigger_name" {
   value       = google_cloudbuild_trigger.frontend_trigger.name
 }
 
+output "terraform_trigger_id" {
+  description = "ID of the Terraform deployment trigger"
+  value       = google_cloudbuild_trigger.terraform_deployment_trigger.id
+}
+
+output "terraform_trigger_name" {
+  description = "Name of the Terraform deployment trigger"
+  value       = google_cloudbuild_trigger.terraform_deployment_trigger.name
+}
+
 output "artifact_registry_repository_id" {
   description = "ID of the Artifact Registry repository"
   value       = google_artifact_registry_repository.docker_repo.repository_id

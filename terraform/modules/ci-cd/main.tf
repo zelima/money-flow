@@ -66,6 +66,45 @@ resource "google_cloudbuild_trigger" "frontend_trigger" {
   depends_on = [var.required_apis]
 }
 
+# Cloud Build Trigger for Terraform Deployment
+resource "google_cloudbuild_trigger" "terraform_deployment_trigger" {
+  name        = "terraform-${var.environment}-trigger"
+  description = "Trigger for Terraform deployment to ${var.environment} environment"
+  location    = var.region
+
+  # Trigger on push to appropriate branch
+  source_to_build {
+    uri       = "https://github.com/zelima/money-flow"
+    ref       = var.environment == "production" ? "refs/heads/main" : "refs/heads/staging"
+    repo_type = "GITHUB"
+  }
+
+  git_file_source {
+    path      = "terraform/cloudbuild.yaml"
+    uri       = "https://github.com/zelima/money-flow"
+    revision  = var.environment == "production" ? "refs/heads/main" : "refs/heads/staging"
+    repo_type = "GITHUB"
+  }
+
+  # Substitution variables for Terraform
+  substitutions = {
+    _ENVIRONMENT = var.environment
+    _REGION = var.region
+    _ZONE = var.zone
+    _DOMAIN_NAME = var.environment == "production" ? var.domain_name : var.staging_domain_name
+  }
+
+  service_account = google_service_account.cloud_build_sa.id
+
+  # Only trigger on changes to terraform or moneyflow-functions directories
+  included_files = [
+    "terraform/**",
+    "moneyflow-functions/**"
+  ]
+
+  depends_on = [var.required_apis]
+}
+
 # Service Account for Cloud Build
 resource "google_service_account" "cloud_build_sa" {
   account_id   = "georgian-budget-cloudbuild-sa"
@@ -91,6 +130,26 @@ resource "google_project_iam_member" "cloud_build_roles" {
 resource "google_project_iam_member" "cloud_build_run_invoker" {
   project = var.project_id
   role    = "roles/run.invoker"
+  member  = "serviceAccount:${google_service_account.cloud_build_sa.email}"
+}
+
+# Additional IAM roles needed for Terraform operations
+resource "google_project_iam_member" "cloud_build_terraform_roles" {
+  for_each = toset([
+    "roles/editor",           # For Terraform operations
+    "roles/resourcemanager.projectIamAdmin",  # For IAM changes
+    "roles/serviceusage.serviceUsageAdmin",   # For enabling APIs
+    "roles/compute.networkAdmin",            # For VPC operations
+    "roles/dns.admin",                       # For DNS operations
+    "roles/secretmanager.admin",             # For secrets management
+    "roles/cloudsql.admin",                  # For database operations
+    "roles/cloudfunctions.admin",            # For Cloud Functions
+    "roles/cloudscheduler.admin",            # For Cloud Scheduler
+    "roles/eventarc.admin"                   # For Eventarc
+  ])
+
+  project = var.project_id
+  role    = each.value
   member  = "serviceAccount:${google_service_account.cloud_build_sa.email}"
 }
 
