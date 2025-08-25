@@ -10,7 +10,7 @@ steps:
       '-t', '${_ARTIFACT_REGISTRY_REPO}/georgian-budget-backend-api:latest',
       '.'
     ]
-    dir: 'api'
+    dir: 'moneyflow-back'
 
   # Push the Docker image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
