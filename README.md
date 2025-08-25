@@ -134,7 +134,7 @@ money-flow/
 │   ├── models.py          # Data models
 │   ├── database.py        # Database connection
 │   └── requirements.txt   # Python dependencies
-├── web-app/               # Frontend Dashboard (Flask)
+├── moneyflow-front/        # Frontend Dashboard (Flask)
 │   ├── app.py             # Web application
 │   ├── templates/         # HTML templates
 │   └── requirements.txt   # Python dependencies

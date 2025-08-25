@@ -1,6 +1,6 @@
 name: Integration Tests
 
-# This workflow runs integration tests when both moneyflow-back/ and web-app/ directories are modified
+# This workflow runs integration tests when both moneyflow-back/ and moneyflow-front/ directories are modified
 # Tests the interaction between frontend and backend services
 
 on:
@@ -8,14 +8,14 @@ on:
     branches: [ main, develop ]
     paths:
       - 'moneyflow-back/**'
-      - 'web-app/**'
+      - 'moneyflow-front/**'
       - 'pytest.ini'
       - 'Makefile'
   pull_request:
     branches: [ main, develop ]
     paths:
       - 'moneyflow-back/**'
-      - 'web-app/**'
+      - 'moneyflow-front/**'
       - 'pytest.ini'
       - 'Makefile'
   workflow_dispatch:
@@ -50,14 +50,14 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-dev-${{ hashFiles('moneyflow-back/requirements-test.txt', 'web-app/requirements-test.txt') }}
+        key: ${{ runner.os }}-pip-dev-${{ hashFiles('moneyflow-back/requirements-test.txt', 'moneyflow-front/requirements-test.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-dev-
 
     - name: Install dependencies
       run: |
         pip install -r moneyflow-back/requirements-test.txt
-        pip install -r web-app/requirements-test.txt
+        pip install -r moneyflow-front/requirements-test.txt
 
     - name: Run integration tests
       run: |
@@ -96,6 +96,6 @@ jobs:
         fi
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 🚀 CI/CD Logic" >> $GITHUB_STEP_SUMMARY
-        echo "- **Integration tests run**: When both `moneyflow-back/` and `web-app/` directories are modified" >> $GITHUB_STEP_SUMMARY
+        echo "- **Integration tests run**: When both `moneyflow-back/` and `moneyflow-front/` directories are modified" >> $GITHUB_STEP_SUMMARY
         echo "- **Purpose**: Test interaction between frontend and backend services" >> $GITHUB_STEP_SUMMARY
         echo "- **Triggered by**: Cross-service changes, pytest config, or requirements updates" >> $GITHUB_STEP_SUMMARY

@@ -48,7 +48,7 @@ resource "google_cloudbuild_trigger" "frontend_trigger" {
   }
 
   git_file_source {
-    path      = "web-app/cloudbuild.yaml"
+    path      = "moneyflow-front/cloudbuild.yaml"
     uri       = "https://github.com/zelima/money-flow"
     revision  = "refs/heads/main"
     repo_type = "GITHUB"

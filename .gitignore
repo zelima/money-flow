@@ -198,9 +198,9 @@ moneyflow-back/temp/
 moneyflow-back/*.log
 
 # Flask
-web-app/logs/
-web-app/temp/
-web-app/*.log
+moneyflow-front/logs/
+moneyflow-front/temp/
+moneyflow-front/*.log
 
 # Database files (if any)
 *.db
@@ -343,8 +343,8 @@ data-downloads/
 moneyflow-back/data/cache/
 
 # Frontend build outputs (if applicable)
-web-app/build/
-web-app/dist/
+moneyflow-front/build/
+moneyflow-front/dist/
 
 # Backup files
 *.bak

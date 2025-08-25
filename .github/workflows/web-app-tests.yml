@@ -1,13 +1,13 @@
 name: Web App Tests (Frontend)
 
-# This workflow runs frontend tests only when web-app/ directory is modified
+# This workflow runs frontend tests only when moneyflow-front/ directory is modified
 # Separate from backend tests for better CI/CD efficiency
 
 on:
   push:
     branches: [ main, develop ]
     paths:
-      - 'web-app/**'
+      - 'moneyflow-front/**'
       - 'pytest.ini'
       - 'requirements*.txt'
       - 'requirements-dev.txt'
@@ -15,7 +15,7 @@ on:
   pull_request:
     branches: [ main, develop ]
     paths:
-      - 'web-app/**'
+      - 'moneyflow-front/**'
       - 'pytest.ini'
       - 'requirements*.txt'
       - 'requirements-dev.txt'
@@ -25,10 +25,10 @@ on:
       service:
         description: 'Run Web App tests (frontend)'
         required: false
-        default: 'web-app'
+        default: 'moneyflow-front'
         type: choice
         options:
-          - web-app
+          - moneyflow-front
 
 env:
   PYTHON_VERSION: '3.11.9'
@@ -58,7 +58,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install -r web-app/requirements-test.txt
+        pip install -r moneyflow-front/requirements-test.txt
 
     - name: Run Web App tests
       run: |
@@ -68,8 +68,8 @@ jobs:
       uses: codecov/codecov-action@v3
       with:
         file: ./coverage.xml
-        flags: web-app
-        name: web-app-coverage
+        flags: moneyflow-front
+        name: moneyflow-front-coverage
         fail_ci_if_error: false
 
   test-summary:
@@ -97,5 +97,5 @@ jobs:
         fi
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 🚀 CI/CD Logic" >> $GITHUB_STEP_SUMMARY
-        echo "- **Web App tests run**: When `web-app/` directory is modified" >> $GITHUB_STEP_SUMMARY
+        echo "- **Web App tests run**: When `moneyflow-front/` directory is modified" >> $GITHUB_STEP_SUMMARY
         echo "- **Triggered by**: Frontend code changes, pytest config, or requirements updates" >> $GITHUB_STEP_SUMMARY

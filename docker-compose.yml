@@ -47,7 +47,7 @@ services:
   # Flask Frontend
   frontend:
     build:
-      context: ./web-app
+      context: ./moneyflow-front
       dockerfile: Dockerfile
     container_name: georgian_budget_frontend
     ports:
@@ -58,7 +58,7 @@ services:
       - api
     restart: unless-stopped
     volumes:
-      - ./web-app:/app
+      - ./moneyflow-front:/app
     command: ["python", "app.py"]
 
 volumes:

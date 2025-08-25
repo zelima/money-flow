@@ -316,7 +316,7 @@ graph TB
 graph LR
     subgraph "Source Code"
         API["📁 moneyflow-back/<br/>FastAPI Code"]
-        WebApp["📁 web-app/<br/>Flask Code"]
+        WebApp["📁 moneyflow-front/<br/>Flask Code"]
     end
 
     subgraph "Cloud Build"

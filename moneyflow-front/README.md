@@ -16,7 +16,7 @@ A simple and elegant Streamlit frontend for visualizing Georgian government budg
 ### 1. Install Dependencies
 
 ```bash
-cd web-app
+cd moneyflow-front
 pip install -r requirements.txt
 ```
 
@@ -34,7 +34,7 @@ The API should be running at http://localhost:8000
 ### 3. Launch the Dashboard
 
 ```bash
-cd ../web-app
+cd ../moneyflow-front
 streamlit run app.py
 ```
 
