@@ -137,7 +137,10 @@ module "ci_cd" {
 
   project_id = var.project_id
   region = var.region
+  zone = var.zone
+  environment = var.environment
   domain_name = var.domain_name
+  staging_domain_name = "staging-${var.domain_name}"
   load_balancer_ip = module.networking.load_balancer_ip
   data_bucket_name = module.storage.data_bucket_name
   database_user_name = module.database.database_user_name

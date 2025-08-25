@@ -5,13 +5,30 @@ variable "project_id" {
   type        = string
 }
 
+variable "environment" {
+  description = "The environment name (staging or production)"
+  type        = string
+}
+
 variable "region" {
   description = "The GCP region for CI/CD resources"
   type        = string
 }
 
+variable "zone" {
+  description = "The GCP zone for resources"
+  type        = string
+  default     = ""
+}
+
 variable "domain_name" {
   description = "The domain name for the application (optional)"
+  type        = string
+  default     = ""
+}
+
+variable "staging_domain_name" {
+  description = "The staging domain name for the application"
   type        = string
   default     = ""
 }
