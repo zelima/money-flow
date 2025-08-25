@@ -193,9 +193,9 @@ data-pipeline/.cache/
 # =============================================================================
 
 # FastAPI
-api/logs/
-api/temp/
-api/*.log
+moneyflow-back/logs/
+moneyflow-back/temp/
+moneyflow-back/*.log
 
 # Flask
 web-app/logs/
@@ -340,7 +340,7 @@ pipeline-runs/
 data-downloads/
 
 # API data cache
-api/data/cache/
+moneyflow-back/data/cache/
 
 # Frontend build outputs (if applicable)
 web-app/build/

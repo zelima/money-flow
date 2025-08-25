@@ -315,7 +315,7 @@ graph TB
 ```mermaid
 graph LR
     subgraph "Source Code"
-        API["📁 api/<br/>FastAPI Code"]
+        API["📁 moneyflow-back/<br/>FastAPI Code"]
         WebApp["📁 web-app/<br/>Flask Code"]
     end
 

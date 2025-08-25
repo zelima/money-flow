@@ -56,7 +56,7 @@ jobs:
       run: |
         mkdir -p data/raw
         mkdir -p data/processed
-        mkdir -p api/data
+        mkdir -p moneyflow-back/data
 
     - name: Run data pipeline
       if: github.event.inputs.check_only != 'true'

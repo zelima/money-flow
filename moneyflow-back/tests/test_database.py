@@ -1,14 +1,13 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from sqlalchemy.orm import Session
-
 from database import (
     get_db,
     get_department_by_name,
     get_sub_departments_by_department,
     test_connection,
 )
+from sqlalchemy.orm import Session
 
 
 @pytest.mark.api

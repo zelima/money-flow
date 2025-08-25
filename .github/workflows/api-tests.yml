@@ -1,19 +1,19 @@
 name: API Tests (Backend)
 
-# This workflow runs backend tests only when api/ directory is modified
+# This workflow runs backend tests only when moneyflow-back/ directory is modified
 # Separate from frontend tests for better CI/CD efficiency
 
 on:
   push:
     branches: [ main, develop ]
     paths:
-      - 'api/**'
+      - 'moneyflow-back/**'
       - 'pytest.ini'
       - 'Makefile'
   pull_request:
     branches: [ main, develop ]
     paths:
-      - 'api/**'
+      - 'moneyflow-back/**'
       - 'pytest.ini'
       - 'Makefile'
   workflow_dispatch:
@@ -48,13 +48,13 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-dev-${{ hashFiles('api/requirements-test.txt') }}
+        key: ${{ runner.os }}-pip-dev-${{ hashFiles('moneyflow-back/requirements-test.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-dev-
 
     - name: Install dependencies
       run: |
-        pip install -r api/requirements-test.txt
+        pip install -r moneyflow-back/requirements-test.txt
 
     - name: Run API tests
       run: |
@@ -93,5 +93,5 @@ jobs:
         fi
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 🚀 CI/CD Logic" >> $GITHUB_STEP_SUMMARY
-        echo "- **API tests run**: When `api/` directory is modified" >> $GITHUB_STEP_SUMMARY
+        echo "- **API tests run**: When `moneyflow-back/` directory is modified" >> $GITHUB_STEP_SUMMARY
         echo "- **Triggered by**: Backend code changes, pytest config, or requirements updates" >> $GITHUB_STEP_SUMMARY

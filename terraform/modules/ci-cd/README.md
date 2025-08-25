@@ -64,7 +64,7 @@ module "ci_cd" {
 ## Cloud Build Triggers
 
 ### Backend API Trigger
-- **Source**: `api/cloudbuild.yaml` in main branch
+- **Source**: `moneyflow-back/cloudbuild.yaml` in main branch
 - **Variables**: Database connection, storage bucket, artifact registry
 - **Target**: Backend API service deployment
 
@@ -94,7 +94,7 @@ Before using this module, ensure:
 
 ```
 money-flow/
-├── api/
+├── moneyflow-back/
 │   └── cloudbuild.yaml          # Backend build configuration
 ├── web-app/
 │   └── cloudbuild.yaml          # Frontend build configuration

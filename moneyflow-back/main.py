@@ -3,6 +3,13 @@ import logging
 import os
 from typing import List, Optional
 
+from database import (
+    get_budget_drill_down,
+    get_db,
+    get_department_by_name,
+    get_sub_departments_by_department,
+    test_connection,
+)
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from google.cloud import storage
@@ -18,14 +25,6 @@ from models import (
     YearSummary,
 )
 from sqlalchemy.orm import Session
-
-from database import (
-    get_budget_drill_down,
-    get_db,
-    get_department_by_name,
-    get_sub_departments_by_department,
-    test_connection,
-)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

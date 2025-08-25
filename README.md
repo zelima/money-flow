@@ -129,7 +129,7 @@ git push origin main
 
 ```
 money-flow/
-├── api/                    # Backend API (FastAPI)
+├── moneyflow-back/         # Backend API (FastAPI)
 │   ├── main.py            # API endpoints
 │   ├── models.py          # Data models
 │   ├── database.py        # Database connection

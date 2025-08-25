@@ -203,7 +203,7 @@ The repository includes automated workflows:
    - Update translation mappings if needed
 
 3. **API Data Not Loading**:
-   - Check if processed data exists in `api/data/`
+   - Check if processed data exists in `moneyflow-back/data/`
    - Run data pipeline first
    - Check API logs for errors
 
