@@ -129,12 +129,12 @@ git push origin main
 
 ```
 money-flow/
-├── api/                    # Backend API (FastAPI)
+├── moneyflow-back/         # Backend API (FastAPI)
 │   ├── main.py            # API endpoints
 │   ├── models.py          # Data models
 │   ├── database.py        # Database connection
 │   └── requirements.txt   # Python dependencies
-├── web-app/               # Frontend Dashboard (Flask)
+├── moneyflow-front/        # Frontend Dashboard (Flask)
 │   ├── app.py             # Web application
 │   ├── templates/         # HTML templates
 │   └── requirements.txt   # Python dependencies
@@ -147,7 +147,7 @@ money-flow/
 │   ├── cloud-sql.tf       # Cloud SQL database
 │   ├── load-balancer.tf   # Load balancer
 │   └── cloud-build.tf     # CI/CD pipeline
-└── database/              # Database schema and migrations
+└── fixtures/              # Database schema and migrations for tixture data
     └── init/              # SQL initialization scripts
 ```
 

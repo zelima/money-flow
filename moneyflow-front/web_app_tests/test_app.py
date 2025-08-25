@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-# Add the web-app directory to the Python path
+# Add the moneyflow-front directory to the Python path
 current_dir = os.path.dirname(os.path.abspath(__file__))
 web_app_dir = os.path.dirname(current_dir)
 sys.path.insert(0, web_app_dir)

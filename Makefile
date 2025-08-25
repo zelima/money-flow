@@ -11,14 +11,14 @@ help: ## Show this help message
 
 # Development Setup
 install: ## Install all dependencies
-	@echo "Installing API dependencies..."
-	cd api && pip install -r requirements.txt
-	@echo "Installing web-app dependencies..."
-	cd web-app && pip install -r requirements.txt
+	@echo "Installing moneyflow-back dependencies..."
+	cd moneyflow-back && pip install -r requirements.txt
+	@echo "Installing moneyflow-front dependencies..."
+	cd moneyflow-front && pip install -r requirements.txt
 	@echo "Installing data-pipeline dependencies..."
 	cd data-pipeline && pip install -r requirements.txt
-	@echo "Installing cloud-function dependencies..."
-	cd cloud-function && pip install -r requirements.txt
+	@echo "Installing moneyflow-functions dependencies..."
+	cd moneyflow-functions && pip install -r requirements.txt
 
 setup: ## Setup development environment (database, dependencies)
 	@echo "Setting up development environment..."
@@ -105,17 +105,17 @@ start-frontend: ## Start only the frontend service
 # Code Quality
 lint: ## Run linting checks
 	@echo "Running linting checks..."
-	@echo "API linting..."
-	cd api && flake8 . --max-line-length=88 --extend-ignore=E203,W503
-	@echo "Web-app linting..."
-	cd web-app && flake8 . --max-line-length=88 --extend-ignore=E203,W503
+	@echo "moneyflow-back linting..."
+	cd moneyflow-back && flake8 . --max-line-length=88 --extend-ignore=E203,W503
+	@echo "moneyflow-front linting..."
+	cd moneyflow-front && flake8 . --max-line-length=88 --extend-ignore=E203,W503
 
 format: ## Format code with black
 	@echo "Formatting code..."
-	@echo "API formatting..."
-	cd api && black .
-	@echo "Web-app formatting..."
-	cd web-app && black .
+	@echo "moneyflow-back formatting..."
+	cd moneyflow-back && black .
+	@echo "moneyflow-front formatting..."
+	cd moneyflow-front && black .
 
 # Data Pipeline
 pipeline-run: ## Run data pipeline locally
@@ -150,13 +150,13 @@ test: ## Run all tests
 	make test-web-app
 	make test-integration
 
-test-api: ## Run API tests
-	@echo "Running API tests..."
-	PYTHONPATH=. python -m pytest api/tests/ -v --cov=api --cov-report=term-missing
+test-api: ## Run moneyflow-back tests
+	@echo "Running moneyflow-back tests..."
+	PYTHONPATH=. python -m pytest moneyflow-back/tests/ -v --cov=moneyflow-back --cov-report=term-missing
 
-test-web-app: ## Run web-app tests
-	@echo "Running web-app tests..."
-	PYTHONPATH=. python -m pytest web-app/web_app_tests/ -v --cov=web-app --cov-report=term-missing
+test-web-app: ## Run moneyflow-front tests
+	@echo "Running moneyflow-front tests..."
+	PYTHONPATH=. python -m pytest moneyflow-front/web_app_tests/ -v --cov=moneyflow-front --cov-report=term-missing
 
 test-integration: ## Run integration tests
 	@echo "Running integration tests..."
@@ -170,8 +170,8 @@ test-coverage: ## Run tests with coverage reports
 
 test-install: ## Install test dependencies
 	@echo "Installing test dependencies..."
-	cd api && pip install -r requirements-test.txt
-	cd web-app && pip install -r requirements-test.txt
+	cd moneyflow-back && pip install -r requirements-test.txt
+	cd moneyflow-front && pip install -r requirements-test.txt
 
 # Utility Commands
 status: ## Show status of all services

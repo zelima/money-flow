@@ -153,8 +153,8 @@ module "compute" {
   region     = var.region
   environment = var.environment
 
-  function_source_path = "../../../cloud-function"
-  data_pipeline_path   = "../../../cloud-function/data-pipeline"
+  function_source_path = "../../../moneyflow-functions"
+  data_pipeline_path   = "../../../moneyflow-functions/data-pipeline"
   function_source_bucket_name = module.storage.function_source_bucket_name
   data_bucket_name = module.storage.data_bucket_name
 

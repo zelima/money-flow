@@ -38,7 +38,7 @@ cd ..
 ### 4. Set Up Web Application
 
 ```bash
-cd web-app
+cd moneyflow-front
 npm install
 cd ..
 ```
@@ -72,7 +72,7 @@ The API will be available at: `http://localhost:3001`
 ### Step 3: Start the Web Application
 
 ```bash
-cd web-app
+cd moneyflow-front
 npm run dev
 ```
 
@@ -148,7 +148,7 @@ cd api
 npm test
 
 # Web app tests
-cd web-app
+cd moneyflow-front
 npm test
 ```
 
@@ -160,7 +160,7 @@ cd api
 npm run lint
 
 # Lint web app code
-cd web-app
+cd moneyflow-front
 npm run lint
 ```
 
@@ -203,7 +203,7 @@ The repository includes automated workflows:
    - Update translation mappings if needed
 
 3. **API Data Not Loading**:
-   - Check if processed data exists in `api/data/`
+   - Check if processed data exists in `moneyflow-back/data/`
    - Run data pipeline first
    - Check API logs for errors
 

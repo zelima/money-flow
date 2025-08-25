@@ -6,18 +6,18 @@ import requests
 
 @pytest.mark.integration
 class TestAPIIntegration:
-    """Test integration between API and web-app services"""
+    """Test integration between API and moneyflow-front services"""
 
     @patch("requests.get")
     def test_api_health_from_webapp(self, mock_get):
-        """Test that web-app can successfully call API health endpoint"""
+        """Test that moneyflow-front can successfully call API health endpoint"""
         # Mock successful API response
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = {"status": "healthy"}
         mock_get.return_value = mock_response
 
-        # Simulate web-app calling API
+        # Simulate moneyflow-front calling API
         response = requests.get("http://localhost:8000/health", timeout=30)
 
         assert response.status_code == 200
@@ -26,7 +26,7 @@ class TestAPIIntegration:
 
     @patch("requests.get")
     def test_api_data_flow(self, mock_get):
-        """Test data flow from API to web-app"""
+        """Test data flow from API to moneyflow-front"""
         # Mock API summary endpoint
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -38,7 +38,7 @@ class TestAPIIntegration:
         }
         mock_get.return_value = mock_response
 
-        # Simulate web-app fetching summary data
+        # Simulate moneyflow-front fetching summary data
         response = requests.get("http://localhost:8000/summary", timeout=30)
 
         assert response.status_code == 200
@@ -48,34 +48,17 @@ class TestAPIIntegration:
 
 
 @pytest.mark.integration
-class TestServiceCommunication:
-    """Test service-to-service communication patterns"""
-
-    def test_api_endpoints_accessible(self):
-        """Test that all API endpoints are accessible from web-app perspective"""
-        # This test would verify that web-app can reach all necessary API endpoints
-        # In a real integration test, you might start both services and test actual
-        # communication
-        pass
-
-    def test_data_consistency(self):
-        """Test that data returned by API is consistent with web-app expectations"""
-        # This test would verify that the data structures match between services
-        pass
-
-
-@pytest.mark.integration
 class TestErrorHandling:
     """Test error handling across services"""
 
     @patch("requests.get")
     def test_api_unavailable_handling(self, mock_get):
-        """Test how web-app handles API unavailability"""
+        """Test how moneyflow-front handles API unavailability"""
         # Mock API failure
         mock_get.side_effect = requests.exceptions.ConnectionError("Connection refused")
 
-        # Test that web-app gracefully handles API failures
-        # This would be tested in the actual web-app integration tests
+        # Test that moneyflow-front gracefully handles API failures
+        # This would be tested in the actual moneyflow-front integration tests
         pass
 
 

@@ -14,7 +14,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/init:/docker-entrypoint-initdb.d
+      - ./fixtures/init:/docker-entrypoint-initdb.d
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U budget_user -d georgian_budget"]
@@ -25,7 +25,7 @@ services:
   # FastAPI Backend
   api:
     build:
-      context: ./api
+      context: ./moneyflow-back
       dockerfile: Dockerfile
     container_name: georgian_budget_api
     ports:
@@ -40,14 +40,14 @@ services:
         condition: service_healthy
     restart: unless-stopped
     volumes:
-      - ./api:/app
+      - ./moneyflow-back:/app
       - ~/.config/gcloud/application_default_credentials.json:/app/credentials/service-account-key.json:ro
     command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
   # Flask Frontend
   frontend:
     build:
-      context: ./web-app
+      context: ./moneyflow-front
       dockerfile: Dockerfile
     container_name: georgian_budget_frontend
     ports:
@@ -58,7 +58,7 @@ services:
       - api
     restart: unless-stopped
     volumes:
-      - ./web-app:/app
+      - ./moneyflow-front:/app
     command: ["python", "app.py"]
 
 volumes:
