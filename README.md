@@ -147,7 +147,7 @@ money-flow/
 │   ├── cloud-sql.tf       # Cloud SQL database
 │   ├── load-balancer.tf   # Load balancer
 │   └── cloud-build.tf     # CI/CD pipeline
-└── fixtures/              # Database schema and migrations
+└── fixtures/              # Database schema and migrations for tixture data
     └── init/              # SQL initialization scripts
 ```
 

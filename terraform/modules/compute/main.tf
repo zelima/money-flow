@@ -35,7 +35,7 @@ data "archive_file" "function_source" {
   output_path = "function-source.zip"
   excludes    = ["__pycache__", "*.pyc", ".git", "README.md", "*.log", ".terraform"]
 
-  # Include cloud-function directory
+  # Include moneyflow-functions directory
   source {
     content  = file("${var.function_source_path}/cloud_function_main.py")
     filename = "main.py"
@@ -46,7 +46,7 @@ data "archive_file" "function_source" {
     filename = "requirements.txt"
   }
 
-  # Include the entire data-pipeline directory from cloud-function
+  # Include the entire data-pipeline directory from moneyflow-functions
   dynamic "source" {
     for_each = fileset(var.data_pipeline_path, "**/*")
     content {

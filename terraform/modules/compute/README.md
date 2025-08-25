@@ -20,8 +20,8 @@ module "compute" {
   region     = "europe-west1"
   environment = "prod"
 
-  function_source_path = "../../../cloud-function"
-  data_pipeline_path   = "../cloud-function/data-pipeline"
+  function_source_path = "../../../moneyflow-functions"
+  data_pipeline_path   = "../moneyflow-functions/data-pipeline"
   function_source_bucket_name = "your-function-source-bucket"
   data_bucket_name = "your-data-bucket"
 

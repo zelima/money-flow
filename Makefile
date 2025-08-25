@@ -17,8 +17,8 @@ install: ## Install all dependencies
 	cd web-app && pip install -r requirements.txt
 	@echo "Installing data-pipeline dependencies..."
 	cd data-pipeline && pip install -r requirements.txt
-	@echo "Installing cloud-function dependencies..."
-	cd cloud-function && pip install -r requirements.txt
+	@echo "Installing moneyflow-functions dependencies..."
+	cd moneyflow-functions && pip install -r requirements.txt
 
 setup: ## Setup development environment (database, dependencies)
 	@echo "Setting up development environment..."
