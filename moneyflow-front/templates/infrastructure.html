@@ -137,88 +137,118 @@
         <!-- Development Journey -->
         <section class="journey-section">
             <h2><i class="fas fa-code"></i> Developer Experience</h2>
-            <div class="dataflow-container">
-                <!-- Row 1: Make start card -->
-                <div class="flow-row" style="grid-row: 1; display: contents;">
-                    <div style="grid-column: span 14;"></div>
-                    <div class="flow-step-compact" style="grid-column: span 4;">
-                        <div class="flow-content-inline">
-                            <i class="fas fa-laptop-code"></i>
-                            <span>make start</span>
-                        </div>
+            <div class="dev-flow-container">
+                <!-- Command Entry Point -->
+                <div class="flow-step command-step" data-step="1">
+                    <div class="flow-content-inline">
+                        <i class="fas fa-terminal"></i>
+                        <h4>make start</h4>
                     </div>
-                    <div style="grid-column: span 14;"></div>
                 </div>
 
-                <!-- Row 2: Down arrow -->
-                <div class="flow-row" style="grid-row: 2; display: contents;">
-                    <div style="grid-column: span 15;"></div>
-                    <div class="flow-arrow" style="grid-column: span 2;">
-                        <i class="fas fa-arrow-down"></i>
+                <!-- Arrow 1 -->
+                <div class="flow-arrow-down">↓</div>
+
+                <!-- Docker Compose -->
+                <div class="flow-step docker-step" data-step="2">
+                    <div class="flow-content-inline">
+                        <i class="fab fa-docker"></i>
+                        <h4>Docker Compose</h4>
                     </div>
-                    <div style="grid-column: span 15;"></div>
                 </div>
 
-                <!-- Row 3: Full development flow -->
-                <div class="flow-row" style="grid-row: 3; display: contents;">
-                    <div class="flow-step" style="grid-column: span 4;">
+                <!-- Services Row -->
+                <div class="services-row">
+                    <div class="service-with-arrow">
+                        <div class="service-arrow">↓</div>
+                        <div class="postgres-split">
+                            <div class="flow-step service-step postgres-half" data-step="3" data-service="fixtures">
+                                <div class="flow-content-inline">
+                                    <i class="fas fa-boxes"></i>
+                                    <h4>Fixtures</h4>
+                                </div>
+                            </div>
+                            <div class="flow-step service-step postgres-half" data-step="3" data-service="postgres2">
+                                <div class="flow-icon">
+                                    <i class="fas fa-database"></i>
+                                </div>
+                                <div class="flow-content">
+                                    <h4>PostgreSQL</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="postgres-to-api-arrow">--</div>
+                    </div>
+
+                    <div class="service-with-arrow">
+                        <div class="service-arrow">↓</div>
+                        <div class="flow-step service-step" data-step="3" data-service="api">
+                            <div class="flow-icon">
+                                <i class="fas fa-server"></i>
+                            </div>
+                            <div class="flow-content">
+                                <h4>API</h4>
+                                <p>moneyflow-back</p>
+                            </div>
+                        </div>
+                        <div class="api-left-arrow">--</div>
+                        <div class="api-right-arrow">--</div>
+                    </div>
+
+
+
+                    <div class="service-with-arrow">
+                        <div class="service-arrow">↓</div>
+                        <div class="flow-step service-step" data-step="3" data-service="ui">
+                            <div class="flow-icon">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <div class="flow-content">
+                                <h4>UI</h4>
+                                <p>moneyflow-front</p>
+                            </div>
+                        </div>
+                        <div class="ui-to-api-arrow">--</div>
+                    </div>
+
+
+                </div>
+
+                <!-- Down arrows below services -->
+                <div class="arrow-row">
+                    <div class="arrow-item">↓</div>
+                    <div class="arrow-item">↓</div>
+                    <div class="arrow-item">↓</div>
+                </div>
+
+                <!-- Developer Access -->
+                <div class="services-row">
+                    <div class="flow-step access-step" data-step="5">
                         <div class="flow-icon">
                             <i class="fas fa-laptop-code"></i>
                         </div>
                         <div class="flow-content">
-                            <h4>Local Development</h4>
+                            <h4>localhost:5000</h4>
                         </div>
                     </div>
-                    <div style="grid-column: span 1;"></div>
-                    <div class="flow-arrow" style="grid-column: span 1;">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                    <div style="grid-column: span 1;"></div>
-                    <div class="flow-step" style="grid-column: span 4;">
-                        <div class="flow-icon">
-                            <i class="fas fa-database"></i>
-                        </div>
-                        <div class="flow-content">
-                            <h4>PostgreSQL</h4>
-                        </div>
-                    </div>
-                    <div style="grid-column: span 1;"></div>
-                    <div class="flow-arrow" style="grid-column: span 1;">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                    <div style="grid-column: span 1;"></div>
-                    <div class="flow-step" style="grid-column: span 4;">
+
+                    <div class="flow-step access-step" data-step="5">
                         <div class="flow-icon">
                             <i class="fas fa-laptop-code"></i>
                         </div>
                         <div class="flow-content">
-                            <h4>Makefile</h4>
+                            <h4>Browser</h4>
+                            <p>localhost:8000</p>
                         </div>
                     </div>
-                    <div style="grid-column: span 1;"></div>
-                    <div class="flow-arrow" style="grid-column: span 1;">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                    <div style="grid-column: span 1;"></div>
-                    <div class="flow-step" style="grid-column: span 4;">
+
+                    <div class="flow-step access-step" data-step="5">
                         <div class="flow-icon">
-                            <i class="fas fa-api"></i>
+                            <i class="fas fa-laptop-code"></i>
                         </div>
                         <div class="flow-content">
-                            <h4>API</h4>
-                        </div>
-                    </div>
-                    <div style="grid-column: span 1;"></div>
-                    <div class="flow-arrow" style="grid-column: span 1;">
-                        <i class="fas fa-arrow-right"></i>
-                    </div>
-                    <div style="grid-column: span 1;"></div>
-                    <div class="flow-step" style="grid-column: span 4;">
-                        <div class="flow-icon">
-                            <i class="fas fa-globe"></i>
-                        </div>
-                        <div class="flow-content">
-                            <h4>UI</h4>
+                            <h4>Browser</h4>
+                            <p>localhost:5000</p>
                         </div>
                     </div>
                 </div>
@@ -469,5 +499,7 @@
             </div>
         </section>
     </div>
+
+    <script src="{{ url_for('static', filename='js/infrastructure.js') }}"></script>
 </body>
 </html>

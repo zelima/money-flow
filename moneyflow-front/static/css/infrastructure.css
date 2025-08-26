@@ -428,12 +428,307 @@ section h2 i {
     width: 1rem;
 }
 
+/* Developer Experience Flow */
+.dev-flow-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    max-width: 1000px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.dev-flow-container .flow-step {
+    position: relative;
+}
+
+.command-step {
+    background: linear-gradient(135deg, #45b089, #2d7d5a);
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(69, 176, 137, 0.4);
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.docker-step {
+    background: linear-gradient(135deg, #2496ed, #1e6bb8);
+    color: white;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flow-content-inline {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 1.2rem;
+}
+
+.flow-content-inline i {
+    font-size: 1.5rem;
+}
+
+.flow-content-inline h4 {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.services-row {
+    display: flex;
+    gap: 60px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.service-step {
+    min-width: 180px;
+    transition: all 0.3s ease;
+}
+
+.service-step:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(69, 176, 137, 0.3);
+}
+
+.fixtures-step {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+}
+
+.access-step {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    color: white;
+}
+
+.connections-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 20px 0;
+}
+
+.connection-line {
+    background: rgba(69, 176, 137, 0.1);
+    border: 2px solid #45b089;
+    border-radius: 20px;
+    padding: 8px 16px;
+    color: #45b089;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.connection-line:hover {
+    background: rgba(69, 176, 137, 0.2);
+    transform: scale(1.05);
+}
+
+/* Flow arrows */
+.flow-arrow-down {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 3px 0;
+    font-size: 2rem;
+    color: #45b089;
+    animation: bounce 2s infinite;
+}
+
+.flow-arrow-down.blue {
+    color: #2496ed;
+}
+
+.flow-arrow-down.orange {
+    color: #f39c12;
+}
+
+/* Service arrows */
+.service-with-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    position: relative;
+}
+
+.service-arrow {
+    font-size: 1.5rem;
+    color: #45b089;
+    animation: bounce 2s infinite;
+    margin-bottom: 2px;
+}
+
+
+
+
+
+/* Left arrow for API card */
+.api-left-arrow {
+    font-size: 1.5rem;
+    color: #45b089;
+    animation: moveLeft 3s infinite;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    left: -25px;
+    top: calc(50% + 20px);
+    transform: translateY(-50%);
+}
+
+/* Right arrow for API card */
+.api-right-arrow {
+    font-size: 1.5rem;
+    color: #45b089;
+    animation: moveRight 3s infinite;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    right: -25px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Left arrow animation */
+@keyframes moveLeft {
+    0% {
+        left: -25px;
+        opacity: 1;
+    }
+    100% {
+        left: -70px;
+        opacity: 0;
+    }
+}
+
+/* Right arrow animation */
+@keyframes moveRight {
+    0% {
+        right: -25px;
+        opacity: 1;
+    }
+    100% {
+        right: -80px;
+        opacity: 0;
+    }
+}
+
+/* PostgreSQL to API arrow */
+.postgres-to-api-arrow {
+    font-size: 1.5rem;
+    color: #45b089;
+    animation: postgresToApi 3s infinite;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    right: -25px;
+    top: calc(50% + 50px);
+    transform: translateY(-50%);
+}
+
+/* UI to API arrow */
+.ui-to-api-arrow {
+    font-size: 1.5rem;
+    color: #45b089;
+    animation: uiToApi 3s infinite;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    left: -25px;
+    top: calc(50% + 30px);
+    transform: translateY(-50%);
+}
+
+/* PostgreSQL to API animation */
+@keyframes postgresToApi {
+    0% {
+        right: -25px;
+        opacity: 1;
+    }
+    100% {
+        right: -80px;
+        opacity: 0;
+    }
+}
+
+/* UI to API animation */
+@keyframes uiToApi {
+    0% {
+        left: -25px;
+        opacity: 1;
+    }
+    100% {
+        left: -70px;
+        opacity: 0;
+    }
+}
+
+/* PostgreSQL split cards */
+.postgres-split {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.postgres-half {
+    min-width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.postgres-half:first-child {
+    height: 30px;
+}
+
+.postgres-half:last-child {
+    height: 113px;
+}
+
+.postgres-half .flow-icon {
+    margin-bottom: 5px;
+}
+
+.postgres-half .flow-content h4 {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+
+
+/* Active step styling */
+.flow-step.active {
+    box-shadow: 0 12px 35px rgba(69, 176, 137, 0.4);
+    border: 3px solid #45b089;
+}
+
+
+
 /* Data Flow */
 .dataflow-container {
     display: grid;
     grid-template-columns: repeat(32, 1fr);
-    grid-template-rows: auto auto 1fr;
-    gap: 10px 0;
+    grid-template-rows: repeat(3, 1fr);
+    gap: 20px 0;
     max-width: 100%;
     margin: 0 auto;
 }
@@ -664,6 +959,63 @@ section h2 i {
     color: #45b089;
 }
 
+
+
+/* Arrow row for developer access cards */
+.arrow-row {
+    display: flex;
+    gap: 81px;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0;
+    width: 100%;
+}
+
+.arrow-item {
+    font-size: 1.5rem;
+    color: #45b089;
+    animation: bounce 2s infinite;
+    min-width: 180px;
+    text-align: center;
+}
+
+/* Hide first developer access card */
+.services-row .flow-step.access-step:first-child {
+    visibility: hidden;
+}
+
+/* Hide first arrow */
+.arrow-row .arrow-item:first-child {
+    visibility: hidden;
+}
+
+/* Services down arrows container */
+.services-down-arrows {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.services-down-arrows .flow-arrow-down {
+    margin: 0;
+    flex: 1;
+    text-align: center;
+}
+
+.services-down-arrows .flow-arrow-down:first-child {
+    margin-right: 30px; /* Align with first visible developer access card */
+}
+
+.services-down-arrows .flow-arrow-down:nth-child(2) {
+    margin-right: 60px; /* Align with middle developer access card */
+}
+
+.services-down-arrows .flow-arrow-down:last-child {
+    margin-left: 60px; /* Align with last developer access card */
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .container {
@@ -736,6 +1088,51 @@ section h2 i {
     .nav-links {
         flex-wrap: wrap;
         justify-content: center;
+    }
+
+    /* Mobile responsive for dev flow */
+    .dev-flow-container {
+        gap: 20px;
+        padding: 0 10px;
+    }
+
+    .developer-access-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .developer-access-row .access-step {
+        min-width: auto;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .services-row {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .service-step {
+        min-width: auto;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .connections-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .connection-line {
+        text-align: center;
+        width: 100%;
+    }
+
+    /* Hide arrows on mobile */
+    .flow-arrow-down,
+    .service-arrow,
+    .services-down-arrows {
+        display: none;
     }
 }
 
