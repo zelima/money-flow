@@ -439,6 +439,123 @@ section h2 i {
     position: relative;
 }
 
+/* Infrastructure Architecture Flow */
+.infra-flow-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    padding: 0 20px;
+}
+
+.modules-row {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    width: 100%;
+    overflow-x: auto;
+    padding-left: 0;
+}
+
+.module-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 140px;
+    flex-shrink: 0;
+}
+
+.module-step {
+    min-width: 140px;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #45b089, #2d7d5a);
+    color: white;
+    padding: 1rem 0.75rem;
+}
+
+.module-step:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(69, 176, 137, 0.3);
+}
+
+.module-services {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+.service-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 0.8rem;
+    color: #555;
+    transition: all 0.3s ease;
+}
+
+.service-item:hover {
+    border-color: #45b089;
+    transform: translateX(5px);
+    box-shadow: 0 4px 8px rgba(69, 176, 137, 0.2);
+}
+
+.service-item i {
+    color: #45b089;
+    width: 16px;
+    flex-shrink: 0;
+}
+
+.service-item span {
+    line-height: 1.3;
+}
+
+.infra-result {
+    margin-top: 20px;
+}
+
+.result-step {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    color: white;
+    min-width: 300px;
+    text-align: center;
+}
+
+.result-step .flow-content p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+    margin-top: 8px;
+}
+
+/* Custom scrollbar styling */
+.modules-row::-webkit-scrollbar {
+    height: 8px;
+}
+
+.modules-row::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.modules-row::-webkit-scrollbar-thumb {
+    background: #45b089;
+    border-radius: 4px;
+}
+
+.modules-row::-webkit-scrollbar-thumb:hover {
+    background: #2d7d5a;
+}
+
 .dev-flow-container .flow-step {
     position: relative;
 }
@@ -452,6 +569,18 @@ section h2 i {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.terraform-duplicate {
+    transform: scale(0.9);
+    opacity: 0.8;
+}
+
+.terraform-duplicates-row {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 10px;
 }
 
 .docker-step {
@@ -689,7 +818,7 @@ section h2 i {
 }
 
 .postgres-half:last-child {
-    height: 113px;
+    height: 101px;
 }
 
 .postgres-half .flow-icon {
@@ -746,14 +875,14 @@ section h2 i {
 .flow-icon {
     background: #45b089;
     color: white;
-    width: 3rem;
-    height: 3rem;
+    width: 2.5rem;
+    height: 2.5rem;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
-    margin: 0 auto 1rem;
+    font-size: 1rem;
+    margin: 0 auto 0.75rem;
 }
 
 .flow-content h4 {
@@ -1096,6 +1225,33 @@ section h2 i {
         padding: 0 10px;
     }
 
+    /* Mobile responsive for infrastructure flow */
+    .infra-flow-container {
+        gap: 20px;
+        padding: 0 10px;
+    }
+
+    .modules-row {
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .module-column {
+        min-width: auto;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .module-step {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .service-item {
+        font-size: 0.9rem;
+        padding: 10px 15px;
+    }
+
     .developer-access-row {
         flex-direction: column;
         gap: 15px;
@@ -1132,6 +1288,11 @@ section h2 i {
     .flow-arrow-down,
     .service-arrow,
     .services-down-arrows {
+        display: none;
+    }
+
+    /* Hide infrastructure arrows on mobile */
+    .infra-flow-container .arrow-row {
         display: none;
     }
 }

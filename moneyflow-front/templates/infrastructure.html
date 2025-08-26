@@ -258,94 +258,248 @@
         <!-- Infrastructure Architecture -->
         <section class="architecture-section">
             <h2><i class="fas fa-sitemap"></i> Infrastructure Architecture</h2>
-            <div class="architecture-grid">
-                <div class="arch-card">
-                    <div class="arch-icon">
-                        <i class="fas fa-cloud"></i>
+            <div class="infra-flow-container">
+                <!-- Additional terraform apply cards side by side -->
+                <div class="terraform-duplicates-row">
+                    <div class="flow-step command-step terraform-duplicate" data-step="1">
+                        <div class="flow-content-inline">
+                            <i class="fas fa-gear"></i>
+                            <h4>Staging Configuration</h4>
+                        </div>
                     </div>
-                    <h3>Google Cloud Platform</h3>
-                    <p>Serverless-first architecture with Cloud Run, Cloud Functions, and Cloud SQL</p>
-                    <div class="arch-features">
-                        <div class="arch-feature">
-                            <i class="fas fa-server"></i>
-                            <span>Cloud Run (Backend & Frontend)</span>
-                        </div>
-                        <div class="arch-feature">
-                            <i class="fas fa-bolt"></i>
-                            <span>Cloud Functions (Data Pipeline)</span>
-                        </div>
-                        <div class="arch-feature">
-                            <i class="fas fa-database"></i>
-                            <span>Cloud SQL PostgreSQL</span>
+                    <div class="flow-step command-step terraform-duplicate" data-step="1">
+                        <div class="flow-content-inline">
+                            <i class="fas fa-gear"></i>
+                            <h4>Production Configuration</h4>
                         </div>
                     </div>
                 </div>
 
-                <div class="arch-card">
-                    <div class="arch-icon">
-                        <i class="fas fa-shield-alt"></i>
+                <!-- Arrow above command -->
+                <div class="flow-arrow-down">↓</div>
+
+                <!-- Command Entry Point -->
+                <div class="flow-step command-step" data-step="1">
+                    <div class="flow-content-inline">
+                        <i class="fas fa-terminal"></i>
+                        <h4>terraform apply</h4>
                     </div>
-                    <h3>Security & Networking</h3>
-                    <p>Private VPC with IAM controls and encrypted communications</p>
-                    <div class="arch-features">
-                        <div class="arch-feature">
-                            <i class="fas fa-lock"></i>
-                            <span>Private VPC Network</span>
+                </div>
+
+                <!-- Arrow below command -->
+                <div class="flow-arrow-down">↓</div>
+
+                <!-- Terraform Modules Row -->
+                <div class="modules-row">
+                    <div class="module-column">
+                        <div class="flow-step module-step" data-step="2" data-module="networking">
+                            <div class="flow-icon">
+                                <i class="fas fa-network-wired"></i>
+                            </div>
+                            <div class="flow-content">
+                                <h4>Networking</h4>
+                            </div>
                         </div>
-                        <div class="arch-feature">
-                            <i class="fas fa-key"></i>
-                            <span>IAM Service Accounts</span>
+                        <div class="module-services">
+                            <div class="service-item">
+                                <i class="fas fa-globe"></i>
+                                <span>VPC Network</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-balance-scale"></i>
+                                <span>Load Balancer</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-link"></i>
+                                <span>VPC Connector</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Firewall Rules</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-certificate"></i>
+                                <span>SSL Certificate</span>
+                            </div>
                         </div>
-                        <div class="arch-feature">
-                            <i class="fas fa-encryption"></i>
-                            <span>Secret Manager</span>
+                    </div>
+
+                    <div class="module-column">
+                        <div class="flow-step module-step" data-step="2" data-module="database">
+                            <div class="flow-icon">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div class="flow-content">
+                                <h4>Database</h4>
+                            </div>
+                        </div>
+                        <div class="module-services">
+                            <div class="service-item">
+                                <i class="fas fa-server"></i>
+                                <span>Cloud SQL Instance</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-table"></i>
+                                <span>PostgreSQL Database</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-user"></i>
+                                <span>Database User</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-key"></i>
+                                <span>Secure Password</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-column">
+                        <div class="flow-step module-step" data-step="2" data-module="compute">
+                            <div class="flow-icon">
+                                <i class="fas fa-server"></i>
+                            </div>
+                            <div class="flow-content">
+                                <h4>Compute</h4>
+                            </div>
+                        </div>
+                        <div class="module-services">
+                            <div class="service-item">
+                                <i class="fas fa-bolt"></i>
+                                <span>Cloud Functions</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-clock"></i>
+                                <span>Cloud Scheduler</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-user-shield"></i>
+                                <span>Service Accounts</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-topic"></i>
+                                <span>Pub/Sub Topics</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-column">
+                        <div class="flow-step module-step" data-step="2" data-module="storage">
+                            <div class="flow-icon">
+                                <i class="fas fa-hdd"></i>
+                            </div>
+                            <div class="flow-content">
+                                <h4>Storage</h4>
+                            </div>
+                        </div>
+                        <div class="module-services">
+                            <div class="service-item">
+                                <i class="fas fa-bucket"></i>
+                                <span>Data Bucket</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-code"></i>
+                                <span>Function Source Bucket</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-folder"></i>
+                                <span>Folder Structure</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-life-ring"></i>
+                                <span>Lifecycle Rules</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-column">
+                        <div class="flow-step module-step" data-step="2" data-module="monitoring">
+                            <div class="flow-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="flow-content">
+                                <h4>Monitoring</h4>
+                            </div>
+                        </div>
+                        <div class="module-services">
+                            <div class="service-item">
+                                <i class="fas fa-eye"></i>
+                                <span>Uptime Checks</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-bell"></i>
+                                <span>Alert Policies</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-dashboard"></i>
+                                <span>Monitoring Dashboard</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-envelope"></i>
+                                <span>Email Notifications</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-column">
+                        <div class="flow-step module-step" data-step="2" data-module="ci-cd">
+                            <div class="flow-icon">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="flow-content">
+                                <h4>CI/CD</h4>
+                            </div>
+                        </div>
+                        <div class="module-services">
+                            <div class="service-item">
+                                <i class="fas fa-code-branch"></i>
+                                <span>Cloud Build Triggers</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-docker"></i>
+                                <span>Artifact Registry</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-user-shield"></i>
+                                <span>Build Service Account</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-sync"></i>
+                                <span>Auto-deployment</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-column">
+                        <div class="flow-step module-step" data-step="2" data-module="security">
+                            <div class="flow-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="flow-content">
+                                <h4>Security</h4>
+                            </div>
+                        </div>
+                        <div class="module-services">
+                            <div class="service-item">
+                                <i class="fas fa-key"></i>
+                                <span>Secret Manager</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-database"></i>
+                                <span>Database URL Secret</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-user-check"></i>
+                                <span>IAM Permissions</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-lock"></i>
+                                <span>Access Control</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="arch-card">
-                    <div class="arch-icon">
-                        <i class="fas fa-truck"></i>
-                    </div>
-                    <h3>CI/CD Pipeline</h3>
-                    <p>Automated deployment with Cloud Build and Artifact Registry</p>
-                    <div class="arch-features">
-                        <div class="arch-feature">
-                            <i class="fas fa-code-branch"></i>
-                            <span>GitHub Integration</span>
-                        </div>
-                        <div class="arch-feature">
-                            <i class="fas fa-docker"></i>
-                            <span>Docker Builds</span>
-                        </div>
-                        <div class="arch-feature">
-                            <i class="fas fa-sync"></i>
-                            <span>Auto-deployment</span>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="arch-card">
-                    <div class="arch-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h3>Monitoring & Observability</h3>
-                    <p>Comprehensive monitoring with Cloud Monitoring and Logging</p>
-                    <div class="arch-features">
-                        <div class="arch-feature">
-                            <i class="fas fa-eye"></i>
-                            <span>Health Checks</span>
-                        </div>
-                        <div class="arch-feature">
-                            <i class="fas fa-bell"></i>
-                            <span>Alerting</span>
-                        </div>
-                        <div class="arch-feature">
-                            <i class="fas fa-chart-bar"></i>
-                            <span>Performance Metrics</span>
-                        </div>
-                    </div>
-                </div>
             </div>
         </section>
 
