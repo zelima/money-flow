@@ -189,7 +189,7 @@ jobs:
                 notes += '**Changes**:\n'
                 notes += f'- {title}\n'
 
-                        with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
+                with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
                     gh_out.write(f'notes={notes}\n')
             else:
                 with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
