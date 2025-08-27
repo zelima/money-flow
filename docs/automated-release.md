@@ -56,8 +56,8 @@ The system:
 For each release, the system:
 1. Creates a GitHub release with the new version tag
 2. Generates release notes from PR information
-3. Updates version files in the repository
-4. Commits and pushes version updates
+3. Logs version information for tracking
+4. **No repository updates** - versions are managed through git tags only
 
 ## Usage Examples
 
@@ -109,9 +109,25 @@ Description: Breaking change: API now returns data in new format
 - `should_release`: Whether a release should be created
 - `release_notes`: Generated release notes
 
-## Configuration
+## Version Management
 
-### Required Dependencies
+The automated release system uses a **tag-based versioning approach** that doesn't require repository updates:
+
+- **Version Source**: Git tags (e.g., `v1.2.3`)
+- **No File Updates**: Version files are not modified or committed
+- **Clean History**: Repository remains clean without automated commits
+- **Protected Branches**: Works with branch protection rules
+
+### How Version Detection Works
+
+1. **Read Current Version**: From the latest git tag (e.g., `v1.2.3` → `1.2.3`)
+2. **Calculate New Version**: Based on semantic versioning rules
+3. **Create Release**: GitHub release with the new version tag
+4. **Log Information**: Version details are logged but not committed
+
+This approach avoids the complexity of updating version files and pushing changes back to protected branches.
+
+## Configuration
 
 - `semver==3.0.2` - Python semantic versioning library
 - `actions/create-release@v1` - GitHub release creation action

@@ -5,7 +5,7 @@ name: Automated Release
 
 # Required permissions for creating releases
 permissions:
-  contents: write      # Required to create releases and tags
+  contents: write      # Required to create releases (but not push to repo)
   pull-requests: read  # Required to read PR information
   issues: read         # Required to read issue information
 
@@ -203,14 +203,6 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        token: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Create Git Tag
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git tag v${{ needs.determine-version.outputs.new_version }}
-        git push origin v${{ needs.determine-version.outputs.new_version }}
 
     - name: Create Release
       uses: actions/create-release@v1
@@ -223,25 +215,13 @@ jobs:
         draft: false
         prerelease: false
 
-    - name: Update version files
+    - name: Log version information
       run: |
-        # Update version in pyproject.toml if it exists
-        if [ -f "pyproject.toml" ]; then
-          sed -i "s/version = \".*\"/version = \"${{ needs.determine-version.outputs.new_version }}\"/" pyproject.toml
-        fi
-
-        # Create version.txt file
-        echo "${{ needs.determine-version.outputs.new_version }}" > version.txt
-
-        # Commit and push version updates
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add version.txt
-        if [ -f "pyproject.toml" ]; then
-          git add pyproject.toml
-        fi
-        git commit -m "Bump version to ${{ needs.determine-version.outputs.new_version }} [skip ci]"
-        git push
+        echo "✅ Release v${{ needs.determine-version.outputs.new_version }} created successfully!"
+        echo "📝 Version information:"
+        echo "  - Previous version: ${{ steps.current-version.outputs.current_version }}"
+        echo "  - New version: ${{ needs.determine-version.outputs.new_version }}"
+        echo "  - Version type: ${{ needs.determine-version.outputs.version_type }}"
 
   release-summary:
     name: Release Summary
