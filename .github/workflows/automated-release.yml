@@ -38,7 +38,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version_type: ${{ steps.version-check.outputs.version_type }}
-      new_version: ${{ steps.version-check.outputs.new_version }}
+      current_version: ${{ steps.current-version.outputs.current_version }}
+      new_version: ${{ steps.new-version.outputs.new_version }}
       should_release: ${{ steps.version-check.outputs.should_release }}
       release_notes: ${{ steps.release-notes.outputs.notes }}
 
@@ -71,6 +72,7 @@ jobs:
         # Check if this is a manual dispatch
         if os.environ.get('GITHUB_EVENT_NAME') == 'workflow_dispatch':
             version_type = os.environ.get('INPUT_VERSION_TYPE', 'patch')
+            print(f'Debug: Manual dispatch detected, version_type={version_type}')
             with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
                 gh_out.write(f'version_type={version_type}\n')
                 gh_out.write('should_release=true\n')
@@ -120,6 +122,7 @@ jobs:
       run: |
         # Try to get version from git tags
         latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.1.0")
+        echo "Debug: Found tag: ${latest_tag}"
         echo "current_version=${latest_tag#v}" >> $GITHUB_OUTPUT
         echo "Current version: ${latest_tag#v}"
 
@@ -131,12 +134,16 @@ jobs:
         import os
 
         current = '${{ steps.current-version.outputs.current_version }}'
-        version_type = '${{ steps.version-check.outputs.version_type }}'
+        version_type = '${{ needs.determine-version.outputs.version_type }}'
+
+        print(f'Debug: current={current}, version_type={version_type}')
 
         # Parse current version
         try:
             current_semver = semver.VersionInfo.parse(current)
-        except:
+            print(f'Debug: parsed current version: {current_semver}')
+        except Exception as e:
+            print(f'Debug: error parsing version: {e}')
             current_semver = semver.VersionInfo(0, 1, 0)
 
         # Bump version
@@ -147,7 +154,7 @@ jobs:
         else:
             new_version = current_semver.bump_patch()
 
-        print(f'New version: {new_version}')
+        print(f'Debug: new version: {new_version}')
         with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
             gh_out.write(f'new_version={new_version}\n')
         "
@@ -182,7 +189,7 @@ jobs:
                 notes += '**Changes**:\n'
                 notes += f'- {title}\n'
 
-                with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
+                        with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
                     gh_out.write(f'notes={notes}\n')
             else:
                 with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
@@ -191,6 +198,15 @@ jobs:
             with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
                 gh_out.write('notes=Manual release\n')
         "
+
+    - name: Debug outputs
+      run: |
+        echo "Debug: Checking job outputs..."
+        echo "version_type: ${{ steps.version-check.outputs.version_type }}"
+        echo "current_version: ${{ steps.current-version.outputs.current_version }}"
+        echo "new_version: ${{ steps.new-version.outputs.new_version }}"
+        echo "should_release: ${{ steps.version-check.outputs.should_release }}"
+        echo "notes: ${{ steps.release-notes.outputs.notes }}"
 
   create-release:
     name: Create GitHub Release
