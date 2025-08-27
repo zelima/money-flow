@@ -907,7 +907,8 @@ section h2 i {
     height: 30px;
 }
 
-    height: var(--postgres-half-height);
+.postgres-half:last-child {
+    height: 101px;
 }
 
 .postgres-half .flow-icon {
