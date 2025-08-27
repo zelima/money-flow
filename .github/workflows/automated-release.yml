@@ -59,22 +59,24 @@ jobs:
         import re
         import os
 
-        # Get PR title and body from environment
-        pr_title = os.environ.get('GITHUB_EVENT_NAME') == 'pull_request' and os.environ.get('GITHUB_EVENT_PATH') and open(os.environ.get('GITHUB_EVENT_PATH')).read() or '{}'
+        # Get event content from environment
+        event_content = os.environ.get('GITHUB_EVENT_NAME') == 'pull_request' and os.environ.get('GITHUB_EVENT_PATH') and open(os.environ.get('GITHUB_EVENT_PATH')).read() or '{}'
 
         # Check if this is a manual dispatch
         if os.environ.get('GITHUB_EVENT_NAME') == 'workflow_dispatch':
             version_type = os.environ.get('INPUT_VERSION_TYPE', 'patch')
-            print(f'::set-output name=version_type::{version_type}')
-            print(f'::set-output name=should_release::true')
+            with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
+                gh_out.write(f'version_type={version_type}\n')
+                gh_out.write('should_release=true\n')
             exit(0)
 
         # Check if PR was merged
         if os.environ.get('GITHUB_EVENT_NAME') == 'pull_request':
             import json
-            event_data = json.loads(pr_title)
+            event_data = json.loads(event_content)
             if not event_data.get('pull_request', {}).get('merged', False):
-                print('::set-output name=should_release::false')
+                with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
+                    gh_out.write('should_release=false\n')
                 exit(0)
 
             title = event_data.get('pull_request', {}).get('title', '')
@@ -92,17 +94,19 @@ jobs:
 
             version_type = 'patch'  # default
 
-            if any(keyword in content for keyword in major_keywords):
+                        if any(keyword in content for keyword in major_keywords):
                 version_type = 'major'
             elif any(keyword in content for keyword in minor_keywords):
                 version_type = 'minor'
             elif any(keyword in content for keyword in patch_keywords):
                 version_type = 'patch'
 
-            print(f'::set-output name=version_type::{version_type}')
-            print(f'::set-output name=should_release::true')
+            with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
+                gh_out.write(f'version_type={version_type}\n')
+                gh_out.write('should_release=true\n')
         else:
-            print('::set-output name=should_release::false')
+            with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
+                gh_out.write('should_release=false\n')
         "
 
     - name: Get current version
@@ -110,7 +114,7 @@ jobs:
       run: |
         # Try to get version from git tags
         latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.1.0")
-        echo "::set-output name=current_version::${latest_tag#v}"
+        echo "current_version=${latest_tag#v}" >> $GITHUB_OUTPUT
         echo "Current version: ${latest_tag#v}"
 
     - name: Calculate new version
@@ -136,8 +140,9 @@ jobs:
         else:
             new_version = current_semver.bump_patch()
 
-        print(f'::set-output name=new_version::{new_version}')
         print(f'New version: {new_version}')
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
+            gh_out.write(f'new_version={new_version}\n')
         "
 
     - name: Generate release notes
@@ -152,7 +157,7 @@ jobs:
             event_path = os.environ.get('GITHUB_EVENT_PATH')
             if event_path and os.path.exists(event_path):
                 with open(event_path, 'r') as f:
-                    event_data = json.load(f(f.read())
+                    event_data = json.load(f)
 
                 pr = event_data.get('pull_request', {})
                 title = pr.get('title', '')
@@ -160,7 +165,7 @@ jobs:
                 author = pr.get('user', {}).get('login', 'Unknown')
                 number = pr.get('number', '')
 
-                notes = f'## Release {os.environ.get('NEW_VERSION', 'Unknown')}\n\n'
+                notes = f'## Release v${{ steps.new-version.outputs.new_version }}\n\n'
                 notes += f'**PR #{number}**: {title}\n\n'
                 notes += f'**Author**: {author}\n\n'
 
@@ -170,11 +175,14 @@ jobs:
                 notes += '**Changes**:\n'
                 notes += f'- {title}\n'
 
-                print(f'::set-output name=notes::{notes}')
+                with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
+                    gh_out.write(f'notes={notes}\n')
             else:
-                print('::set-output name=notes::Release notes could not be generated')
+                with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
+                    gh_out.write('notes=Release notes could not be generated\n')
         else:
-            print('::set-output name=notes::Manual release')
+            with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
+                gh_out.write('notes=Manual release\n')
         "
 
   create-release:
