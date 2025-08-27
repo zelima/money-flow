@@ -944,12 +944,13 @@ section h2 i {
 
 /* Data Flow */
 .dataflow-container {
-    display: grid;
-    grid-template-columns: repeat(32, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    gap: 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
     max-width: 100%;
     margin: 0 auto;
+    flex-wrap: nowrap;
 }
 
 .flow-step {
@@ -960,6 +961,12 @@ section h2 i {
     min-width: 200px;
     border: 2px solid #e2e8f0;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Data Flow cards take equal width */
+.dataflow-container .flow-step {
+    flex: 1;
+    min-width: 0; /* Allow cards to shrink if needed */
 }
 
 .flow-icon {
