@@ -122,6 +122,7 @@ jobs:
       run: |
         python -c "
         import semver
+        import os
 
         current = '${{ steps.current-version.outputs.current_version }}'
         version_type = '${{ steps.version-check.outputs.version_type }}'
