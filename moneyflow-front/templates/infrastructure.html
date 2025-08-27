@@ -588,11 +588,11 @@ graph TB
             <div class="dataflow-container">
                 <div class="flow-step">
                     <div class="flow-icon">
-                        <i class="fas fa-download"></i>
+                        <i class="fas fa-clock"></i>
                     </div>
                     <div class="flow-content">
-                        <h4>Data Source</h4>
-                        <p>Georgian government budget data from geostat.ge</p>
+                        <h4>Cloud Scheduler</h4>
+                        <p>Triggers the functions with pubsub topic</p>
                     </div>
                 </div>
                 <div class="flow-arrow">
@@ -612,11 +612,11 @@ graph TB
                 </div>
                 <div class="flow-step">
                     <div class="flow-icon">
-                        <i class="fas fa-cloud"></i>
+                        <i class="fas fa-cogs"></i>
                     </div>
                     <div class="flow-content">
-                        <h4>Cloud Storage</h4>
-                        <p>Processed CSV and JSON files</p>
+                        <h4>Data Pipelines</h4>
+                        <p>Unpivot, Clean data, Translate, Add metadata, Export to JSON and CSV</p>
                     </div>
                 </div>
                 <div class="flow-arrow">
@@ -624,113 +624,17 @@ graph TB
                 </div>
                 <div class="flow-step">
                     <div class="flow-icon">
-                        <i class="fas fa-database"></i>
+                        <i class="fas fa-cloud"></i>
                     </div>
                     <div class="flow-content">
-                        <h4>PostgreSQL</h4>
-                        <p>Analytics database for drill-down analysis</p>
+                        <h4>Cloud Storage</h4>
+                        <p>Processed CSV and JSON files</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Deployment Process -->
-        <section class="deployment-section">
-            <h2><i class="fas fa-rocket"></i> Deployment Process</h2>
-            <div class="deployment-steps">
-                <div class="deploy-step">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h4>Infrastructure Provisioning</h4>
-                        <p>Terraform creates all GCP resources</p>
-                        <div class="code-block">
-                            <code>terraform init</code>
-                            <code>terraform apply</code>
-                        </div>
-                    </div>
-                </div>
-                <div class="deploy-step">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h4>Application Build</h4>
-                        <p>Cloud Build creates Docker images</p>
-                        <div class="code-block">
-                            <code>Cloud Build Trigger</code>
-                            <code>Docker Image Creation</code>
-                        </div>
-                    </div>
-                </div>
-                <div class="deploy-step">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h4>Service Deployment</h4>
-                        <p>Cloud Run deploys applications</p>
-                        <div class="code-block">
-                            <code>Backend API Deploy</code>
-                            <code>Frontend Web Deploy</code>
-                        </div>
-                    </div>
-                </div>
-                <div class="deploy-step">
-                    <div class="step-number">4</div>
-                    <div class="step-content">
-                        <h4>Load Balancer Update</h4>
-                        <p>Traffic routing to new versions</p>
-                        <div class="code-block">
-                            <code>SSL Certificate</code>
-                            <code>CDN Configuration</code>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
 
-        <!-- Cost & Performance -->
-        <section class="cost-section">
-            <h2><i class="fas fa-dollar-sign"></i> Cost Optimization & Performance</h2>
-            <div class="cost-grid">
-                <div class="cost-card">
-                    <div class="cost-icon">
-                        <i class="fas fa-chart-pie"></i>
-                    </div>
-                    <h3>Monthly Costs</h3>
-                    <div class="cost-breakdown">
-                        <div class="cost-item">
-                            <span>Data Pipeline:</span>
-                            <span class="cost-value">$6-20</span>
-                        </div>
-                        <div class="cost-item">
-                            <span>Applications:</span>
-                            <span class="cost-value">$63-128</span>
-                        </div>
-                        <div class="cost-item total">
-                            <span>Total:</span>
-                            <span class="cost-value">$69-148</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="cost-card">
-                    <div class="cost-icon">
-                        <i class="fas fa-tachometer-alt"></i>
-                    </div>
-                    <h3>Performance Features</h3>
-                    <div class="performance-features">
-                        <div class="perf-feature">
-                            <i class="fas fa-expand-arrows-alt"></i>
-                            <span>Scale-to-Zero</span>
-                        </div>
-                        <div class="perf-feature">
-                            <i class="fas fa-globe"></i>
-                            <span>Global CDN</span>
-                        </div>
-                        <div class="perf-feature">
-                            <i class="fas fa-database"></i>
-                            <span>Connection Pooling</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
     </div>
 
     <script src="{{ url_for('static', filename='js/infrastructure.js') }}"></script>
