@@ -94,7 +94,7 @@ jobs:
 
             version_type = 'patch'  # default
 
-                        if any(keyword in content for keyword in major_keywords):
+            if any(keyword in content for keyword in major_keywords):
                 version_type = 'major'
             elif any(keyword in content for keyword in minor_keywords):
                 version_type = 'minor'
