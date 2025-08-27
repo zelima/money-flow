@@ -1,0 +1,1426 @@
+/* Infrastructure Page Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    background: #e1f7ef;
+    background-image:
+        radial-gradient(circle at 25% 25%, rgba(69, 176, 137, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(45, 125, 90, 0.1) 0%, transparent 50%);
+    min-height: 100vh;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Navigation */
+.navbar {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    margin: -20px -20px 20px -20px;
+    border-radius: 0 0 20px 20px;
+}
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #45b089;
+}
+
+.nav-brand i {
+    font-size: 1.8rem;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.social-icons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    text-decoration: none;
+    color: #666;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    font-size: 1.2rem;
+}
+
+.social-link:hover {
+    background: #f0f0f0;
+    color: #333;
+    transform: translateY(-2px);
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    color: #666;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.nav-link.active {
+    background: #45b089;
+    color: white;
+}
+
+/* Hero Section */
+.hero {
+    background: linear-gradient(135deg, #45b089 0%, #2d7d5a 100%);
+    color: white;
+    padding: 3rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin: 0 0 30px 0;
+    border-radius: 15px;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.hero h1 {
+    font-size: 2.8rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.hero h1 i {
+    margin-right: 1rem;
+    color: #ffd700;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Overview Section */
+.overview-section {
+    padding: 3rem 2rem;
+    background: white;
+    margin: 0 0 30px 0;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.overview-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.overview-description {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: #555;
+}
+
+.overview-description strong {
+    color: #45b089;
+}
+
+/* Components Section */
+.components-section {
+    padding: 3rem 2rem;
+    background: white;
+    margin: 0 0 30px 0;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.components-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.component-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+}
+
+.component-card:hover {
+    border-color: #45b089;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(69, 176, 137, 0.2);
+}
+
+.component-icon {
+    background: linear-gradient(135deg, #45b089, #2d7d5a);
+    color: white;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin: 0 auto 1.5rem;
+}
+
+.component-card h3 {
+    color: #333;
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+}
+
+.component-description {
+    color: #666;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.component-details {
+    text-align: left;
+}
+
+.detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.detail-item i {
+    color: #45b089;
+    width: 1rem;
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+}
+
+.detail-item span {
+    line-height: 1.4;
+}
+
+.github-link {
+    color: #45b089;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid transparent;
+}
+
+.github-link:hover {
+    color: #2d7d5a;
+    border-bottom-color: #2d7d5a;
+}
+
+/* Section Styles */
+section {
+    padding: 3rem 2rem;
+    background: white;
+    margin: 0 0 30px 0;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+section h2 {
+    text-align: center;
+    font-size: 2.2rem;
+    margin-bottom: 2.5rem;
+    color: #45b089;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+section h2 i {
+    color: #45b089;
+}
+
+/* Journey Timeline */
+.journey-timeline {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.timeline-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 2.5rem;
+    top: 5rem;
+    bottom: -2rem;
+    width: 2px;
+    background: linear-gradient(to bottom, #45b089, #2d7d5a);
+}
+
+.timeline-icon {
+    background: linear-gradient(135deg, #45b089, #2d7d5a);
+    color: white;
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    box-shadow: 0 5px 20px rgba(69, 176, 137, 0.4);
+}
+
+.timeline-content {
+    flex: 1;
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    border-left: 4px solid #45b089;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.timeline-content h3 {
+    color: #333;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.timeline-content p {
+    color: #666;
+    margin-bottom: 1.5rem;
+}
+
+.code-block {
+    background: #2d3748;
+    color: #e2e8f0;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.code-block code {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.code-block code:last-child {
+    margin-bottom: 0;
+}
+
+.features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.feature-tag {
+    background: #45b089;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Architecture Grid */
+.architecture-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.arch-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.arch-card:hover {
+    border-color: #45b089;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(69, 176, 137, 0.2);
+}
+
+.arch-icon {
+    background: linear-gradient(135deg, #45b089, #2d7d5a);
+    color: white;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin: 0 auto 1.5rem;
+}
+
+.arch-card h3 {
+    color: #333;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+.arch-card p {
+    color: #666;
+    margin-bottom: 1.5rem;
+}
+
+.arch-features {
+    text-align: left;
+}
+
+.arch-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    color: #555;
+}
+
+.arch-feature i {
+    color: #45b089;
+    width: 1rem;
+}
+
+/* Developer Experience Flow */
+.dev-flow-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    max-width: 1000px;
+    margin: 0 auto;
+    position: relative;
+}
+
+/* Infrastructure Architecture Flow */
+.infra-flow-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    padding: 0 20px;
+}
+
+.modules-row {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    width: 100%;
+    overflow-x: auto;
+    padding-left: 0;
+}
+
+.module-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 140px;
+    flex-shrink: 0;
+}
+
+.module-step {
+    min-width: 140px;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #45b089, #2d7d5a);
+    color: white;
+    padding: 1rem 0.75rem;
+}
+
+.module-step:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(69, 176, 137, 0.3);
+}
+
+.module-services {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+.service-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 0.8rem;
+    color: #555;
+    transition: all 0.3s ease;
+}
+
+.service-item:hover {
+    border-color: #45b089;
+    transform: translateX(5px);
+    box-shadow: 0 4px 8px rgba(69, 176, 137, 0.2);
+}
+
+.service-item i {
+    color: #45b089;
+    width: 16px;
+    flex-shrink: 0;
+}
+
+.service-item span {
+    line-height: 1.3;
+}
+
+.infra-result {
+    margin-top: 20px;
+}
+
+.result-step {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    color: white;
+    min-width: 300px;
+    text-align: center;
+}
+
+.result-step .flow-content p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+    margin-top: 8px;
+}
+
+/* Mermaid Diagram Section */
+.mermaid-section {
+    padding: 3rem 2rem;
+    background: white;
+    margin: 0 0 30px 0;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.mermaid-container {
+    max-width: 100%;
+    margin: 0 auto;
+    overflow-x: auto;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+}
+
+/* When mermaid is inside infrastructure section, maintain full size */
+.architecture-section .mermaid-container {
+    max-width: 100%;
+    margin: 30px auto;
+    width: 100%;
+}
+
+.architecture-section .mermaid-container h3 {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: #45b089;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.architecture-section .mermaid-container h3 i {
+    color: #45b089;
+}
+
+.architecture-section .mermaid {
+    width: 100% !important;
+    min-width: 100%;
+    text-align: center;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.architecture-section .mermaid svg {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-width: 100%;
+}
+
+.mermaid {
+    text-align: center;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.mermaid svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Custom scrollbar styling */
+.modules-row::-webkit-scrollbar {
+    height: 8px;
+}
+
+.modules-row::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.modules-row::-webkit-scrollbar-thumb {
+    background: #45b089;
+    border-radius: 4px;
+}
+
+.modules-row::-webkit-scrollbar-thumb:hover {
+    background: #2d7d5a;
+}
+
+.dev-flow-container .flow-step {
+    position: relative;
+}
+
+.command-step {
+    background: linear-gradient(135deg, #45b089, #2d7d5a);
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(69, 176, 137, 0.4);
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.terraform-duplicate {
+    transform: scale(0.9);
+    opacity: 0.8;
+}
+
+.terraform-duplicates-row {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.docker-step {
+    background: linear-gradient(135deg, #2496ed, #1e6bb8);
+    color: white;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flow-content-inline {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 1.2rem;
+}
+
+.flow-content-inline i {
+    font-size: 1.5rem;
+}
+
+.flow-content-inline h4 {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.services-row {
+    display: flex;
+    gap: 60px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.service-step {
+    min-width: 180px;
+    transition: all 0.3s ease;
+}
+
+.service-step:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(69, 176, 137, 0.3);
+}
+
+.fixtures-step {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+}
+
+.access-step {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    color: white;
+}
+
+.connections-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 20px 0;
+}
+
+.connection-line {
+    background: rgba(69, 176, 137, 0.1);
+    border: 2px solid #45b089;
+    border-radius: 20px;
+    padding: 8px 16px;
+    color: #45b089;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.connection-line:hover {
+    background: rgba(69, 176, 137, 0.2);
+    transform: scale(1.05);
+}
+
+/* Flow arrows */
+.flow-arrow-down {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 3px 0;
+    font-size: 2rem;
+    color: #45b089;
+    animation: bounce 2s infinite;
+}
+
+.flow-arrow-down.blue {
+    color: #2496ed;
+}
+
+.flow-arrow-down.orange {
+    color: #f39c12;
+}
+
+/* Service arrows */
+.service-with-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    position: relative;
+}
+
+.service-arrow {
+    font-size: 1.5rem;
+    color: #45b089;
+    animation: bounce 2s infinite;
+    margin-bottom: 2px;
+}
+
+
+
+
+
+/* Left arrow for API card */
+.api-left-arrow {
+    font-size: 1.5rem;
+    color: #45b089;
+    animation: moveLeft 3s infinite;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    left: -25px;
+    top: calc(50% + 20px);
+    transform: translateY(-50%);
+}
+
+/* Right arrow for API card */
+.api-right-arrow {
+    font-size: 1.5rem;
+    color: #45b089;
+    animation: moveRight 3s infinite;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    right: -25px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Left arrow animation */
+@keyframes moveLeft {
+    0% {
+        left: -25px;
+        opacity: 1;
+    }
+    100% {
+        left: -70px;
+        opacity: 0;
+    }
+}
+
+/* Right arrow animation */
+@keyframes moveRight {
+    0% {
+        right: -25px;
+        opacity: 1;
+    }
+    100% {
+        right: -80px;
+        opacity: 0;
+    }
+}
+
+/* PostgreSQL to API arrow */
+.postgres-to-api-arrow {
+    font-size: 1.5rem;
+    color: #45b089;
+    animation: postgresToApi 3s infinite;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    right: -25px;
+    top: calc(50% + 50px);
+    transform: translateY(-50%);
+}
+
+/* UI to API arrow */
+.ui-to-api-arrow {
+    font-size: 1.5rem;
+    color: #45b089;
+    animation: uiToApi 3s infinite;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    left: -25px;
+    top: calc(50% + 30px);
+    transform: translateY(-50%);
+}
+
+/* PostgreSQL to API animation */
+@keyframes postgresToApi {
+    0% {
+        right: -25px;
+        opacity: 1;
+    }
+    100% {
+        right: -80px;
+        opacity: 0;
+    }
+}
+
+/* UI to API animation */
+@keyframes uiToApi {
+    0% {
+        left: -25px;
+        opacity: 1;
+    }
+    100% {
+        left: -70px;
+        opacity: 0;
+    }
+}
+
+/* PostgreSQL split cards */
+.postgres-split {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.postgres-half {
+    min-width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.postgres-half:first-child {
+    height: 30px;
+}
+
+.postgres-half:last-child {
+    height: 101px;
+}
+
+.postgres-half .flow-icon {
+    margin-bottom: 5px;
+}
+
+.postgres-half .flow-content h4 {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+
+
+/* Active step styling */
+.flow-step.active {
+    box-shadow: 0 12px 35px rgba(69, 176, 137, 0.4);
+    border: 3px solid #45b089;
+}
+
+
+
+/* Data Flow */
+.dataflow-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    max-width: 100%;
+    margin: 0 auto;
+    flex-wrap: nowrap;
+}
+
+.flow-step {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+    min-width: 200px;
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Data Flow cards take equal width */
+.dataflow-container .flow-step {
+    flex: 1;
+    min-width: 0; /* Allow cards to shrink if needed */
+}
+
+.flow-icon {
+    background: #45b089;
+    color: white;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    margin: 0 auto 0.75rem;
+}
+
+.flow-content h4 {
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.flow-content p {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.flow-arrow {
+    color: #45b089;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+/* Compact Makefile Card */
+.flow-step-compact {
+    background: white;
+    padding: 0.75rem;
+    border-radius: 10px;
+    text-align: center;
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    height: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flow-content-inline {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #333;
+}
+
+.flow-content-inline i {
+    color: #45b089;
+    font-size: 1rem;
+}
+
+.flow-content-inline span {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Deployment Steps */
+.deployment-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.deploy-step {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.step-number {
+    background: linear-gradient(135deg, #45b089, #2d7d5a);
+    color: white;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 0 auto 1rem;
+}
+
+.step-content h4 {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.step-content p {
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+/* Cost Section */
+.cost-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.cost-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cost-icon {
+    background: linear-gradient(135deg, #45b089, #2d7d5a);
+    color: white;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin: 0 auto 1.5rem;
+}
+
+.cost-card h3 {
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+.cost-breakdown {
+    text-align: left;
+}
+
+.cost-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.cost-item:last-child {
+    border-bottom: none;
+}
+
+.cost-value {
+    font-weight: bold;
+    color: #45b089;
+}
+
+.cost-item.total .cost-value {
+    color: #2d7d5a;
+    font-size: 1.2rem;
+}
+
+.performance-features {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.perf-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #555;
+}
+
+.perf-feature i {
+    color: #45b089;
+    width: 1rem;
+}
+
+/* Footer */
+.footer {
+    background: #2d3748;
+    color: white;
+    padding: 2rem;
+    margin: 0;
+    border-radius: 15px 15px 0 0;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.footer-link {
+    color: #e2e8f0;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+    color: #45b089;
+}
+
+
+
+/* Arrow row for developer access cards */
+.arrow-row {
+    display: flex;
+    gap: 81px;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0;
+    width: 100%;
+}
+
+.arrow-item {
+    font-size: 1.5rem;
+    color: #45b089;
+    animation: bounce 2s infinite;
+    min-width: 180px;
+    text-align: center;
+}
+
+/* Hide first developer access card */
+.services-row .flow-step.access-step:first-child {
+    visibility: hidden;
+}
+
+/* Hide first arrow */
+.arrow-row .arrow-item:first-child {
+    visibility: hidden;
+}
+
+/* Services down arrows container */
+.services-down-arrows {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.services-down-arrows .flow-arrow-down {
+    margin: 0;
+    flex: 1;
+    text-align: center;
+}
+
+.services-down-arrows .flow-arrow-down:first-child {
+    margin-right: 30px; /* Align with first visible developer access card */
+}
+
+.services-down-arrows .flow-arrow-down:nth-child(2) {
+    margin-right: 60px; /* Align with middle developer access card */
+}
+
+.services-down-arrows .flow-arrow-down:last-child {
+    margin-left: 60px; /* Align with last developer access card */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    section {
+        padding: 2rem 1rem;
+        margin: 0 0 20px 0;
+    }
+
+    section h2 {
+        font-size: 2rem;
+    }
+
+    .timeline-item {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .timeline-item::after {
+        display: none;
+    }
+
+    .timeline-icon {
+        margin: 0 auto 1rem;
+    }
+
+    .architecture-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .components-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .deployment-steps {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .cost-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .navbar {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+        margin: -10px -10px 20px -10px;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    /* Mobile responsive for dev flow */
+    .dev-flow-container {
+        gap: 20px;
+        padding: 0 10px;
+    }
+
+    /* Mobile responsive for infrastructure flow */
+    .infra-flow-container {
+        gap: 20px;
+        padding: 0 10px;
+    }
+
+    .modules-row {
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .module-column {
+        min-width: auto;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .module-step {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .service-item {
+        font-size: 0.9rem;
+        padding: 10px 15px;
+    }
+
+    .developer-access-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .developer-access-row .access-step {
+        min-width: auto;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .services-row {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .service-step {
+        min-width: auto;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .connections-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .connection-line {
+        text-align: center;
+        width: 100%;
+    }
+
+    /* Hide arrows on mobile */
+    .flow-arrow-down,
+    .service-arrow,
+    .services-down-arrows {
+        display: none;
+    }
+
+    /* Hide infrastructure arrows on mobile */
+    .infra-flow-container .arrow-row {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 5px;
+    }
+
+    .hero {
+        padding: 2rem 1rem;
+    }
+
+    .hero h1 {
+        font-size: 1.8rem;
+    }
+
+    .timeline-content {
+        padding: 1.5rem;
+    }
+
+    .arch-card {
+        padding: 1.5rem;
+    }
+
+    .flow-step {
+        min-width: 150px;
+        padding: 1rem;
+    }
+
+    .navbar {
+        margin: -5px -5px 20px -5px;
+    }
+}

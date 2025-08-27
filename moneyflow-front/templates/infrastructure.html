@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infrastructure & Workflow - Georgian Budget App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/infrastructure.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-server"></i>
+                <span>Money Flow</span>
+                <div class="social-icons">
+                    <a href="https://github.com/zelima/money-flow" class="social-link" target="_blank">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/irakli-mchedlishvili/" class="social-link" target="_blank">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="/infrastructure" class="nav-link active">
+                    <i class="fas fa-server"></i>
+                    Infrastructure
+                </a>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <header class="hero">
+            <div class="hero-content">
+                <p class="hero-description">
+                    <i class="fas fa-rocket"></i> <strong>Production-ready, cloud-native application</strong> that automatically processes Georgian government budget data and provides interactive analytics through web interfaces. It demonstrates modern software engineering practices including infrastructure as code, CI/CD automation, and scalable cloud architecture.
+                </p>
+            </div>
+        </header>
+
+        <!-- Core Components -->
+        <section class="components-section">
+            <h2><i class="fas fa-puzzle-piece"></i> Core Application Components</h2>
+            <div class="components-grid">
+                <div class="component-card">
+                    <div class="component-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3>Money Flow Frontend</h3>
+                    <p class="component-description">
+                        A responsive web dashboard built with Flask that provides interactive budget analysis tools for end users.
+                    </p>
+                    <div class="component-details">
+                        <div class="detail-item">
+                            <i class="fas fa-code"></i>
+                            <span><strong>Technology:</strong> Flask, HTML/CSS/JavaScript, Chart.js</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-server"></i>
+                            <span><strong>Deployment:</strong> Cloud Run (serverless)</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-robot"></i>
+                            <span><strong>Features:</strong> Interactive charts, filters, real-time data</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-link"></i>
+                            <span><strong>Connections:</strong> Communicates with Backend API for data</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component-card">
+                    <div class="component-icon">
+                        <i class="fas fa-gear"></i>
+                    </div>
+                    <h3>Money Flow Backend</h3>
+                    <p class="component-description">
+                        A robust FastAPI service that provides RESTful endpoints for budget data and analytics.
+                    </p>
+                    <div class="component-details">
+                        <div class="detail-item">
+                            <i class="fas fa-code"></i>
+                            <span><strong>Technology:</strong> FastAPI, PostgreSQL, Cloud SQL</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-server"></i>
+                            <span><strong>Deployment:</strong> Cloud Run (serverless)</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-robot"></i>
+                            <span><strong>Features:</strong> RESTful API, data validation, health monitoring</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-link"></i>
+                            <span><strong>Connections:</strong> Serves Frontend, connects to Database & Cloud Storage</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component-card">
+                    <div class="component-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>Money Flow Functions</h3>
+                    <p class="component-description">
+                        Automated data processing pipeline that fetches, transforms, and stores budget data from government sources.
+                    </p>
+                    <div class="component-details">
+                        <div class="detail-item">
+                            <i class="fas fa-code"></i>
+                            <span><strong>Technology:</strong> Python, datapackage-pipelines, Cloud Functions</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-server"></i>
+                            <span><strong>Deployment:</strong> Cloud Functions (serverless)</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-robot"></i>
+                            <span><strong>Features:</strong> Automated data fetching, Georgian translation, CSV/JSON output</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-link"></i>
+                            <span><strong>Connections:</strong> Downloads from geostat.ge, uploads to Cloud Storage</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-github"></i>
+                            <span><strong>Framework:</strong> <a href="https://github.com/zelima/money-flow" target="_blank" class="github-link">datapackage-pipelines</a> - Modular data processing framework</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Development Journey -->
+        <section class="journey-section">
+            <h2><i class="fas fa-code"></i> Developer Experience</h2>
+            <div class="dev-flow-container">
+                <!-- Command Entry Point -->
+                <div class="flow-step command-step" data-step="1">
+                    <div class="flow-content-inline">
+                        <i class="fas fa-terminal"></i>
+                        <h4>make start</h4>
+                    </div>
+                </div>
+
+                <!-- Arrow 1 -->
+                <div class="flow-arrow-down">↓</div>
+
+                <!-- Docker Compose -->
+                <div class="flow-step docker-step" data-step="2">
+                    <div class="flow-content-inline">
+                        <i class="fab fa-docker"></i>
+                        <h4>Docker Compose</h4>
+                    </div>
+                </div>
+
+                <!-- Services Row -->
+                <div class="services-row">
+                    <div class="service-with-arrow">
+                        <div class="service-arrow">↓</div>
+                        <div class="postgres-split">
+                            <div class="flow-step service-step postgres-half" data-step="3" data-service="fixtures">
+                                <div class="flow-content-inline">
+                                    <i class="fas fa-boxes"></i>
+                                    <h4>Fixtures</h4>
+                                </div>
+                            </div>
+                            <div class="flow-step service-step postgres-half" data-step="3" data-service="postgres2">
+                                <div class="flow-icon">
+                                    <i class="fas fa-database"></i>
+                                </div>
+                                <div class="flow-content">
+                                    <h4>PostgreSQL</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="postgres-to-api-arrow">--</div>
+                    </div>
+
+                    <div class="service-with-arrow">
+                        <div class="service-arrow">↓</div>
+                        <div class="flow-step service-step" data-step="3" data-service="api">
+                            <div class="flow-icon">
+                                <i class="fas fa-server"></i>
+                            </div>
+                            <div class="flow-content">
+                                <h4>API</h4>
+                                <p>moneyflow-back</p>
+                            </div>
+                        </div>
+                        <div class="api-left-arrow">--</div>
+                        <div class="api-right-arrow">--</div>
+                    </div>
+
+
+
+                    <div class="service-with-arrow">
+                        <div class="service-arrow">↓</div>
+                        <div class="flow-step service-step" data-step="3" data-service="ui">
+                            <div class="flow-icon">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <div class="flow-content">
+                                <h4>UI</h4>
+                                <p>moneyflow-front</p>
+                            </div>
+                        </div>
+                        <div class="ui-to-api-arrow">--</div>
+                    </div>
+
+
+                </div>
+
+                <!-- Down arrows below services -->
+                <div class="arrow-row">
+                    <div class="arrow-item">↓</div>
+                    <div class="arrow-item">↓</div>
+                    <div class="arrow-item">↓</div>
+                </div>
+
+                <!-- Developer Access -->
+                <div class="services-row">
+                    <div class="flow-step access-step" data-step="5">
+                        <div class="flow-icon">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <div class="flow-content">
+                            <h4>localhost:5000</h4>
+                        </div>
+                    </div>
+
+                    <div class="flow-step access-step" data-step="5">
+                        <div class="flow-icon">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <div class="flow-content">
+                            <h4>Browser</h4>
+                            <p>localhost:8000</p>
+                        </div>
+                    </div>
+
+                    <div class="flow-step access-step" data-step="5">
+                        <div class="flow-icon">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <div class="flow-content">
+                            <h4>Browser</h4>
+                            <p>localhost:5000</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Infrastructure Architecture -->
+        <section class="architecture-section">
+            <h2><i class="fas fa-sitemap"></i> Infrastructure Architecture</h2>
+            <div class="infra-flow-container">
+                <!-- Additional terraform apply cards side by side -->
+                <div class="terraform-duplicates-row">
+                    <div class="flow-step command-step terraform-duplicate" data-step="1">
+                        <div class="flow-content-inline">
+                            <i class="fas fa-gear"></i>
+                            <h4>Staging Configuration</h4>
+                        </div>
+                    </div>
+                    <div class="flow-step command-step terraform-duplicate" data-step="1">
+                        <div class="flow-content-inline">
+                            <i class="fas fa-gear"></i>
+                            <h4>Production Configuration</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Arrow above command -->
+                <div class="flow-arrow-down">↓</div>
+
+                <!-- Command Entry Point -->
+                <div class="flow-step command-step" data-step="1">
+                    <div class="flow-content-inline">
+                        <i class="fas fa-terminal"></i>
+                        <h4>terraform apply</h4>
+                    </div>
+                </div>
+
+                <!-- Arrow below command -->
+                <div class="flow-arrow-down">↓</div>
+
+                <!-- Terraform Modules Row -->
+                <div class="modules-row">
+                    <div class="module-column">
+                        <div class="flow-step module-step" data-step="2" data-module="networking">
+                            <div class="flow-icon">
+                                <i class="fas fa-network-wired"></i>
+                            </div>
+                            <div class="flow-content">
+                                <h4>Networking</h4>
+                            </div>
+                        </div>
+                        <div class="module-services">
+                            <div class="service-item">
+                                <i class="fas fa-globe"></i>
+                                <span>VPC Network</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-balance-scale"></i>
+                                <span>Load Balancer</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-link"></i>
+                                <span>VPC Connector</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Firewall Rules</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-certificate"></i>
+                                <span>SSL Certificate</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-column">
+                        <div class="flow-step module-step" data-step="2" data-module="database">
+                            <div class="flow-icon">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div class="flow-content">
+                                <h4>Database</h4>
+                            </div>
+                        </div>
+                        <div class="module-services">
+                            <div class="service-item">
+                                <i class="fas fa-server"></i>
+                                <span>Cloud SQL Instance</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-table"></i>
+                                <span>PostgreSQL Database</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-user"></i>
+                                <span>Database User</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-key"></i>
+                                <span>Secure Password</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-column">
+                        <div class="flow-step module-step" data-step="2" data-module="compute">
+                            <div class="flow-icon">
+                                <i class="fas fa-server"></i>
+                            </div>
+                            <div class="flow-content">
+                                <h4>Compute</h4>
+                            </div>
+                        </div>
+                        <div class="module-services">
+                            <div class="service-item">
+                                <i class="fas fa-bolt"></i>
+                                <span>Cloud Functions</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-clock"></i>
+                                <span>Cloud Scheduler</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-user-shield"></i>
+                                <span>Service Accounts</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-envelope"></i>
+                                <span>Pub/Sub Topics</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-column">
+                        <div class="flow-step module-step" data-step="2" data-module="storage">
+                            <div class="flow-icon">
+                                <i class="fas fa-hdd"></i>
+                            </div>
+                            <div class="flow-content">
+                                <h4>Storage</h4>
+                            </div>
+                        </div>
+                        <div class="module-services">
+                            <div class="service-item">
+                                <i class="fas fa-code"></i>
+                                <span>Function Source Bucket</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-folder"></i>
+                                <span>Folder Structure</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-life-ring"></i>
+                                <span>Lifecycle Rules</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-column">
+                        <div class="flow-step module-step" data-step="2" data-module="monitoring">
+                            <div class="flow-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="flow-content">
+                                <h4>Monitoring</h4>
+                            </div>
+                        </div>
+                        <div class="module-services">
+                            <div class="service-item">
+                                <i class="fas fa-eye"></i>
+                                <span>Uptime Checks</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-bell"></i>
+                                <span>Alert Policies</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-dashboard"></i>
+                                <span>Monitoring Dashboard</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-envelope"></i>
+                                <span>Email Notifications</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-column">
+                        <div class="flow-step module-step" data-step="2" data-module="ci-cd">
+                            <div class="flow-icon">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="flow-content">
+                                <h4>CI/CD</h4>
+                            </div>
+                        </div>
+                        <div class="module-services">
+                            <div class="service-item">
+                                <i class="fas fa-code-branch"></i>
+                                <span>Cloud Build Triggers</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-docker"></i>
+                                <span>Artifact Registry</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-user-shield"></i>
+                                <span>Build Service Account</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-sync"></i>
+                                <span>Auto-deployment</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="module-column">
+                        <div class="flow-step module-step" data-step="2" data-module="security">
+                            <div class="flow-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="flow-content">
+                                <h4>Security</h4>
+                            </div>
+                        </div>
+                        <div class="module-services">
+                            <div class="service-item">
+                                <i class="fas fa-key"></i>
+                                <span>Secret Manager</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-database"></i>
+                                <span>Database URL Secret</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-user-check"></i>
+                                <span>IAM Permissions</span>
+                            </div>
+                            <div class="service-item">
+                                <i class="fas fa-lock"></i>
+                                <span>Access Control</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GCP Service Architecture & Data Flow -->
+                <div class="mermaid-container">
+                    <div class="mermaid">
+graph TB
+    %% Development & Deployment Flow
+    GITHUB[Git Push]
+    CLOUDBUILD[Cloud Build<br/>Automated CI/CD]
+    ARTIFACT[Artifact Registry]
+
+    %% Core Infrastructure Services
+    LOADBALANCER[Global Load Balancer<br/>SSL, CDN, Routing]
+
+    %% VPC Subgraph containing all internal services
+    subgraph VPC ["VPC Network <br/>(Private Subnet, Firewall)"]
+        %% Application Services
+        FRONTEND[Frontend Web App<br/>Cloud Run]
+        BACKEND[Backend API<br/>Cloud Run]
+        CLOUDFUNCTION[Cloud Functions<br/>Data Processing Pipelines]
+
+        %% Data & Storage
+        CLOUDSTORAGE[Cloud Storage]
+        CLOUDSQL[Cloud SQL]
+        SECRETMANAGER[Secret Manager]
+
+        %% Monitoring & Scheduling
+        CLOUDSCHEDULER[Cloud Scheduler]
+        MONITORING[Cloud Monitoring<br/>Uptime, Alerts]
+
+    end
+
+    %% External Data Source
+    EXTERNAL[Geostats.ge]
+
+    %% Deployment Flow
+    GITHUB --> CLOUDBUILD
+    CLOUDBUILD --> ARTIFACT
+    ARTIFACT --> FRONTEND
+    ARTIFACT --> BACKEND
+    CLOUDBUILD --> FRONTEND
+    CLOUDBUILD --> BACKEND
+
+    %% Load Balancer Routing
+    FRONTEND <--> LOADBALANCER
+    BACKEND <--> LOADBALANCER
+
+    %% Service Communication
+    FRONTEND <--> BACKEND
+    BACKEND -->|VPC Connector| CLOUDSQL
+    BACKEND <--> CLOUDSTORAGE
+    BACKEND --> SECRETMANAGER
+
+    %% Data Pipeline Flow
+    CLOUDFUNCTION <--> EXTERNAL
+    CLOUDFUNCTION --> CLOUDSTORAGE
+    CLOUDSCHEDULER --> |Pub/Sub Trigger| CLOUDFUNCTION
+
+    %% Monitoring & Observability
+    MONITORING --> LOADBALANCER
+    MONITORING --> FRONTEND
+    MONITORING --> BACKEND
+
+    %% Security & Access Control
+    SECRETMANAGER --> BACKEND
+    SECRETMANAGER --> CLOUDFUNCTION
+
+    MONITORING --> EMAIL[Email Notifications]
+
+    %% Styling
+    classDef deployment fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef infrastructure fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef application fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef data fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef monitoring fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    classDef external fill:#f1f8e9,stroke:#689f38,stroke-width:2px
+
+    class GITHUB,CLOUDBUILD,ARTIFACT deployment
+    class LOADBALANCER infrastructure
+    class FRONTEND,BACKEND,CLOUDFUNCTION application
+    class CLOUDSTORAGE,CLOUDSQL,SECRETMANAGER data
+    class CLOUDSCHEDULER,MONITORING monitoring
+    class EXTERNAL external
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Flow -->
+        <section class="dataflow-section">
+            <h2><i class="fas fa-route"></i> Data Flow & Processing</h2>
+            <div class="dataflow-container">
+                <div class="flow-step">
+                    <div class="flow-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="flow-content">
+                        <h4>Cloud Scheduler</h4>
+                        <p>Triggers the functions with pubsub topic</p>
+                    </div>
+                </div>
+                <div class="flow-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="flow-content">
+                        <h4>Cloud Function</h4>
+                        <p>Automated processing with datapackage-pipelines</p>
+                    </div>
+                </div>
+                <div class="flow-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <div class="flow-content">
+                        <h4>Data Pipelines</h4>
+                        <p>Unpivot, Clean data, Translate, Add metadata, Export to JSON and CSV</p>
+                    </div>
+                </div>
+                <div class="flow-arrow">
+                    <i class="fas fa-arrow-right"></i>
+                </div>
+                <div class="flow-step">
+                    <div class="flow-icon">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <div class="flow-content">
+                        <h4>Cloud Storage</h4>
+                        <p>Processed CSV and JSON files</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/infrastructure.js') }}"></script>
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'basis',
+                nodeSpacing: 50,
+                rankSpacing: 50
+            }
+        });
+    </script>
+</body>
+</html>

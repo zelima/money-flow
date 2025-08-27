@@ -6,9 +6,36 @@
     <title>Budget Analysis</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
     <div class="container">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-server"></i>
+                <span>Money Flow</span>
+                <div class="social-icons">
+                    <a href="https://github.com/zelima/money-flow" class="social-link" target="_blank">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/irakli-mchedlishvili/" class="social-link" target="_blank">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link active">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="/infrastructure" class="nav-link">
+                    <i class="fas fa-server"></i>
+                    Infrastructure
+                </a>
+            </div>
+        </nav>
+
         <div class="header">
             <h1>Government Budget Analysis</h1>
             <p>Where does our money go?</p>
