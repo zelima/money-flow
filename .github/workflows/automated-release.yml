@@ -3,6 +3,12 @@ name: Automated Release
 # This workflow automatically creates releases based on semantic versioning
 # Triggers when PRs are merged to main/develop with specific keywords
 
+# Required permissions for creating releases
+permissions:
+  contents: write      # Required to create releases and tags
+  pull-requests: read  # Required to read PR information
+  issues: read         # Required to read issue information
+
 on:
   pull_request:
     types: [closed]
@@ -197,6 +203,14 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create Git Tag
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git tag v${{ needs.determine-version.outputs.new_version }}
+        git push origin v${{ needs.determine-version.outputs.new_version }}
 
     - name: Create Release
       uses: actions/create-release@v1
