@@ -1,0 +1,252 @@
+name: Automated Release
+
+# This workflow automatically creates releases based on semantic versioning
+# Triggers when PRs are merged to main/develop with specific keywords
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Manual release version type'
+        required: false
+        default: 'patch'
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+      custom_version:
+        description: 'Custom version (e.g., 1.2.3)'
+        required: false
+        type: string
+
+env:
+  PYTHON_VERSION: '3.11.9'
+
+jobs:
+  determine-version:
+    name: Determine Release Version
+    runs-on: ubuntu-latest
+    outputs:
+      version_type: ${{ steps.version-check.outputs.version_type }}
+      new_version: ${{ steps.version-check.outputs.new_version }}
+      should_release: ${{ steps.version-check.outputs.should_release }}
+      release_notes: ${{ steps.release-notes.outputs.notes }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        check-latest: false
+
+    - name: Install dependencies
+      run: |
+        pip install semver
+
+    - name: Check for release keywords
+      id: version-check
+      run: |
+        python -c "
+        import re
+        import os
+
+        # Get PR title and body from environment
+        pr_title = os.environ.get('GITHUB_EVENT_NAME') == 'pull_request' and os.environ.get('GITHUB_EVENT_PATH') and open(os.environ.get('GITHUB_EVENT_PATH')).read() or '{}'
+
+        # Check if this is a manual dispatch
+        if os.environ.get('GITHUB_EVENT_NAME') == 'workflow_dispatch':
+            version_type = os.environ.get('INPUT_VERSION_TYPE', 'patch')
+            print(f'::set-output name=version_type::{version_type}')
+            print(f'::set-output name=should_release::true')
+            exit(0)
+
+        # Check if PR was merged
+        if os.environ.get('GITHUB_EVENT_NAME') == 'pull_request':
+            import json
+            event_data = json.loads(pr_title)
+            if not event_data.get('pull_request', {}).get('merged', False):
+                print('::set-output name=should_release::false')
+                exit(0)
+
+            title = event_data.get('pull_request', {}).get('title', '')
+            body = event_data.get('pull_request', {}).get('body', '')
+
+            # Check for version keywords in title and body
+            content = f'{title} {body}'.lower()
+
+            # Major version keywords
+            major_keywords = ['breaking change', 'breaking', 'major', '!feat', '!fix']
+            # Minor version keywords
+            minor_keywords = ['feat:', 'feature:', 'minor', 'enhancement']
+            # Patch version keywords
+            patch_keywords = ['fix:', 'bugfix:', 'patch:', 'hotfix:', 'docs:', 'style:', 'refactor:', 'perf:', 'test:', 'chore:']
+
+            version_type = 'patch'  # default
+
+            if any(keyword in content for keyword in major_keywords):
+                version_type = 'major'
+            elif any(keyword in content for keyword in minor_keywords):
+                version_type = 'minor'
+            elif any(keyword in content for keyword in patch_keywords):
+                version_type = 'patch'
+
+            print(f'::set-output name=version_type::{version_type}')
+            print(f'::set-output name=should_release::true')
+        else:
+            print('::set-output name=should_release::false')
+        "
+
+    - name: Get current version
+      id: current-version
+      run: |
+        # Try to get version from git tags
+        latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.1.0")
+        echo "::set-output name=current_version::${latest_tag#v}"
+        echo "Current version: ${latest_tag#v}"
+
+    - name: Calculate new version
+      id: new-version
+      run: |
+        python -c "
+        import semver
+
+        current = '${{ steps.current-version.outputs.current_version }}'
+        version_type = '${{ steps.version-check.outputs.version_type }}'
+
+        # Parse current version
+        try:
+            current_semver = semver.VersionInfo.parse(current)
+        except:
+            current_semver = semver.VersionInfo(0, 1, 0)
+
+        # Bump version
+        if version_type == 'major':
+            new_version = current_semver.bump_major()
+        elif version_type == 'minor':
+            new_version = current_semver.bump_minor()
+        else:
+            new_version = current_semver.bump_patch()
+
+        print(f'::set-output name=new_version::{new_version}')
+        print(f'New version: {new_version}')
+        "
+
+    - name: Generate release notes
+      id: release-notes
+      run: |
+        python -c "
+        import os
+        import json
+
+        # Get PR information
+        if os.environ.get('GITHUB_EVENT_NAME') == 'pull_request':
+            event_path = os.environ.get('GITHUB_EVENT_PATH')
+            if event_path and os.path.exists(event_path):
+                with open(event_path, 'r') as f:
+                    event_data = json.load(f(f.read())
+
+                pr = event_data.get('pull_request', {})
+                title = pr.get('title', '')
+                body = pr.get('body', '')
+                author = pr.get('user', {}).get('login', 'Unknown')
+                number = pr.get('number', '')
+
+                notes = f'## Release {os.environ.get('NEW_VERSION', 'Unknown')}\n\n'
+                notes += f'**PR #{number}**: {title}\n\n'
+                notes += f'**Author**: {author}\n\n'
+
+                if body:
+                    notes += f'**Description**:\n{body}\n\n'
+
+                notes += '**Changes**:\n'
+                notes += f'- {title}\n'
+
+                print(f'::set-output name=notes::{notes}')
+            else:
+                print('::set-output name=notes::Release notes could not be generated')
+        else:
+            print('::set-output name=notes::Manual release')
+        "
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: determine-version
+    if: needs.determine-version.outputs.should_release == 'true'
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ needs.determine-version.outputs.new_version }}
+        release_name: Release v${{ needs.determine-version.outputs.new_version }}
+        body: ${{ needs.determine-version.outputs.release_notes }}
+        draft: false
+        prerelease: false
+
+    - name: Update version files
+      run: |
+        # Update version in pyproject.toml if it exists
+        if [ -f "pyproject.toml" ]; then
+          sed -i "s/version = \".*\"/version = \"${{ needs.determine-version.outputs.new_version }}\"/" pyproject.toml
+        fi
+
+        # Create version.txt file
+        echo "${{ needs.determine-version.outputs.new_version }}" > version.txt
+
+        # Commit and push version updates
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add version.txt
+        if [ -f "pyproject.toml" ]; then
+          git add pyproject.toml
+        fi
+        git commit -m "Bump version to ${{ needs.determine-version.outputs.new_version }} [skip ci]"
+        git push
+
+  release-summary:
+    name: Release Summary
+    runs-on: ubuntu-latest
+    needs: [determine-version, create-release]
+    if: always()
+
+    steps:
+    - name: Release Results Summary
+      run: |
+        echo "## 🚀 Automated Release Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📋 Release Information" >> $GITHUB_STEP_SUMMARY
+        echo "- **Version Type**: ${{ needs.determine-version.outputs.version_type }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **New Version**: ${{ needs.determine-version.outputs.new_version }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Release Created**: ${{ needs.create-release.result == 'success' && '✅ Yes' || '❌ No' }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🔍 Trigger Details" >> $GITHUB_STEP_SUMMARY
+        echo "- **Event**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📝 Release Notes" >> $GITHUB_STEP_SUMMARY
+        echo "${{ needs.determine-version.outputs.release_notes }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🚀 Next Steps" >> $GITHUB_STEP_SUMMARY
+        if [ "${{ needs.create-release.result }}" = "success" ]; then
+          echo "✅ Release v${{ needs.determine-version.outputs.new_version }} created successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "- GitHub release available at: https://github.com/${{ github.repository }}/releases/tag/v${{ needs.determine-version.outputs.new_version }}" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Release creation failed. Please check the logs for errors." >> $GITHUB_STEP_SUMMARY
+        fi

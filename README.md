@@ -74,9 +74,34 @@ curl -X POST https://FUNCTION_URL \
   -d '{"trigger_type": "manual"}'
 ```
 
-## 🔧 **Development**
+## 🚀 **Automated Releases**
 
-### **Local Development with Docker Compose & Makefile**
+The project uses automated semantic versioning through GitHub Actions. Releases are automatically created when pull requests are merged based on commit message conventions.
+
+### **Release Triggers**
+- **Automatic**: When PRs are merged to `main` or `develop` branches
+- **Manual**: Via GitHub Actions workflow dispatch
+
+### **Version Bumping Rules**
+- **Major** (`!feat`, `!fix`, `breaking change`, `major`): Breaking changes
+- **Minor** (`feat:`, `feature:`, `minor`, `enhancement`): New features
+- **Patch** (`fix:`, `bugfix:`, `patch:`, `hotfix:`, `docs:`, `style:`, `refactor:`, `perf:`, `test:`, `chore:`): Bug fixes and improvements
+
+### **Example PR Titles**
+```
+feat: Add new budget visualization charts
+fix: Resolve data loading issue in dashboard
+docs: Update API documentation
+!feat: Breaking change in API response format
+```
+
+### **Manual Release**
+1. Go to Actions → Automated Release
+2. Click "Run workflow"
+3. Select version type (major/minor/patch)
+4. Run the workflow
+
+## 🔧 **Development**
 ```bash
 # Setup development environment
 make setup
