@@ -537,6 +537,71 @@ section h2 i {
     margin-top: 8px;
 }
 
+/* Mermaid Diagram Section */
+.mermaid-section {
+    padding: 3rem 2rem;
+    background: white;
+    margin: 0 0 30px 0;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.mermaid-container {
+    max-width: 100%;
+    margin: 0 auto;
+    overflow-x: auto;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+}
+
+/* When mermaid is inside infrastructure section, maintain full size */
+.architecture-section .mermaid-container {
+    max-width: 100%;
+    margin: 30px auto;
+    width: 100%;
+}
+
+.architecture-section .mermaid-container h3 {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: #45b089;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.architecture-section .mermaid-container h3 i {
+    color: #45b089;
+}
+
+.architecture-section .mermaid {
+    width: 100% !important;
+    min-width: 100%;
+    text-align: center;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.architecture-section .mermaid svg {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-width: 100%;
+}
+
+.mermaid {
+    text-align: center;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.mermaid svg {
+    max-width: 100%;
+    height: auto;
+}
+
 /* Custom scrollbar styling */
 .modules-row::-webkit-scrollbar {
     height: 8px;

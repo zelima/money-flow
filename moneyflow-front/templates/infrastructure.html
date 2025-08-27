@@ -6,6 +6,7 @@
     <title>Infrastructure & Workflow - Georgian Budget App</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/infrastructure.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -376,7 +377,7 @@
                                 <span>Service Accounts</span>
                             </div>
                             <div class="service-item">
-                                <i class="fas fa-topic"></i>
+                                <i class="fas fa-envelope"></i>
                                 <span>Pub/Sub Topics</span>
                             </div>
                         </div>
@@ -392,10 +393,6 @@
                             </div>
                         </div>
                         <div class="module-services">
-                            <div class="service-item">
-                                <i class="fas fa-bucket"></i>
-                                <span>Data Bucket</span>
-                            </div>
                             <div class="service-item">
                                 <i class="fas fa-code"></i>
                                 <span>Function Source Bucket</span>
@@ -499,7 +496,89 @@
                     </div>
                 </div>
 
+                <!-- GCP Service Architecture & Data Flow -->
+                <div class="mermaid-container">
+                    <div class="mermaid">
+graph TB
+    %% Development & Deployment Flow
+    GITHUB[Git Push]
+    CLOUDBUILD[Cloud Build<br/>Automated CI/CD]
+    ARTIFACT[Artifact Registry]
 
+    %% Core Infrastructure Services
+    LOADBALANCER[Global Load Balancer<br/>SSL, CDN, Routing]
+
+    %% VPC Subgraph containing all internal services
+    subgraph VPC ["VPC Network <br/>(Private Subnet, Firewall)"]
+        %% Application Services
+        FRONTEND[Frontend Web App<br/>Cloud Run]
+        BACKEND[Backend API<br/>Cloud Run]
+        CLOUDFUNCTION[Cloud Functions<br/>Data Processing Pipelines]
+
+        %% Data & Storage
+        CLOUDSTORAGE[Cloud Storage]
+        CLOUDSQL[Cloud SQL]
+        SECRETMANAGER[Secret Manager]
+
+        %% Monitoring & Scheduling
+        CLOUDSCHEDULER[Cloud Scheduler]
+        MONITORING[Cloud Monitoring<br/>Uptime, Alerts]
+
+    end
+
+    %% External Data Source
+    EXTERNAL[Geostats.ge]
+
+    %% Deployment Flow
+    GITHUB --> CLOUDBUILD
+    CLOUDBUILD --> ARTIFACT
+    ARTIFACT --> FRONTEND
+    ARTIFACT --> BACKEND
+    CLOUDBUILD --> FRONTEND
+    CLOUDBUILD --> BACKEND
+
+    %% Load Balancer Routing
+    FRONTEND <--> LOADBALANCER
+    BACKEND <--> LOADBALANCER
+
+    %% Service Communication
+    FRONTEND <--> BACKEND
+    BACKEND -->|VPC Connector| CLOUDSQL
+    BACKEND <--> CLOUDSTORAGE
+    BACKEND --> SECRETMANAGER
+
+    %% Data Pipeline Flow
+    CLOUDFUNCTION <--> EXTERNAL
+    CLOUDFUNCTION --> CLOUDSTORAGE
+    CLOUDSCHEDULER --> |Pub/Sub Trigger| CLOUDFUNCTION
+
+    %% Monitoring & Observability
+    MONITORING --> LOADBALANCER
+    MONITORING --> FRONTEND
+    MONITORING --> BACKEND
+
+    %% Security & Access Control
+    SECRETMANAGER --> BACKEND
+    SECRETMANAGER --> CLOUDFUNCTION
+
+    MONITORING --> EMAIL[Email Notifications]
+
+    %% Styling
+    classDef deployment fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef infrastructure fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef application fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef data fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef monitoring fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    classDef external fill:#f1f8e9,stroke:#689f38,stroke-width:2px
+
+    class GITHUB,CLOUDBUILD,ARTIFACT deployment
+    class LOADBALANCER infrastructure
+    class FRONTEND,BACKEND,CLOUDFUNCTION application
+    class CLOUDSTORAGE,CLOUDSQL,SECRETMANAGER data
+    class CLOUDSCHEDULER,MONITORING monitoring
+    class EXTERNAL external
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -655,5 +734,19 @@
     </div>
 
     <script src="{{ url_for('static', filename='js/infrastructure.js') }}"></script>
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'basis',
+                nodeSpacing: 50,
+                rankSpacing: 50
+            }
+        });
+    </script>
 </body>
 </html>
