@@ -260,6 +260,270 @@
             </div>
         </section>
 
+        <!-- CI/CD Pipeline -->
+        <section class="cicd-section">
+            <h2><i class="fas fa-rocket"></i> Continuous Integration & Deployment</h2>
+            <div class="cicd-container">
+                <!-- CI/CD Flow Overview -->
+                <div class="cicd-flow">
+                    <div class="flow-step">
+                        <div class="flow-icon">
+                            <i class="fab fa-github"></i>
+                        </div>
+                        <div class="flow-content">
+                            <h4>Git Push</h4>
+                        </div>
+                    </div>
+                    <div class="flow-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="flow-content">
+                            <h4>Pre-commit</h4>
+                        </div>
+                    </div>
+                    <div class="flow-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-icon">
+                            <i class="fas fa-vial"></i>
+                        </div>
+                        <div class="flow-content">
+                            <h4>Testing</h4>
+                        </div>
+                    </div>
+                    <div class="flow-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-icon">
+                            <i class="fas fa-tag"></i>
+                        </div>
+                        <div class="flow-content">
+                            <h4>Release</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CI/CD Components Grid -->
+                <div class="cicd-components-grid">
+                    <div class="cicd-component-card">
+                        <div class="component-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Pre-commit Checks</h3>
+                        <p class="component-description">
+                            Automated code quality validation that runs on every pull request to ensure code standards.
+                        </p>
+                        <div class="component-details">
+                            <div class="detail-item">
+                                <i class="fas fa-code"></i>
+                                <span><strong>Tools:</strong> Black, isort, flake8, mypy</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-trigger"></i>
+                                <span><strong>Trigger:</strong> Pull requests to main/develop</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-check"></i>
+                                <span><strong>Checks:</strong> Formatting, imports, linting, types</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cicd-component-card">
+                        <div class="component-icon">
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <h3>API Testing</h3>
+                        <p class="component-description">
+                            Comprehensive backend testing that validates API endpoints, database operations, and business logic.
+                        </p>
+                        <div class="component-details">
+                            <div class="detail-item">
+                                <i class="fas fa-code"></i>
+                                <span><strong>Framework:</strong> pytest, FastAPI testing</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-trigger"></i>
+                                <span><strong>Trigger:</strong> Changes to moneyflow-back/</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-coverage"></i>
+                                <span><strong>Coverage:</strong> Codecov integration</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cicd-component-card">
+                        <div class="component-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <h3>Frontend Testing</h3>
+                        <p class="component-description">
+                            Frontend validation ensuring web interface components work correctly and meet quality standards.
+                        </p>
+                        <div class="component-details">
+                            <div class="detail-item">
+                                <i class="fas fa-code"></i>
+                                <span><strong>Framework:</strong> pytest, Flask testing</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-trigger"></i>
+                                <span><strong>Trigger:</strong> Changes to moneyflow-front/</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-coverage"></i>
+                                <span><strong>Coverage:</strong> Codecov integration</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cicd-component-card">
+                        <div class="component-icon">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <h3>Integration Testing</h3>
+                        <p class="component-description">
+                            Cross-service testing that validates the interaction between frontend, backend, and data pipelines.
+                        </p>
+                        <div class="component-details">
+                            <div class="detail-item">
+                                <i class="fas fa-code"></i>
+                                <span><strong>Framework:</strong> pytest integration tests</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-trigger"></i>
+                                <span><strong>Trigger:</strong> Cross-service changes</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-coverage"></i>
+                                <span><strong>Coverage:</strong> End-to-end validation</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cicd-component-card">
+                        <div class="component-icon">
+                            <i class="fas fa-tag"></i>
+                        </div>
+                        <h3>Automated Release</h3>
+                        <p class="component-description">
+                            Intelligent release management using semantic versioning based on commit messages and PR content.
+                        </p>
+                        <div class="component-details">
+                            <div class="detail-item">
+                                <i class="fas fa-code"></i>
+                                <span><strong>Logic:</strong> Semantic versioning (major.minor.patch)</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-trigger"></i>
+                                <span><strong>Trigger:</strong> PR merge with version keywords</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-robot"></i>
+                                <span><strong>Features:</strong> Auto-release notes, GitHub releases</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cicd-component-card">
+                        <div class="component-icon">
+                            <i class="fas fa-cloud"></i>
+                        </div>
+                        <h3>Cloud Deployment</h3>
+                        <p class="component-description">
+                            Automated deployment to Google Cloud Platform using Cloud Build and Cloud Run for serverless scaling.
+                        </p>
+                        <div class="component-details">
+                            <div class="detail-item">
+                                <i class="fas fa-code"></i>
+                                <span><strong>Platform:</strong> Google Cloud Build</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-trigger"></i>
+                                <span><strong>Trigger:</strong> Successful CI pipeline</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-server"></i>
+                                <span><strong>Target:</strong> Cloud Run services</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-docker"></i>
+                                <span><strong>Process:</strong> Docker build → Artifact Registry → Cloud Run</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fas fa-network-wired"></i>
+                                <span><strong>Infrastructure:</strong> Load Balancer, VPC Connector, Auto-scaling</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CI/CD Pipeline Diagram -->
+                <div class="cicd-mermaid-container">
+                    <div class="mermaid">
+graph TB
+    %% Development Flow
+    DEV[Git Push]
+    PR[Pull Request]
+
+    %% CI Pipeline
+    PRE_COMMIT[Pre-commit Checks<br/>Black, isort, flake8, mypy]
+    API_TESTS[API Tests<br/>Backend validation]
+    FRONTEND_TESTS[Frontend Tests<br/>UI validation]
+    INTEGRATION_TESTS[Integration Tests<br/>Cross-service validation]
+
+    %% CD Pipeline
+    RELEASE[Automated Release<br/>Semantic versioning]
+    CLOUD_BUILD[Cloud Build<br/>Docker build & push]
+    DEPLOY[Deploy to Cloud Run<br/>Frontend & Backend]
+
+    %% External Services
+    CODECOV[Codecov<br/>Coverage reports]
+    GITHUB_RELEASE[GitHub Release<br/>Version tags]
+    ARTIFACT_REGISTRY[Artifact Registry<br/>Docker images]
+
+    %% Flow Connections
+    DEV --> PR
+    PR --> PRE_COMMIT
+    PRE_COMMIT --> API_TESTS
+    PRE_COMMIT --> FRONTEND_TESTS
+    PRE_COMMIT --> INTEGRATION_TESTS
+
+    API_TESTS --> CODECOV
+    FRONTEND_TESTS --> CODECOV
+    INTEGRATION_TESTS --> CODECOV
+
+    API_TESTS --> RELEASE
+    FRONTEND_TESTS --> RELEASE
+    INTEGRATION_TESTS --> RELEASE
+
+    RELEASE --> GITHUB_RELEASE
+    RELEASE --> CLOUD_BUILD
+
+    CLOUD_BUILD --> ARTIFACT_REGISTRY
+    CLOUD_BUILD --> DEPLOY
+
+    %% Styling
+    classDef development fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef ci fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef cd fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef external fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+
+    class DEV,PR development
+    class PRE_COMMIT,API_TESTS,FRONTEND_TESTS,INTEGRATION_TESTS ci
+    class RELEASE,CLOUD_BUILD,DEPLOY cd
+    class CODECOV,GITHUB_RELEASE,ARTIFACT_REGISTRY external
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Infrastructure Architecture -->
         <section class="architecture-section">
             <h2><i class="fas fa-sitemap"></i> Infrastructure Architecture</h2>
@@ -585,6 +849,8 @@ graph TB
                 </div>
             </div>
         </section>
+
+
 
         <!-- Data Flow -->
         <section class="dataflow-section">
