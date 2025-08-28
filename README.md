@@ -2,7 +2,16 @@
 
 A comprehensive data-driven web application for analyzing government budget data from 2002-2020, now fully deployed on Google Cloud Platform (GCP).
 
+## 🏗️ **Architecture Overview**
 
+The system follows a modern three-tier architecture with data pipeline automation:
+
+- **Data Layer**: Cloud Storage + Cloud SQL (PostgreSQL)
+- **Processing Layer**: Cloud Functions + Cloud Run (FastAPI/Flask)
+- **Presentation Layer**: Global Load Balancer + CDN
+- **Automation Layer**: Cloud Build + Cloud Scheduler
+
+For detailed technical architecture, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## 📊 **Features**
 
@@ -138,6 +147,16 @@ make clean             # Clean up containers
 make health            # Check service health
 ```
 
+### **Running Tests**
+```bash
+# Run all tests
+make test
+
+# Run specific test suites
+cd moneyflow-back && python -m pytest
+cd moneyflow-front && python -m pytest
+```
+
 ### **Cloud Deployment**
 ```bash
 # Deploy infrastructure
@@ -162,18 +181,19 @@ money-flow/
 ├── moneyflow-front/        # Frontend Dashboard (Flask)
 │   ├── app.py             # Web application
 │   ├── templates/         # HTML templates
+│   ├── web_app_tests/     # Frontend and integration tests
 │   └── requirements.txt   # Python dependencies
-├── data-pipeline/         # Data processing pipeline
-│   ├── pipeline-spec.yaml # Pipeline configuration
-│   └── processors/        # Data processors
+├── moneyflow-functions/    # Cloud Functions
+│   ├── cloud_function_main.py  # Main function
+│   └── data-pipeline/     # Data processing pipeline
 ├── terraform/             # Infrastructure as Code
-│   ├── main.tf            # Main configuration
-│   ├── cloud-run.tf       # Cloud Run services
-│   ├── cloud-sql.tf       # Cloud SQL database
-│   ├── load-balancer.tf   # Load balancer
-│   └── cloud-build.tf     # CI/CD pipeline
-└── fixtures/              # Database schema and migrations for tixture data
-    └── init/              # SQL initialization scripts
+│   ├── environments/      # Environment-specific configs
+│   └── modules/           # Reusable Terraform modules
+├── fixtures/              # Database schema and seed data
+│   └── init/              # SQL initialization scripts
+├── ARCHITECTURE.md        # Detailed technical architecture
+├── Makefile               # Development and deployment commands
+└── docker-compose.yml     # Local development setup
 ```
 
 ## 🌐 **API Endpoints**

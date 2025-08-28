@@ -156,7 +156,7 @@ test-web-app: ## Run moneyflow-front tests
 
 test-integration: ## Run integration tests
 	@echo "Running integration tests..."
-	python -m pytest tests/ -v --cov=. --cov-report=term-missing
+	PYTHONPATH=. python -m pytest moneyflow-front/web_app_tests/test_integration.py -v --cov=moneyflow-front --cov-report=term-missing
 
 test-coverage: ## Run tests with coverage reports
 	@echo "Running tests with coverage reports..."
