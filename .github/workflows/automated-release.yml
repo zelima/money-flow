@@ -41,7 +41,7 @@ jobs:
       current_version: ${{ steps.current-version.outputs.current_version }}
       new_version: ${{ steps.new-version.outputs.new_version }}
       should_release: ${{ steps.version-check.outputs.should_release }}
-      release_notes: ${{ steps.release-notes.outputs.notes }}
+      release_notes_file: ${{ steps.release-notes.outputs.notes_file }}
 
     steps:
     - name: Checkout repository
@@ -165,7 +165,6 @@ jobs:
         python -c "
         import os
         import json
-        import base64
 
         # Get PR information
         if os.environ.get('GITHUB_EVENT_NAME') == 'pull_request':
@@ -190,17 +189,26 @@ jobs:
                 notes += 'Changes:\n'
                 notes += f'- {title}\n'
 
-                # Base64 encode the notes to avoid GitHub Actions output format issues
-                notes_encoded = base64.b64encode(notes.encode('utf-8')).decode('utf-8')
+                # Write notes directly to a file
+                with open('release_notes.md', 'w') as f:
+                    f.write(notes)
 
                 with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
-                    gh_out.write(f'notes={notes_encoded}\n')
+                    gh_out.write('notes_file=release_notes.md\n')
             else:
+                # Create a fallback release note when PR info is unavailable
+                with open('release_notes.md', 'w') as f:
+                    f.write('Release notes could not be generated - PR information unavailable\n')
+
                 with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
-                    gh_out.write('notes=Release notes could not be generated\n')
+                    gh_out.write('notes_file=release_notes.md\n')
         else:
+            # Create a simple manual release note
+            with open('release_notes.md', 'w') as f:
+                f.write('Manual release\n')
+
             with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
-                gh_out.write('notes=Manual release\n')
+                gh_out.write('notes_file=release_notes.md\n')
         "
 
     - name: Debug outputs
@@ -210,7 +218,13 @@ jobs:
         echo "current_version: ${{ steps.current-version.outputs.current_version }}"
         echo "new_version: ${{ steps.new-version.outputs.new_version }}"
         echo "should_release: ${{ steps.version-check.outputs.should_release }}"
-        echo "notes: ${{ steps.release-notes.outputs.notes }}"
+        echo "notes_file: ${{ steps.release-notes.outputs.notes_file }}"
+
+    - name: Upload release notes
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-notes
+        path: release_notes.md
 
   create-release:
     name: Create GitHub Release
@@ -224,6 +238,12 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Download release notes
+      uses: actions/download-artifact@v4
+      with:
+        name: release-notes
+        path: .
+
     - name: Create Release
       uses: actions/create-release@v1
       env:
@@ -231,7 +251,7 @@ jobs:
       with:
         tag_name: v${{ needs.determine-version.outputs.new_version }}
         release_name: Release v${{ needs.determine-version.outputs.new_version }}
-        body: ${{ base64decode(needs.determine-version.outputs.release_notes) }}
+        body_path: ./release_notes.md
         draft: false
         prerelease: false
 
@@ -250,6 +270,13 @@ jobs:
     if: always()
 
     steps:
+    - name: Download release notes
+      uses: actions/download-artifact@v4
+      with:
+        name: release-notes
+        path: .
+      continue-on-error: true
+
     - name: Release Results Summary
       run: |
         echo "## 🚀 Automated Release Summary" >> $GITHUB_STEP_SUMMARY
@@ -264,7 +291,11 @@ jobs:
         echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 📝 Release Notes" >> $GITHUB_STEP_SUMMARY
-        echo "${{ needs.determine-version.outputs.release_notes }}" | base64 -d >> $GITHUB_STEP_SUMMARY
+        if [ -f "release_notes.md" ]; then
+          cat release_notes.md >> $GITHUB_STEP_SUMMARY
+        else
+          echo "Release notes could not be retrieved - artifact download may have failed" >> $GITHUB_STEP_SUMMARY
+        fi
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 🚀 Next Steps" >> $GITHUB_STEP_SUMMARY
         if [ "${{ needs.create-release.result }}" = "success" ]; then
