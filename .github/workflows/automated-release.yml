@@ -143,7 +143,7 @@ jobs:
         import os
 
         current = '${{ steps.current-version.outputs.current_version }}'
-        version_type = '${{ needs.determine-version.outputs.version_type }}'
+        version_type = '${{ steps.version-check.outputs.version_type }}'
 
         print(f'Debug: current={current}, version_type={version_type}')
 
