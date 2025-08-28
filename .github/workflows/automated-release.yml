@@ -180,13 +180,13 @@ jobs:
                 number = pr.get('number', '')
 
                 notes = f'## Release v${{ steps.new-version.outputs.new_version }}\n\n'
-                notes += f'**PR #{number}**: {title}\n\n'
-                notes += f'**Author**: {author}\n\n'
+                notes += f'PR #{number} - {title}\n\n'
+                notes += f'Author: {author}\n\n'
 
                 if body:
-                    notes += f'**Description**:\n{body}\n\n'
+                    notes += f'Description:\n{body}\n\n'
 
-                notes += '**Changes**:\n'
+                notes += 'Changes:\n'
                 notes += f'- {title}\n'
 
                 with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
