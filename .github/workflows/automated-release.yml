@@ -165,6 +165,7 @@ jobs:
         python -c "
         import os
         import json
+        import base64
 
         # Get PR information
         if os.environ.get('GITHUB_EVENT_NAME') == 'pull_request':
@@ -189,8 +190,11 @@ jobs:
                 notes += 'Changes:\n'
                 notes += f'- {title}\n'
 
+                # Base64 encode the notes to avoid GitHub Actions output format issues
+                notes_encoded = base64.b64encode(notes.encode('utf-8')).decode('utf-8')
+
                 with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
-                    gh_out.write(f'notes={notes}\n')
+                    gh_out.write(f'notes={notes_encoded}\n')
             else:
                 with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
                     gh_out.write('notes=Release notes could not be generated\n')
@@ -227,7 +231,7 @@ jobs:
       with:
         tag_name: v${{ needs.determine-version.outputs.new_version }}
         release_name: Release v${{ needs.determine-version.outputs.new_version }}
-        body: ${{ needs.determine-version.outputs.release_notes }}
+        body: ${{ base64decode(needs.determine-version.outputs.release_notes) }}
         draft: false
         prerelease: false
 
@@ -260,12 +264,12 @@ jobs:
         echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 📝 Release Notes" >> $GITHUB_STEP_SUMMARY
-        echo "${{ needs.determine-version.outputs.release_notes }}" >> $GITHUB_STEP_SUMMARY
+        echo "${{ needs.determine-version.outputs.release_notes }}" | base64 -d >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 🚀 Next Steps" >> $GITHUB_STEP_SUMMARY
         if [ "${{ needs.create-release.result }}" = "success" ]; then
           echo "✅ Release v${{ needs.determine-version.outputs.new_version }} created successfully!" >> $GITHUB_STEP_SUMMARY
           echo "- GitHub release available at: https://github.com/${{ github.repository }}/releases/tag/v${{ needs.determine-version.outputs.new_version }}" >> $GITHUB_STEP_SUMMARY
         else
-          echo "❌ Release creation failed. Please check the logs for errors." >> $GITHUB_STEP_SUMMARY
+                      echo "❌ Release creation failed. Please check the logs for errors." >> $GITHUB_STEP_SUMMARY
         fi
