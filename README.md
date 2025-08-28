@@ -37,7 +37,8 @@ make start      # Start all services (API, Frontend, Database)
 # Access the application
 
   # Frontend dashboard
-open http://localhost:8000/docs  # API documentation
+open http://localhost:5000      # Frontend dashboard
+open http://localhost:8000/docs # API documentation
 ```
 
 ### **Option 2: Cloud Deployment**
