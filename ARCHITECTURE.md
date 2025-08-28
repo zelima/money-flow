@@ -1,25 +1,27 @@
-# 🏗️ Georgian Budget Application Architecture
+# 🏗️ Money Flow - Technical Architecture
 
 ## 📋 **Overview**
 
-The Georgian Budget application is a cloud-native data platform built on Google Cloud Platform (GCP) that automatically processes Georgian government budget data and provides interactive analytics through web interfaces.
+Money Flow is a production-ready, cloud-native web application that demonstrates modern software development practices. It processes Georgian government budget data through an automated pipeline and provides interactive analytics via web interfaces. Built on Google Cloud Platform (GCP) with full Infrastructure as Code (Terraform) and CI/CD automation.
 
 ## 🎯 **Architecture Principles**
 
-- **Serverless-First**: Scale-to-zero compute with Cloud Functions and Cloud Run
-- **Infrastructure as Code**: Complete Terraform-managed infrastructure
-- **CI/CD Automation**: Automated builds and deployments via Cloud Build
-- **Security by Design**: Private networking, IAM, and Secret Manager
-- **Cost-Optimized**: Pay-per-use with automatic scaling
+- **🚀 Serverless-First**: Scale-to-zero compute with Cloud Functions and Cloud Run
+- **🏗️ Infrastructure as Code**: Complete Terraform modules with environment separation
+- **🔄 CI/CD Automation**: Automated builds, tests, and deployments via Cloud Build
+- **🔒 Security by Design**: Private VPC networking, IAM roles, and Secret Manager
+- **💰 Cost-Optimized**: Pay-per-use serverless architecture with efficient resource usage
+- **📊 Observability**: Comprehensive monitoring, logging, and health checks
+- **🧪 Testing**: Unit tests, integration tests, and automated quality checks
 
 ## 🌐 **High-Level Architecture**
 
-The system follows a modern three-tier architecture with data pipeline automation:
+Modern three-tier serverless architecture:
 
-1. **Data Layer**: Cloud Storage + Cloud SQL
-2. **Processing Layer**: Cloud Functions + Cloud Run
-3. **Presentation Layer**: Load Balancer + Web Frontend
-4. **Automation Layer**: Cloud Build + Cloud Scheduler
+1. **📊 Data Layer**: Cloud Storage + Cloud SQL + Cloud Functions (data pipeline)
+2. **⚙️ Application Layer**: Cloud Run (FastAPI backend + Flask frontend)
+3. **🌍 Infrastructure Layer**: Load Balancer + VPC + Secret Manager + CI/CD
+4. **📈 Monitoring Layer**: Cloud Monitoring + Logging + Health Checks
 
 ## 🔄 **Data Flow Diagram**
 
@@ -146,39 +148,44 @@ sequenceDiagram
 
 ## 🛠️ **Technology Stack**
 
-### **Data Processing**
+### **📊 Data Processing Pipeline**
 - **Language**: Python 3.11
-- **Pipeline**: datapackage-pipelines
-- **Runtime**: Cloud Functions (2nd gen)
-- **Triggers**: Cloud Scheduler + Pub/Sub
-- **Storage**: Cloud Storage (regional)
+- **Framework**: `datapackage-pipelines` for data transformation
+- **Runtime**: Cloud Functions (2nd generation)
+- **Scheduling**: Cloud Scheduler (quarterly cron jobs)
+- **Event Handling**: Pub/Sub for trigger messages
+- **Storage**: Cloud Storage (regional, lifecycle policies)
 
-### **Backend API**
-- **Framework**: FastAPI
-- **Runtime**: Cloud Run (serverless)
-- **Database**: Cloud SQL PostgreSQL
-- **Authentication**: Service Account
-- **Storage**: Cloud Storage integration
+### **🔧 Backend API**
+- **Framework**: FastAPI with Pydantic models
+- **Runtime**: Cloud Run (serverless, auto-scaling)
+- **Database**: Cloud SQL PostgreSQL (drill-down analytics)
+- **Data Source**: Cloud Storage (budget CSV/JSON files)
+- **Authentication**: GCP Service Accounts
+- **Documentation**: Auto-generated OpenAPI/Swagger
 
-### **Frontend Application**
-- **Framework**: Flask
+### **🌐 Frontend Application**
+- **Framework**: Flask with Jinja2 templates
 - **Runtime**: Cloud Run (serverless)
 - **UI**: Responsive HTML/CSS/JavaScript
-- **API**: RESTful communication
+- **API Communication**: RESTful HTTP requests
+- **Styling**: Modern CSS with mobile support
 
-### **Infrastructure**
-- **IaC**: Terraform
+### **🏗️ Infrastructure & DevOps**
+- **Infrastructure as Code**: Terraform with modular design
 - **Container Registry**: Artifact Registry
-- **Load Balancing**: Global HTTP(S) Load Balancer
-- **SSL/TLS**: Google-managed certificates
-- **CDN**: Cloud CDN integration
+- **Load Balancing**: Global HTTP(S) Load Balancer + Cloud CDN
+- **SSL/TLS**: Google-managed SSL certificates
+- **CI/CD**: Cloud Build with automated triggers
+- **Development**: Docker Compose for local environment
 
-### **DevOps & Security**
-- **CI/CD**: Cloud Build
-- **Secrets**: Secret Manager
-- **Networking**: Private VPC
-- **IAM**: Service accounts with least privilege
-- **Monitoring**: Cloud Monitoring & Logging
+### **🔒 Security & Monitoring**
+- **Secrets Management**: Google Secret Manager
+- **Networking**: Private VPC with VPC connector
+- **IAM**: Service accounts with least-privilege access
+- **Monitoring**: Cloud Monitoring + Cloud Logging
+- **Health Checks**: Automated uptime monitoring
+- **Cost Management**: Budget alerts and optimization
 
 ## 🔐 **Security Architecture**
 
@@ -405,22 +412,81 @@ Total: $69-148/month
 - Error tracking and logging
 - Budget alerts for cost management
 
-## 🎯 **Future Roadmap**
+## 🔧 **Local Development Architecture**
 
-### **Phase 3: Advanced Features**
-- Real-time budget tracking
-- Advanced analytics dashboard
-- Multi-language support
-- Mobile application
-- API rate limiting
-- Advanced caching strategies
+### **Docker Compose Setup**
+```yaml
+# Development services configuration
+services:
+  postgres:        # PostgreSQL database with test data
+    image: postgres:15
+    ports: 5432:5432
+    volumes: fixtures/init (SQL scripts)
 
-### **Potential Enhancements**
-- BigQuery integration for large-scale analytics
-- Machine learning for budget predictions
-- Integration with other government data sources
-- Advanced visualization capabilities
+  api:             # FastAPI backend
+    build: moneyflow-back/
+    ports: 8000:8000
+    depends_on: postgres
+    environment: DATABASE_URL, CLOUD_STORAGE_BUCKET
+
+  frontend:        # Flask frontend
+    build: moneyflow-front/
+    ports: 5000:5000
+    depends_on: api
+    environment: API_BASE_URL=http://api:8000
+```
+
+### **Development Workflow**
+1. **Local Setup**: `make setup` - installs dependencies and starts database
+2. **Service Start**: `make start` - starts all services via Docker Compose
+3. **Development**: Hot reload enabled for both frontend and backend
+4. **Testing**: `make test` - runs unit and integration tests
+5. **Quality**: `make lint` and `make format` for code quality
+
+### **Data Flow in Development**
+- **Backend**: Connects to local PostgreSQL + GCP Cloud Storage
+- **Frontend**: Connects to local backend API
+- **Database**: Initialized with fixtures/init SQL scripts
+- **Cloud Storage**: Uses service account for GCP authentication
+
+## 🚀 **Production vs Development**
+
+| Aspect | Development (Local) | Production (GCP) |
+|--------|-------------------|------------------|
+| **Backend Runtime** | Docker container | Cloud Run |
+| **Frontend Runtime** | Docker container | Cloud Run |
+| **Database** | Local PostgreSQL | Cloud SQL |
+| **Data Storage** | GCP Cloud Storage | GCP Cloud Storage |
+| **Load Balancer** | Direct ports | Global Load Balancer |
+| **SSL/HTTPS** | HTTP only | HTTPS with SSL certificates |
+| **Monitoring** | Basic logs | Cloud Monitoring + Logging |
+| **Scaling** | Manual | Auto-scaling (0 to N instances) |
+
+## 🎯 **Key Architectural Decisions**
+
+### **Why Serverless?**
+- **Cost Efficiency**: Pay only for actual usage
+- **Auto-scaling**: Handles traffic spikes automatically
+- **Maintenance**: Minimal server management overhead
+- **Reliability**: Built-in high availability
+
+### **Why Terraform Modules?**
+- **Reusability**: Same modules for staging/production
+- **Maintainability**: Clear separation of concerns
+- **Version Control**: Infrastructure changes tracked in Git
+- **Collaboration**: Team-friendly infrastructure management
+
+### **Why FastAPI + Flask?**
+- **FastAPI**: Best-in-class API performance with automatic docs
+- **Flask**: Simple, lightweight frontend perfect for this use case
+- **Python**: Single language across the entire stack
+- **Ecosystem**: Rich libraries for data processing
+
+### **Why PostgreSQL + Cloud Storage?**
+- **PostgreSQL**: ACID compliance for drill-down analytics
+- **Cloud Storage**: Cost-effective for large budget data files
+- **Hybrid Approach**: Best of both structured and unstructured data
 
 ---
 
-**🏗️ This architecture provides a robust, scalable, and cost-effective platform for Georgian budget data analysis with modern cloud-native practices.**
+**🏗️ This architecture demonstrates production-ready software engineering practices with modern cloud-native technologies, showcasing skills in full-stack development, infrastructure automation, and DevOps best practices.**
