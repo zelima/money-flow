@@ -251,7 +251,7 @@ jobs:
       with:
         tag_name: v${{ needs.determine-version.outputs.new_version }}
         release_name: Release v${{ needs.determine-version.outputs.new_version }}
-        body_path: release_notes.md
+        body_path: ./release_notes.md
         draft: false
         prerelease: false
 
