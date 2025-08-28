@@ -196,6 +196,10 @@ jobs:
                 with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
                     gh_out.write('notes_file=release_notes.md\n')
             else:
+                # Create a fallback release note when PR info is unavailable
+                with open('release_notes.md', 'w') as f:
+                    f.write('Release notes could not be generated - PR information unavailable\n')
+
                 with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_out:
                     gh_out.write('notes_file=release_notes.md\n')
         else:
@@ -271,6 +275,7 @@ jobs:
       with:
         name: release-notes
         path: .
+      continue-on-error: true
 
     - name: Release Results Summary
       run: |
@@ -286,7 +291,11 @@ jobs:
         echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 📝 Release Notes" >> $GITHUB_STEP_SUMMARY
-        cat release_notes.md >> $GITHUB_STEP_SUMMARY
+        if [ -f "release_notes.md" ]; then
+          cat release_notes.md >> $GITHUB_STEP_SUMMARY
+        else
+          echo "Release notes could not be retrieved - artifact download may have failed" >> $GITHUB_STEP_SUMMARY
+        fi
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 🚀 Next Steps" >> $GITHUB_STEP_SUMMARY
         if [ "${{ needs.create-release.result }}" = "success" ]; then
