@@ -264,7 +264,7 @@ jobs:
         echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 📝 Release Notes" >> $GITHUB_STEP_SUMMARY
-        echo "${{ base64decode(needs.determine-version.outputs.release_notes) }}" >> $GITHUB_STEP_SUMMARY
+        echo "${{ needs.determine-version.outputs.release_notes }}" | base64 -d >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### 🚀 Next Steps" >> $GITHUB_STEP_SUMMARY
         if [ "${{ needs.create-release.result }}" = "success" ]; then
