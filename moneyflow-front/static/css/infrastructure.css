@@ -908,7 +908,7 @@ section h2 i {
 }
 
 .postgres-half:last-child {
-    height: 101px;
+    height: 100px;
 }
 
 .postgres-half .flow-icon {
@@ -1422,5 +1422,231 @@ section h2 i {
 
     .navbar {
         margin: -5px -5px 20px -5px;
+    }
+}
+
+/* CI/CD Section Styles */
+.cicd-section {
+    margin: 4rem 0;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.cicd-section h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #45b089;
+    font-size: 2.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.cicd-section h2 i {
+    color: #ff6b35;
+}
+
+.cicd-container {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+/* CI/CD Flow Overview */
+.cicd-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    max-width: 100%;
+}
+
+.cicd-flow .flow-step {
+    background: linear-gradient(135deg, #45b089 0%, #2d7d5a 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    text-align: center;
+    min-width: 160px;
+    max-width: 200px;
+    flex: 1;
+    box-shadow: 0 4px 15px rgba(69, 176, 137, 0.3);
+    transition: all 0.3s ease;
+}
+
+.cicd-flow .flow-step:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(69, 176, 137, 0.4);
+}
+
+.cicd-flow .flow-step h4 {
+    margin: 0.5rem 0;
+    font-size: 1.1rem;
+}
+
+.cicd-flow .flow-step p {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.cicd-flow .flow-arrow {
+    color: #45b089;
+    font-size: 1.5rem;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+/* CI/CD Components Grid */
+.cicd-components-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.cicd-component-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(69, 176, 137, 0.1);
+}
+
+.cicd-component-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    border-color: rgba(69, 176, 137, 0.3);
+}
+
+.cicd-component-card .component-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #45b089 0%, #2d7d5a 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.cicd-component-card h3 {
+    color: #333;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+.cicd-component-card .component-description {
+    color: #666;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.cicd-component-card .component-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.cicd-component-card .detail-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.cicd-component-card .detail-item i {
+    color: #45b089;
+    width: 16px;
+}
+
+/* CI/CD Mermaid Container */
+.cicd-mermaid-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(69, 176, 137, 0.1);
+}
+
+.cicd-mermaid-container .mermaid {
+    text-align: center;
+    overflow-x: auto;
+}
+
+/* Responsive Design for CI/CD Section */
+@media (max-width: 768px) {
+    .cicd-section {
+        padding: 1.5rem;
+        margin: 2rem 0;
+    }
+
+    .cicd-section h2 {
+        font-size: 1.8rem;
+    }
+
+    .cicd-flow {
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: stretch;
+    }
+
+    .cicd-flow .flow-step {
+        min-width: 200px;
+        max-width: none;
+        flex: none;
+    }
+
+    .cicd-flow .flow-arrow {
+        transform: rotate(90deg);
+    }
+
+    .cicd-components-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .cicd-component-card {
+        padding: 1.5rem;
+    }
+
+    .cicd-mermaid-container {
+        padding: 1rem;
+        overflow-x: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .cicd-section {
+        padding: 1rem;
+        margin: 1.5rem 0;
+    }
+
+    .cicd-section h2 {
+        font-size: 1.5rem;
+    }
+
+    .cicd-flow .flow-step {
+        min-width: 160px;
+        padding: 1rem;
+    }
+
+    .cicd-component-card {
+        padding: 1rem;
+    }
+
+    .cicd-component-card .component-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
     }
 }
