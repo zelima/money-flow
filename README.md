@@ -1,87 +1,62 @@
-# Budget Data Pipeline
+# Money Flow - Georgian Budget Analysis Platform
 
-A comprehensive data-driven web application for analyzing government budget data from 2002-2020, now fully deployed on Google Cloud Platform (GCP).
+A modern cloud-native web application for analyzing Georgian government budget data, showcasing production-ready infrastructure and development skills. Built with FastAPI, Flask, PostgreSQL, and deployed on Google Cloud Platform (GCP).
+
+## 🎯 **Project Overview**
+
+This project demonstrates:
+- **Full-Stack Development**: FastAPI backend + Flask frontend
+- **Cloud-Native Architecture**: Serverless deployment on GCP
+- **DevOps & Infrastructure**: Terraform IaC + Docker + CI/CD
+- **Data Engineering**: Automated data pipeline processing Georgian government data
+- **Production-Ready Code**: Testing, monitoring, and scalable design
 
 ## 🏗️ **Architecture Overview**
 
-The system follows a modern three-tier architecture with data pipeline automation:
+Three-tier architecture with automated data processing:
 
-- **Data Layer**: Cloud Storage + Cloud SQL (PostgreSQL)
-- **Processing Layer**: Cloud Functions + Cloud Run (FastAPI/Flask)
-- **Presentation Layer**: Global Load Balancer + CDN
-- **Automation Layer**: Cloud Build + Cloud Scheduler
+- **Data Layer**: Cloud Storage + Cloud SQL (PostgreSQL) + Cloud Functions
+- **Application Layer**: Cloud Run (FastAPI backend + Flask frontend)
+- **Infrastructure Layer**: Load Balancer + VPC + Secret Manager + CI/CD
+- **Monitoring Layer**: Cloud Monitoring + Logging + Health Checks
 
 For detailed technical architecture, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
-## 📊 **Features**
-
-### **Data Processing**
-- **Automated Pipeline**: Quarterly data updates via Cloud Functions
-- **Georgian Language Support**: Full translation and processing
-- **Data Validation**: Automated quality checks and error handling
-- **Storage**: Cloud Storage with versioning and lifecycle management
-
-### **Backend API (FastAPI)**
-- **RESTful Endpoints**: Complete budget data API
-- **Real-time Data**: Live data from Cloud Storage
-- **PostgreSQL Integration**: Drill-down analytics database
-- **Health Monitoring**: Built-in health checks and monitoring
-- **Auto-scaling**: Cloud Run with scale-to-zero
-
-### **Frontend Dashboard (Flask)**
-- **Interactive Charts**: Budget trends and department analysis
-- **Responsive Design**: Mobile-friendly web interface
-- **Real-time Updates**: Live data from backend API
-- **Search & Filter**: Advanced data exploration tools
-
-### **Infrastructure**
-- **Serverless**: Cloud Run with automatic scaling
-- **Security**: Private VPC, IAM, and encrypted communications
-- **Monitoring**: Cloud Monitoring, logging, and alerting
-- **CI/CD**: Automated deployment via Cloud Build
-- **CDN**: Global content delivery optimization
-
-## 💰 **Cost Optimization**
-
-### **Monthly Costs**
-- **Phase 1**: $6-20/month (Data Pipeline)
-- **Phase 2**: $63-128/month (Full Application)
-- **Total**: $69-148/month (well within $300 budget)
-
-### **Cost-Saving Features**
-- **Scale-to-Zero**: Cloud Run scales down when not in use
-- **Efficient Storage**: Cloud Storage with lifecycle policies
-- **Shared Load Balancer**: Single load balancer for all services
-- **CDN Caching**: Reduces data transfer costs
-
 ## 🚀 **Quick Start**
 
-### **1. Access the Application**
+### **Option 1: Local Development**
 ```bash
-# Get the load balancer URL
-cd money-flow/terraform
-terraform output load_balancer_url
+# Clone and setup
+git clone https://github.com/zelima/money-flow
+cd money-flow
 
-# Access your application
-open http://LOAD_BALANCER_IP
+# Start all services with Docker Compose
+make setup      # Install dependencies and start database
+make start      # Start all services (API, Frontend, Database)
+
+# Access the application
+
+  # Frontend dashboard
+open http://localhost:8000/docs  # API documentation
 ```
 
-### **2. API Documentation**
+### **Option 2: Cloud Deployment**
 ```bash
-# Backend API docs
-open https://BACKEND_URL/docs
+# Deploy infrastructure with Terraform
+cd terraform/environments/prod
+terraform init
+terraform plan
+terraform apply
 
-# Health check
-curl https://BACKEND_URL/health
+# Applications deploy automatically via Cloud Build
+# Access via load balancer IP from terraform output
 ```
 
-### **3. Data Pipeline**
-```bash
-# Manual trigger
-curl -X POST https://FUNCTION_URL \
-  -H 'Content-Type: application/json' \
-  -d '{"trigger_type": "manual"}'
-```
+### **🔗 Key URLs (Local Development)**
+- **Frontend Dashboard**: http://localhost:5000
+- **API Documentation**: http://localhost:8000/docs
+- **API Health Check**: http://localhost:8000/health
+- **Database**: localhost:5432 (PostgreSQL)
 
 ## 🚀 **Automated Releases**
 
@@ -110,144 +85,160 @@ docs: Update API documentation
 3. Select version type (major/minor/patch)
 4. Run the workflow
 
-## 🔧 **Development**
+## 🔧 **Development Guide**
+
+### **Prerequisites**
+- Docker and Docker Compose
+- Make (for development commands)
+- Python 3.11+ (for local development)
+- GCP account (for cloud deployment)
+- Terraform (for infrastructure)
+
+### **Local Development**
 ```bash
-# Setup development environment
-make setup
+# Start development environment
+make setup              # Install dependencies and setup database
+make start              # Start all services
+make dev                # Start with hot reload
 
-# Start all services (database, API, frontend)
-make start
+# Individual services
+make api-only           # Database + API only
+make frontend-only      # Frontend only
+make db-start           # Database only
 
-# Start only specific services
-make api-only          # Start database + API only
-make frontend-only     # Start frontend only
-make db-start          # Start database only
-
-# Development mode with hot reload
-make dev
-
-# View logs
-make logs              # All services
-make logs-api          # API only
-make logs-frontend     # Frontend only
-
-# Stop services
-make stop
-make restart
+# Useful commands
+make logs               # View all service logs
+make health             # Check service health
+make test               # Run all tests
+make lint               # Code quality checks
+make clean              # Clean up containers
 ```
 
-### **Available Make Commands**
+### **Available Services**
+- **PostgreSQL Database**: localhost:5432
+- **FastAPI Backend**: localhost:8000
+- **Flask Frontend**: localhost:5000
+
+### **Testing**
 ```bash
-make help              # Show all available commands
-make install           # Install all dependencies
-make test              # Run tests
-make lint              # Code linting
-make format            # Code formatting
-make clean             # Clean up containers
-make health            # Check service health
+make test               # Run all tests
+make test-api           # Backend tests only
+make test-web-app       # Frontend tests only
+make test-integration   # Integration tests
 ```
 
-### **Running Tests**
+### **Code Quality**
 ```bash
-# Run all tests
-make test
-
-# Run specific test suites
-cd moneyflow-back && python -m pytest
-cd moneyflow-front && python -m pytest
-```
-
-### **Cloud Deployment**
-```bash
-# Deploy infrastructure
-cd money-flow/terraform
-terraform init
-terraform plan
-terraform apply
-
-# Deploy applications (automatic via Cloud Build)
-git push origin main
+make lint               # Run linting
+make format             # Format code with black
 ```
 
 ## 📁 **Project Structure**
 
 ```
 money-flow/
-├── moneyflow-back/         # Backend API (FastAPI)
-│   ├── main.py            # API endpoints
-│   ├── models.py          # Data models
-│   ├── database.py        # Database connection
-│   └── requirements.txt   # Python dependencies
-├── moneyflow-front/        # Frontend Dashboard (Flask)
-│   ├── app.py             # Web application
-│   ├── templates/         # HTML templates
-│   ├── web_app_tests/     # Frontend and integration tests
-│   └── requirements.txt   # Python dependencies
-├── moneyflow-functions/    # Cloud Functions
-│   ├── cloud_function_main.py  # Main function
-│   └── data-pipeline/     # Data processing pipeline
-├── terraform/             # Infrastructure as Code
-│   ├── environments/      # Environment-specific configs
-│   └── modules/           # Reusable Terraform modules
-├── fixtures/              # Database schema and seed data
-│   └── init/              # SQL initialization scripts
-├── ARCHITECTURE.md        # Detailed technical architecture
-├── Makefile               # Development and deployment commands
-└── docker-compose.yml     # Local development setup
+├── 🔧 moneyflow-back/           # FastAPI Backend
+│   ├── main.py                  # API endpoints & business logic
+│   ├── models.py                # Pydantic data models
+│   ├── database.py              # PostgreSQL connection & queries
+│   ├── requirements.txt         # Python dependencies
+│   └── tests/                   # Backend tests
+├── 🌐 moneyflow-front/          # Flask Frontend
+│   ├── app.py                   # Web application & routes
+│   ├── templates/               # HTML templates
+│   ├── static/                  # CSS & JavaScript
+│   ├── web_app_tests/           # Frontend tests
+│   └── requirements.txt         # Python dependencies
+├── ☁️ moneyflow-functions/       # Cloud Functions
+│   ├── cloud_function_main.py   # Data pipeline function
+│   ├── data-pipeline/           # datapackage-pipelines config
+│   └── requirements.txt         # Function dependencies
+├── 🏗️ terraform/                # Infrastructure as Code
+│   ├── environments/            # Environment configs (prod/staging)
+│   └── modules/                 # Reusable Terraform modules
+│       ├── networking/          # VPC, load balancer, DNS
+│       ├── compute/             # Cloud Run, Cloud Functions
+│       ├── database/            # Cloud SQL PostgreSQL
+│       ├── storage/             # Cloud Storage buckets
+│       ├── security/            # IAM, Secret Manager
+│       ├── monitoring/          # Cloud Monitoring, alerts
+│       └── ci-cd/               # Cloud Build triggers
+├── 🗄️ fixtures/                 # Database initialization
+│   └── init/                    # SQL schema & seed data
+├── 📋 docker-compose.yml        # Local development environment
+├── 📝 Makefile                  # Development commands
+└── 📖 ARCHITECTURE.md           # Technical architecture docs
 ```
 
 ## 🌐 **API Endpoints**
 
-### **Core Budget Data**
-- `GET /budget` - Get budget data with filters
-- `GET /summary` - Overall budget summary
-- `GET /departments` - List all departments
-- `GET /trends/{department}` - Department budget trends
-- `GET /years/{year}` - Year-specific summary
+### **📊 Budget Data**
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/budget` | GET | Get budget data with optional filters (year, department, limit) |
+| `/summary` | GET | Overall budget statistics and data summary |
+| `/departments` | GET | List all available departments |
+| `/trends/{department}` | GET | Budget trends over time for specific department |
+| `/years/{year}` | GET | Budget summary for specific year |
+| `/search?q={query}` | GET | Search departments by name |
 
-### **Advanced Analytics**
-- `GET /drill-down/{department}` - Sub-department breakdown
-- `GET /drill-down/analysis/{department}/{year}` - Detailed analysis
-- `GET /search` - Search departments by name
+### **🔍 Advanced Analytics (PostgreSQL)**
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/drill-down/{department}` | GET | Sub-department breakdown with allocation percentages |
+| `/drill-down/analysis/{department}/{year}` | GET | Detailed budget allocation analysis |
+| `/drill-down/explore` | GET | Explore drill-down data across departments |
 
-### **System Health**
-- `GET /health` - Health check and status
-- `GET /docs` - Interactive API documentation
+### **⚡ System**
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Health check and system status |
+| `/docs` | GET | Interactive API documentation (Swagger UI) |
+| `/` | GET | API information and available endpoints |
 
-## 🔒 **Security & Compliance**
+## 💡 **Technical Highlights**
 
-- **Private Networking**: VPC with restricted access
-- **IAM Security**: Service accounts with minimal permissions
-- **Data Encryption**: Encrypted in transit and at rest
-- **Audit Logging**: Comprehensive access and change logs
-- **Health Monitoring**: Continuous health checks and alerting
+### **🏗️ Infrastructure as Code**
+- **Terraform Modules**: Modular, reusable infrastructure components
+- **Multi-Environment**: Separate staging and production environments
+- **Auto-scaling**: Cloud Run scales from 0 to multiple instances
+- **Cost-Optimized**: Pay-per-use serverless architecture
 
-## 📈 **Monitoring & Observability**
+### **🔒 Security & Best Practices**
+- **Private VPC**: Isolated network with restricted access
+- **IAM Roles**: Least-privilege service accounts
+- **Secret Management**: Google Secret Manager for credentials
+- **HTTPS Only**: SSL certificates and encrypted communication
+- **Data Encryption**: Encrypted at rest and in transit
 
-- **Cloud Monitoring**: Performance metrics and dashboards
-- **Cloud Logging**: Centralized logging and analysis
-- **Health Checks**: Automatic health monitoring
-- **Error Tracking**: Real-time error detection and alerting
-- **Cost Monitoring**: Budget alerts and optimization
+### **📊 Data Engineering**
+- **Pipeline Automation**: Cloud Functions with Cloud Scheduler triggers
+- **Data Processing**: `datapackage-pipelines` framework
+- **Storage Strategy**: Cloud Storage with lifecycle policies
+- **Database Design**: PostgreSQL with proper indexing
 
+### **⚡ Performance & Monitoring**
+- **Health Checks**: Automatic service monitoring
+- **Logging**: Centralized Cloud Logging
+- **Metrics**: Cloud Monitoring with custom dashboards
+- **Error Tracking**: Real-time error detection
+- **Uptime Monitoring**: Continuous availability checks
 
+## 🎯 **Technology Stack**
 
-## 🎯 **TODO**
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| **Backend API** | FastAPI + Python 3.11 | RESTful API with automatic docs |
+| **Frontend** | Flask + HTML/CSS/JS | Web dashboard and visualization |
+| **Database** | PostgreSQL | Sub-department analytics data |
+| **Data Storage** | Google Cloud Storage | Budget data files (CSV/JSON) |
+| **Data Pipeline** | Cloud Functions + datapackage-pipelines | Automated data processing |
+| **Infrastructure** | Terraform | Infrastructure as Code |
+| **Containerization** | Docker + Cloud Run | Serverless container deployment |
+| **CI/CD** | Cloud Build | Automated testing and deployment |
+| **Monitoring** | Cloud Monitoring + Logging | Observability and alerting |
+| **Security** | VPC + IAM + Secret Manager | Security and access control |
 
-1. **Performance Optimization**: Auto-scaling, caching, database optimization
-2. **Advanced Monitoring**: Custom dashboards, alerting, log analysis
-3. **Security Hardening**: VPC controls, secret management, security scanning
+---
 
-
-
-## 🤝 **Contributing**
-
-This project is designed for government budget transparency and analysis. Contributions are welcome for:
-- Data quality improvements
-- Additional analytics features
-- Performance optimizations
-- Documentation enhancements
-
-## 📄 **License**
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+**💼 Built for showcasing production-ready development skills including full-stack development, cloud architecture, DevOps practices, and data engineering.**
