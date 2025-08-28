@@ -233,7 +233,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: release-notes
-        path: ./release_notes.md
+        path: release_notes.md
 
   create-release:
     name: Create GitHub Release
