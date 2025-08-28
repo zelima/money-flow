@@ -1,0 +1,75 @@
+steps:
+  # Install Terraform
+  - name: 'hashicorp/terraform:1.13.0'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        # Determine environment based on branch or substitution
+        if [ "$_ENVIRONMENT" = "production" ]; then
+          WORKING_DIR="terraform/environments/prod"
+          echo "🚀 Deploying to PRODUCTION environment"
+        else
+          WORKING_DIR="terraform/environments/staging"
+          echo "🧪 Deploying to STAGING environment"
+        fi
+
+        echo "Working directory: $WORKING_DIR"
+
+        # Initialize Terraform
+        cd $WORKING_DIR
+        terraform init
+
+        # Format check
+        terraform fmt -check
+
+        # Validate
+        terraform validate
+
+        # Plan
+        terraform plan -out=tfplan
+
+        # Apply (staging auto-approves, production requires approval)
+        if [ "$_ENVIRONMENT" = "production" ]; then
+          echo "⚠️  Production deployment - applying changes..."
+          terraform apply tfplan
+        else
+          echo "✅ Staging deployment - applying changes automatically..."
+          terraform apply -auto-approve tfplan
+        fi
+
+        echo "🎉 Terraform deployment completed for $_ENVIRONMENT environment"
+
+  # Optional: Add notification step
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "📧 Deployment notification would go here"
+        echo "Environment: $_ENVIRONMENT"
+        echo "Build ID: $BUILD_ID"
+        echo "Commit: $COMMIT_SHA"
+
+# Environment variables
+env:
+  - 'TF_VAR_project_id=$PROJECT_ID'
+  - 'TF_VAR_region=$_REGION'
+  - 'TF_VAR_zone=$_ZONE'
+  - 'TF_VAR_domain_name=$_DOMAIN_NAME'
+
+# Substitutions (these will be set by the trigger)
+substitutions:
+  _ENVIRONMENT: 'staging'  # Default to staging
+  _REGION: 'europe-west1'
+  _ZONE: 'europe-west1-b'
+  _DOMAIN_NAME: ''
+
+# Options
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'  # Use high CPU for Terraform operations
+  diskSizeGb: '50'  # Ensure enough disk space for Terraform state
+
+# Timeout
+timeout: '1800s'  # 30 minutes should be enough for most Terraform operations
