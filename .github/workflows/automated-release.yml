@@ -120,8 +120,17 @@ jobs:
     - name: Get current version
       id: current-version
       run: |
-        # Try to get version from git tags
-        latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.1.0")
+        # Fetch all tags to ensure we have the latest
+        git fetch --tags --force
+
+        # Get the latest version tag (tags starting with 'v' followed by numbers)
+        latest_tag=$(git tag --list "v*" --sort=-version:refname | head -n1)
+
+        # Fallback if no version tags found
+        if [ -z "$latest_tag" ]; then
+          latest_tag="v0.1.0"
+        fi
+
         echo "Debug: Found tag: ${latest_tag}"
         echo "current_version=${latest_tag#v}" >> $GITHUB_OUTPUT
         echo "Current version: ${latest_tag#v}"
@@ -251,7 +260,7 @@ jobs:
       with:
         tag_name: v${{ needs.determine-version.outputs.new_version }}
         release_name: Release v${{ needs.determine-version.outputs.new_version }}
-        body_path: ./release_notes.md
+        body_path: release_notes.md
         draft: false
         prerelease: false
 
